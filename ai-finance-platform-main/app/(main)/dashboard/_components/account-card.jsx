@@ -72,16 +72,16 @@ export function AccountCard({ account }) {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white/70">
                     {type} ACCOUNT
                   </p>
                   {isDefault && (
                     <div className="bg-white/20 backdrop-blur-md p-1 rounded-md">
-                      <Star size={10} className="fill-white text-white" />
+                      <Star size={10} className="fill-white text-slate-900 dark:text-white" />
                     </div>
                   )}
                 </div>
-                <h3 className="text-xl font-black text-white tracking-tight leading-tight">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
                   {name}
                 </h3>
               </div>
@@ -99,9 +99,9 @@ export function AccountCard({ account }) {
           <div className="relative z-10 mt-auto">
             {/* Balance Section */}
             <div className="mb-4">
-              <p className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mb-1">Current Balance</p>
-              <div className="text-4xl font-black text-white tracking-tighter flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-white/50">₹</span>
+              <p className="text-[10px] font-bold text-slate-900 dark:text-white/60 uppercase tracking-[0.2em] mb-1">Current Balance</p>
+              <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-baseline gap-1">
+                <span className="text-2xl font-bold text-slate-900 dark:text-white/50">₹</span>
                 {parseFloat(balance).toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -114,16 +114,16 @@ export function AccountCard({ account }) {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center">
-                    {type === "EXPENSE" ? <ArrowDownRight className="h-4 w-4 text-white" /> : <ArrowUpRight className="h-4 w-4 text-white" />}
+                    {type === "EXPENSE" ? <ArrowDownRight className="h-4 w-4 text-slate-900 dark:text-white" /> : <ArrowUpRight className="h-4 w-4 text-slate-900 dark:text-white" />}
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-white/50 uppercase tracking-widest leading-none">Growth</p>
-                    <p className="text-[10px] font-black text-white leading-none mt-1">Active</p>
+                    <p className="text-[9px] font-black text-slate-900 dark:text-white/50 uppercase tracking-widest leading-none">Growth</p>
+                    <p className="text-[10px] font-black text-slate-900 dark:text-white leading-none mt-1">Active</p>
                   </div>
                 </div>
               </div>
               <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-white/80" />
+                <CreditCard className="h-5 w-5 text-slate-900 dark:text-white/80" />
               </div>
             </div>
           </div>

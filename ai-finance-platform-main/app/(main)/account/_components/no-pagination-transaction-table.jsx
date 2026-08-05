@@ -333,7 +333,7 @@ export function NoPaginationTransactionTable({ transactions }) {
                       style={{
                         background: categoryColors[transaction.category],
                       }}
-                      className="px-2 py-1 rounded text-white text-sm"
+                      className="px-2 py-1 rounded text-slate-900 dark:text-white text-sm"
                     >
                       {transaction.category}
                     </span>

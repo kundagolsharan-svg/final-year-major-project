@@ -30,10 +30,10 @@ export function FinancialHealthScore({ scoreData }) {
   }
 
   return (
-    <Card className="overflow-hidden border-none shadow-2xl bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] group transition-all duration-500">
+    <Card className="overflow-hidden border-none shadow-2xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] group transition-all duration-500">
       <CardHeader className={`bg-gradient-to-br ${bgColor} pb-8 px-8 pt-8`}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-xl font-black text-white">
+          <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-white">
             <TrendingUp className="h-6 w-6 text-[#3B82F6]" />
             Health Pulse
           </CardTitle>
@@ -41,7 +41,7 @@ export function FinancialHealthScore({ scoreData }) {
             <Icon className={`h-6 w-6 ${textColor}`} />
           </div>
         </div>
-        <CardDescription className="text-slate-400 pt-3 font-bold uppercase tracking-widest text-[10px]">
+        <CardDescription className="text-slate-500 dark:text-slate-400 pt-3 font-bold uppercase tracking-widest text-[10px]">
           AI Financial Diagnostics
         </CardDescription>
       </CardHeader>
@@ -61,7 +61,7 @@ export function FinancialHealthScore({ scoreData }) {
           </div>
         </div>
         
-        <div className="relative h-4 w-full bg-slate-900 rounded-full overflow-hidden mb-8 border border-white/5">
+        <div className="relative h-4 w-full bg-slate-900 rounded-full overflow-hidden mb-8 border border-slate-200 dark:border-white/5">
            <div 
              className={cn("absolute inset-y-0 left-0 transition-all duration-1000 ease-out rounded-full shadow-lg", 
                score >= 70 ? "bg-[#22C55E]" : score >= 40 ? "bg-[#F59E0B]" : "bg-[#EF4444]")}
@@ -70,14 +70,14 @@ export function FinancialHealthScore({ scoreData }) {
         </div>
         
         {metrics && (
-          <div className="grid grid-cols-2 gap-6 text-xs font-bold border-t border-slate-800 pt-6">
-            <div className="bg-[#111827] p-4 rounded-2xl border border-slate-800">
+          <div className="grid grid-cols-2 gap-6 text-xs font-bold border-t border-slate-200 dark:border-slate-800 pt-6">
+            <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
               <span className="block text-slate-500 uppercase tracking-widest text-[9px] mb-1">Income</span>
-              <span className="text-white text-sm font-black">₹{metrics.income.toLocaleString()}</span>
+              <span className="text-slate-900 dark:text-white text-sm font-black">₹{metrics.income.toLocaleString()}</span>
             </div>
-            <div className="bg-[#111827] p-4 rounded-2xl border border-slate-800">
+            <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
               <span className="block text-slate-500 uppercase tracking-widest text-[9px] mb-1">Expenses</span>
-              <span className="text-white text-sm font-black">₹{metrics.expenses.toLocaleString()}</span>
+              <span className="text-slate-900 dark:text-white text-sm font-black">₹{metrics.expenses.toLocaleString()}</span>
             </div>
           </div>
         )}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Landmark, Sparkles, ArrowRight } from "lucide-react";
 import useFetch from "@/hooks/use-fetch";
 import { toast } from "sonner";
 
@@ -27,6 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { createAccount } from "@/actions/dashboard";
 import { accountSchema } from "@/app/lib/schema";
+import { ConnectBankModal } from "@/components/connect-bank-modal";
 
 export function CreateAccountDrawer({ children }) {
   const [open, setOpen] = useState(false);
@@ -75,33 +76,72 @@ export function CreateAccountDrawer({ children }) {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="max-w-xl mx-auto rounded-t-3xl">
         <DrawerHeader>
-          <DrawerTitle>Create New Account</DrawerTitle>
+          <DrawerTitle className="text-xl font-black flex items-center gap-2">
+            Create or Link Account
+          </DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-6 space-y-5">
+          {/* Account Aggregator Quick Banner */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white space-y-2 shadow-lg shadow-indigo-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Landmark size={18} />
+                <span className="text-xs font-black uppercase tracking-wider">
+                  RBI Account Aggregator (AA) Sync
+                </span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
+                AUTO-SYNC
+              </span>
+            </div>
+            <p className="text-xs text-indigo-100 leading-relaxed">
+              Link your HDFC, SBI, ICICI, Axis or Kotak accounts by mobile number to automatically fetch accounts & transactions.
+            </p>
+            <div className="pt-1">
+              <ConnectBankModal>
+                <Button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="w-full h-9 rounded-xl bg-white text-indigo-700 hover:bg-slate-100 font-extrabold text-xs shadow-sm cursor-pointer"
+                >
+                  Link via Mobile Number (AA Gateway) <ArrowRight size={14} className="ml-1" />
+                </Button>
+              </ConnectBankModal>
+            </div>
+          </div>
+
+          <div className="relative flex items-center justify-center my-2">
+            <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+            <span className="bg-white dark:bg-[#0F172A] px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest absolute">
+              or create manual account
+            </span>
+          </div>
+
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <label
                 htmlFor="name"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-xs font-bold text-slate-700 dark:text-slate-300"
               >
                 Account Name
               </label>
               <Input
                 id="name"
-                placeholder="e.g., Main Checking"
+                placeholder="e.g. HDFC Salary Account"
+                className="rounded-xl border-slate-200 dark:border-slate-800"
                 {...register("name")}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="text-xs text-rose-500 font-semibold">{errors.name.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="type"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-xs font-bold text-slate-700 dark:text-slate-300"
               >
                 Account Type
               </label>
@@ -109,7 +149,7 @@ export function CreateAccountDrawer({ children }) {
                 onValueChange={(value) => setValue("type", value)}
                 defaultValue={watch("type")}
               >
-                <SelectTrigger id="type">
+                <SelectTrigger id="type" className="rounded-xl border-slate-200 dark:border-slate-800">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -118,39 +158,40 @@ export function CreateAccountDrawer({ children }) {
                 </SelectContent>
               </Select>
               {errors.type && (
-                <p className="text-sm text-red-500">{errors.type.message}</p>
+                <p className="text-xs text-rose-500 font-semibold">{errors.type.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="balance"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-xs font-bold text-slate-700 dark:text-slate-300"
               >
-                Initial Balance
+                Initial Balance (₹)
               </label>
               <Input
                 id="balance"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
+                className="rounded-xl border-slate-200 dark:border-slate-800"
                 {...register("balance")}
               />
               {errors.balance && (
-                <p className="text-sm text-red-500">{errors.balance.message}</p>
+                <p className="text-xs text-rose-500 font-semibold">{errors.balance.message}</p>
               )}
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 dark:border-slate-800 p-3 bg-slate-50 dark:bg-slate-900/50">
               <div className="space-y-0.5">
                 <label
                   htmlFor="isDefault"
-                  className="text-base font-medium cursor-pointer"
+                  className="text-xs font-bold text-slate-900 dark:text-white cursor-pointer"
                 >
-                  Set as Default
+                  Set as Default Account
                 </label>
-                <p className="text-sm text-muted-foreground">
-                  This account will be selected by default for transactions
+                <p className="text-[11px] text-slate-500">
+                  This account will be selected by default for new transactions
                 </p>
               </div>
               <Switch
@@ -160,15 +201,15 @@ export function CreateAccountDrawer({ children }) {
               />
             </div>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-3 pt-2">
               <DrawerClose asChild>
-                <Button type="button" variant="outline" className="flex-1">
+                <Button type="button" variant="outline" className="flex-1 rounded-xl">
                   Cancel
                 </Button>
               </DrawerClose>
               <Button
                 type="submit"
-                className="flex-1"
+                className="flex-1 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold"
                 disabled={createAccountLoading}
               >
                 {createAccountLoading ? (

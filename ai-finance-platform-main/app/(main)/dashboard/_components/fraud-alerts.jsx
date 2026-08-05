@@ -77,15 +77,15 @@ export function FraudAlerts({ transactions }) {
   }, [transactions]);
 
   return (
-    <div className="bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+    <div className="bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-rose-500/10 rounded-xl text-rose-500 border border-rose-500/20">
             <ShieldAlert size={20} className="animate-pulse" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-white">Security Shield</h3>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">AI Fraud Detection & Alerts</p>
+            <h3 className="text-lg font-black text-slate-900 dark:text-white">Security Shield</h3>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">AI Fraud Detection & Alerts</p>
           </div>
         </div>
         <span className={cn(
@@ -121,7 +121,7 @@ export function FraudAlerts({ transactions }) {
             
             <div className="flex-1 space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-wide text-white">
+                <span className="text-xs font-black uppercase tracking-wide text-slate-900 dark:text-white">
                   {alert.title}
                 </span>
                 <span className={cn(
@@ -131,7 +131,7 @@ export function FraudAlerts({ transactions }) {
                   {alert.badge}
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed font-semibold">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
                 {alert.message}
               </p>
             </div>
@@ -139,7 +139,7 @@ export function FraudAlerts({ transactions }) {
         ))}
       </div>
 
-      <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-slate-400">
+      <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
         <span className="flex items-center gap-1.5">
           <ShieldCheck size={14} className="text-emerald-500" />
           Shield Active (Ollama AI)

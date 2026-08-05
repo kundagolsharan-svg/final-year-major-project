@@ -106,11 +106,11 @@ export function KPICards({ accounts, transactions }) {
           )}
         >
           {/* Card Glass Layer */}
-          <div className="absolute inset-0 bg-[#1E293B]/60 -z-10" />
+          <div className="absolute inset-0 bg-white dark:bg-[#1E293B]/60 -z-10" />
           
           {/* Card Top Section */}
           <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold text-slate-400 tracking-wider uppercase">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">
               {card.title}
             </span>
             <div className={cn("p-2.5 rounded-2xl bg-white/5 border border-white/10 shadow-inner", card.accentColor)}>
@@ -120,17 +120,17 @@ export function KPICards({ accounts, transactions }) {
 
           {/* Value Display */}
           <div className="flex flex-col gap-1">
-            <span className="text-3xl font-black text-white tracking-tight">
+            <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               ₹{card.value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
               {card.description}
             </span>
           </div>
 
           {/* Micro Progress Indicator */}
           <div className="mt-5 space-y-2">
-            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${card.percent}%` }}

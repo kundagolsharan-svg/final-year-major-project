@@ -74,16 +74,16 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
   }, [error]);
 
   return (
-    <Card className="border-none shadow-2xl bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden">
+    <Card className="border-none shadow-2xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden">
       <CardHeader className="pb-4 pt-8 px-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-slate-800/60 border border-slate-700/50 rounded-xl text-[#8B5CF6]">
+            <div className="p-2.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl text-[#8B5CF6]">
               <Target size={24} />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-white">Monthly Budget</CardTitle>
-              <p className="text-xs text-slate-400 font-medium">Default Account Focus</p>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-white">Monthly Budget</CardTitle>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Default Account Focus</p>
             </div>
           </div>
           {!isEditing && (
@@ -91,7 +91,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsEditing(true)}
-              className="h-10 w-10 rounded-2xl text-slate-400 hover:text-[#3B82F6] hover:bg-[#111827] transition-colors"
+              className="h-10 w-10 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-[#3B82F6] hover:bg-[#111827] transition-colors"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -108,7 +108,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
                 type="number"
                 value={newBudget}
                 onChange={(e) => setNewBudget(e.target.value)}
-                className="pl-8 rounded-2xl border-slate-800 bg-[#111827] focus-visible:ring-indigo-500/30 h-12 font-black text-white"
+                className="pl-8 rounded-2xl border-slate-200 dark:border-slate-800 bg-[#111827] focus-visible:ring-indigo-500/30 h-12 font-black text-slate-900 dark:text-white"
                 placeholder="Enter limit"
                 autoFocus
                 disabled={isLoading}
@@ -119,7 +119,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
                 size="icon"
                 onClick={handleUpdateBudget}
                 disabled={isLoading}
-                className="h-12 w-12 rounded-2xl bg-[#22C55E] hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
+                className="h-12 w-12 rounded-2xl bg-[#22C55E] hover:bg-emerald-600 text-slate-900 dark:text-white shadow-lg shadow-emerald-500/20"
               >
                 <Check className="h-5 w-5" />
               </Button>
@@ -128,7 +128,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={isLoading}
-                className="h-12 w-12 rounded-2xl border-slate-800 bg-transparent text-slate-400 hover:text-white"
+                className="h-12 w-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -139,13 +139,13 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
         {initialBudget ? (
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8">
-              <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-800">
+              <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Spent</p>
-                <p className="text-2xl font-black text-white tracking-tighter">
+                <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
                   ₹{currentExpenses.toLocaleString("en-IN")}
                 </p>
               </div>
-              <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-800">
+              <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Remaining</p>
                 <p className="text-2xl font-black tracking-tighter" style={{ color: statusColor }}>
                   ₹{remaining.toLocaleString("en-IN")}
@@ -154,7 +154,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
             </div>
 
             <div className="space-y-4">
-              <div className="h-4 w-full bg-slate-900 rounded-full overflow-hidden p-1 border border-white/5">
+              <div className="h-4 w-full bg-slate-900 rounded-full overflow-hidden p-1 border border-slate-200 dark:border-white/5">
                 <div
                   className="h-full rounded-full transition-all duration-1000 ease-out shadow-lg"
                   style={{
@@ -187,17 +187,17 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-center bg-slate-900/20 rounded-[2rem] border-2 border-dashed border-slate-850">
-            <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 border border-slate-750">
+            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-6 border border-slate-750">
               <Target size={32} className="text-[#8B5CF6]" />
             </div>
-            <p className="text-lg font-black text-white">No Guardrails Active</p>
-            <p className="text-xs text-slate-400 mt-2 font-medium max-w-[240px] mb-8">
+            <p className="text-lg font-black text-slate-900 dark:text-white">No Guardrails Active</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium max-w-[240px] mb-8">
               Define your monthly spending limit to enable AI monitoring and automated alerts.
             </p>
             <Button
               size="lg"
               onClick={() => setIsEditing(true)}
-              className="rounded-2xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-white shadow-xl px-8 font-black uppercase tracking-widest text-[10px]"
+              className="rounded-2xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-slate-900 dark:text-white shadow-xl px-8 font-black uppercase tracking-widest text-[10px]"
             >
               Activate Budget
             </Button>

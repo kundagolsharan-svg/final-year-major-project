@@ -10,6 +10,7 @@ import { inngest } from "@/lib/inngest/client";
 import { checkBudgetAlert } from "./budget";
 import { sendEmail } from "./send-email";
 import EmailTemplate from "@/emails/template";
+import { getAuthUser } from "@/lib/auth-cache";
 
 const serializeAmount = (obj) => ({
   ...obj,
@@ -120,7 +121,7 @@ export async function createTransaction(data) {
           subject: "Suspicious Transaction Alert",
           react: EmailTemplate({
             userName: user.name,
-            type: "fraud-alert",
+            type: "anomaly-alert",
             data: {
               transaction: {
                 ...data,
@@ -216,14 +217,8 @@ export async function createTransaction(data) {
 }
 
 export async function getTransaction(id) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthorized");
 
   const transaction = await db.transaction.findUnique({
     where: {
@@ -239,14 +234,8 @@ export async function getTransaction(id) {
 
 export async function updateTransaction(id, data) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
+    if (!user) throw new Error("Unauthorized");
 
     // Get original transaction to calculate balance change
     const originalTransaction = await db.transaction.findUnique({
@@ -443,25 +432,23 @@ function calculateNextRecurringDate(startDate, interval) {
   return date;
 }
 
-// Anomaly Detection helper
+// Anomaly Detection helper (MAD approach)
 async function detectAnomaly(userId, amount, category) {
   try {
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-    const stats = await db.transaction.aggregate({
+    const transactions = await db.transaction.findMany({
       where: {
         userId,
         category,
         type: "EXPENSE",
         date: { gte: threeMonthsAgo },
       },
-      _avg: { amount: true },
-      _count: { id: true },
+      select: { amount: true },
     });
 
-    const avgAmount = stats._avg.amount ? stats._avg.amount.toNumber() : 0;
-    const count = stats._count.id;
+    const count = transactions.length;
 
     // Flat threshold for "Huge Amount" detection (e.g., ₹50,000)
     const HUGE_AMOUNT_THRESHOLD = 50000;
@@ -472,11 +459,21 @@ async function detectAnomaly(userId, amount, category) {
       };
     }
 
-    if (count >= 3 && amount > avgAmount * 2.5) {
-      return {
-        isAnomaly: true,
-        reason: `Suspicious activity: This transaction of ₹${amount.toLocaleString("en-IN")} is significantly higher than your average ${category} spend of ₹${avgAmount.toFixed(2)}.`,
-      };
+    if (count >= 3) {
+      const amounts = transactions.map(t => t.amount.toNumber()).sort((a, b) => a - b);
+      const median = amounts[Math.floor(amounts.length / 2)];
+      const absDeviations = amounts.map(a => Math.abs(a - median)).sort((a, b) => a - b);
+      const mad = absDeviations[Math.floor(absDeviations.length / 2)];
+
+      // If mad is 0, all past values are identical. Any deviation could be anomalous if large enough.
+      const modifiedZScore = mad === 0 ? (amount > median * 1.5 ? 4 : 0) : (0.6745 * (amount - median)) / mad;
+
+      if (modifiedZScore > 3.5) {
+        return {
+          isAnomaly: true,
+          reason: `Suspicious activity: This transaction of ₹${amount.toLocaleString("en-IN")} significantly deviates from your typical ${category} spending pattern.`,
+        };
+      }
     }
     return { isAnomaly: false };
   } catch (error) {

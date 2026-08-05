@@ -14,8 +14,8 @@ export const processRecurringTransaction = inngest.createFunction(
       period: "1m", // per minute
       key: "event.data.userId", // Throttle per user
     },
+    event: "transaction.recurring.process",
   },
-  { event: "transaction.recurring.process" },
   async ({ event, step }) => {
     // Validate event data
     if (!event?.data?.transactionId || !event?.data?.userId) {
@@ -84,8 +84,8 @@ export const triggerRecurringTransactions = inngest.createFunction(
   {
     id: "trigger-recurring-transactions", // Unique ID,
     name: "Trigger Recurring Transactions",
+    cron: "0 0 * * *", // Daily at midnight
   },
-  { cron: "0 0 * * *" }, // Daily at midnight
   async ({ step }) => {
     const recurringTransactions = await step.run(
       "fetch-recurring-transactions",
@@ -158,8 +158,8 @@ export const generateMonthlyReports = inngest.createFunction(
   {
     id: "generate-monthly-reports",
     name: "Generate Monthly Reports",
+    cron: "0 0 1 * *", // First day of each month
   },
-  { cron: "0 0 1 * *" }, // First day of each month
   async ({ step }) => {
     const users = await step.run("fetch-users", async () => {
       return await db.user.findMany({
@@ -232,8 +232,11 @@ async function generateBudgetInsights(expenses, budgetAmount, month) {
 }
 
 export const checkBudgetAlerts = inngest.createFunction(
-  { id: "check-budget-alerts", name: "Check Budget Alerts" },
-  { event: "budget.check" },
+  { 
+    id: "check-budget-alerts", 
+    name: "Check Budget Alerts",
+    event: "budget.check",
+  },
   async ({ event, step }) => {
     const { userId } = event.data;
     console.log("Budget check triggered for user:", userId);
@@ -331,8 +334,11 @@ export const checkBudgetAlerts = inngest.createFunction(
 
 // Monthly Cron to check all budgets
 export const triggerBudgetChecks = inngest.createFunction(
-  { id: "trigger-budget-checks", name: "Trigger Budget Checks" },
-  { cron: "0 */6 * * *" }, // Still run every 6 hours as a fallback
+  { 
+    id: "trigger-budget-checks", 
+    name: "Trigger Budget Checks",
+    cron: "0 */6 * * *", // Still run every 6 hours as a fallback
+  },
   async ({ step }) => {
     const budgets = await step.run("fetch-all-budgets", async () => {
       return await db.budget.findMany({ select: { userId: true } });
@@ -351,7 +357,7 @@ export const triggerBudgetChecks = inngest.createFunction(
   }
 );
 
-function isNewMonth(lastAlertDate, currentDate) {
+function _isNewMonth(lastAlertDate, currentDate) {
   return (
     lastAlertDate.getMonth() !== currentDate.getMonth() ||
     lastAlertDate.getFullYear() !== currentDate.getFullYear()

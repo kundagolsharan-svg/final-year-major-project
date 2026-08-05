@@ -1,16 +1,17 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
-import { generateWithFallback } from "@/lib/ollama";
+import { generateWithFallback as ollamaGenerate } from "@/lib/ollama";
+import { generateWithFallback as geminiGenerate } from "@/lib/gemini";
+import { getAuthUser } from "@/lib/auth-cache";
 
-export async function getChatResponse(message, conversationHistory = []) {
+export async function getUserFinancialSummaryForChat() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const authUser = await getAuthUser();
+    if (!authUser) return null;
 
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { id: authUser.id },
       include: {
         accounts: true,
         transactions: {
@@ -18,12 +19,79 @@ export async function getChatResponse(message, conversationHistory = []) {
           take: 100,
         },
         budgets: true,
+        goals: true,
+      },
+    });
+
+    if (!user) return null;
+
+    const totalBalance = (user.accounts || []).reduce(
+      (sum, a) => sum + Number(a.balance || 0),
+      0
+    );
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const currentMonthTxns = user.transactions.filter(
+      (t) => new Date(t.date) >= startOfMonth
+    );
+
+    const monthlyIncome = currentMonthTxns
+      .filter((t) => t.type === "INCOME")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    const monthlyExpense = currentMonthTxns
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    const netSavings = monthlyIncome - monthlyExpense;
+    const savingsRate =
+      monthlyIncome > 0 ? Math.round((netSavings / monthlyIncome) * 100) : 0;
+
+    return {
+      userName: user.name || "Finance Leader",
+      totalBalance,
+      monthlyIncome,
+      monthlyExpense,
+      netSavings,
+      savingsRate,
+      accountsCount: (user.accounts || []).length,
+      goalsCount: (user.goals || []).length,
+      budgetAmount: user.budgets ? Number(user.budgets.amount || 0) : null,
+      transactionsCount: user.transactions.length,
+    };
+  } catch (err) {
+    console.error("Failed to get summary for chat:", err);
+    return null;
+  }
+}
+
+export async function getChatResponse(message, conversationHistory = []) {
+  try {
+    const authUser = await getAuthUser();
+    if (!authUser) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { id: authUser.id },
+      include: {
+        accounts: true,
+        transactions: {
+          orderBy: { date: "desc" },
+          take: 100,
+        },
+        budgets: true,
+        goals: true,
       },
     });
 
     if (!user) throw new Error("User not found");
 
-    // Build financial context
+    // Build comprehensive financial context
+    const totalBalance = (user.accounts || []).reduce(
+      (sum, a) => sum + Number(a.balance || 0),
+      0
+    );
     const totalIncome = user.transactions
       .filter((t) => t.type === "INCOME")
       .reduce((sum, t) => sum + Number(t.amount), 0);
@@ -42,24 +110,35 @@ export async function getChatResponse(message, conversationHistory = []) {
 
     const topCategories = Object.entries(categorySpending)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([cat, amt]) => `${cat}: ₹${amt.toFixed(2)}`)
+      .slice(0, 6)
+      .map(([cat, amt]) => `${cat}: ₹${amt.toLocaleString("en-IN")}`)
       .join(", ");
+
+    const goalsSummary = (user.goals || [])
+      .map(
+        (g) =>
+          `- ${g.name}: Target ₹${Number(g.targetAmount).toLocaleString("en-IN")}, Saved ₹${Number(g.currentAmount).toLocaleString("en-IN")} (${Math.round((Number(g.currentAmount) / (Number(g.targetAmount) || 1)) * 100)}%)`
+      )
+      .join("\n");
 
     const context = `
 User Name: ${user.name || "User"}
-Accounts: ${user.accounts.map((a) => `${a.name} (${a.type}): ₹${Number(a.balance).toFixed(2)}`).join(", ")}
-Total Income (all time): ₹${totalIncome.toFixed(2)}
-Total Expenses (all time): ₹${totalExpense.toFixed(2)}
-Net Savings: ₹${(totalIncome - totalExpense).toFixed(2)}
-Budget: ${user.budgets.map((b) => `₹${Number(b.amount).toFixed(2)}`).join(", ") || "Not set"}
-Top Spending Categories: ${topCategories || "No data"}
-Recent Transactions (last 20):
+Total Balance Across Accounts: ₹${totalBalance.toLocaleString("en-IN")}
+Accounts: ${(user.accounts || []).map((a) => `${a.name} (${a.type}): ₹${Number(a.balance).toLocaleString("en-IN")}`).join(", ") || "No accounts registered"}
+Total Inflow (from transactions): ₹${totalIncome.toLocaleString("en-IN")}
+Total Outflow (from transactions): ₹${totalExpense.toLocaleString("en-IN")}
+Net Position: ₹${(totalIncome - totalExpense).toLocaleString("en-IN")}
+Active Budget: ${user.budgets ? `₹${Number(user.budgets.amount).toLocaleString("en-IN")}` : "No budget currently set"}
+Top Spending Categories: ${topCategories || "No categorized expenses yet"}
+Financial Goals:
+${goalsSummary || "No active goals created yet."}
+
+Recent 20 Ledger Records:
 ${user.transactions
   .slice(0, 20)
   .map(
     (t) =>
-      `- ${new Date(t.date).toLocaleDateString("en-IN")}: ${t.description} | ${t.category} | ${t.type === "EXPENSE" ? "-" : "+"}₹${Number(t.amount).toFixed(2)}`
+      `- ${new Date(t.date).toLocaleDateString("en-IN")}: ${t.description || "Txn"} | ${t.category} | ${t.type === "EXPENSE" ? "-" : "+"}₹${Number(t.amount).toLocaleString("en-IN")}`
   )
   .join("\n")}
     `.trim();
@@ -77,29 +156,44 @@ ${user.transactions
         : "";
 
     const prompt = `
-You are SAMPAT AI, an intelligent, friendly, and highly knowledgeable financial advisor chatbot built into the SAMPAT finance platform.
+You are SAMPAT AI, the executive AI wealth and financial intelligence advisor built into the SAMPAT platform.
 
-YOUR CAPABILITIES:
-1. **Personal Finance Assistant**: Answer questions about the user's own data (accounts, transactions, budgets, spending habits).
-2. **General Financial Expert**: Answer any general financial questions (investments, savings, tax tips, financial concepts, market trends, etc.)
-3. **Proactive Advisor**: After answering, ALWAYS suggest 2-3 highly relevant follow-up questions the user is likely to ask next, based on the conversation context.
+YOUR CAPABILITIES & TONE:
+1. **Personal Finance Director**: Deliver highly structured, data-backed insights on user's real transactions, accounts, categories, and goals.
+2. **Wealth & Strategy Consultant**: Provide smart, actionable advice for budgeting, tax saving, investments (SIP, Mutual Funds, Emergency Funds, Debt Reduction), and daily spending optimizations.
+3. **Executive Presentation**:
+   - Use clean Markdown formatting with clear bold headings, structured comparison tables where helpful, bullet points, and key metrics.
+   - Always use ₹ (Indian Rupee symbol) and Indian comma notation (e.g. ₹1,50,000) for all monetary values.
+   - Be authoritative, empathetic, concise, and clear.
+4. **Proactive Suggestion Engine**: At the very END of your response, always provide a section formatted exactly as:
+💡 You might also want to ask:
+1. [Specific context-relevant follow up question]
+2. [Specific context-relevant follow up question]
+3. [Specific context-relevant follow up question]
 
-YOUR RESPONSE FORMAT (STRICTLY FOLLOW THIS):
-- Use clear Markdown formatting with **bold**, bullet points, and headers where appropriate
-- Always use ₹ (Indian Rupee symbol) for all currency values
-- Be concise but thorough
-- At the END of EVERY response, add a section called "💡 You might also want to ask:" with 2-3 predicted follow-up questions as a numbered list
-- These follow-up questions must be highly relevant to what was just discussed
-
-USER'S FINANCIAL CONTEXT (use this when answering personal finance questions):
+USER'S LIVE FINANCIAL PROFILE & LEDGER:
 ${context}
 
-${historyStr ? `CONVERSATION HISTORY:\n${historyStr}\n` : ""}
-User's Current Message: ${message}
+${historyStr ? `PRIOR CONVERSATION CONTEXT:\n${historyStr}\n` : ""}
+User Query: ${message}
 
-Respond now as SAMPAT AI:`;
+Deliver your response as SAMPAT AI:`;
 
-    const aiResponse = await generateWithFallback(prompt);
+    // Try Ollama first, fall back to Gemini if unavailable
+    let aiResponse;
+    try {
+      aiResponse = await ollamaGenerate(prompt);
+      console.log("[Chat] Using Ollama for response");
+    } catch (ollamaError) {
+      console.warn("[Chat] Ollama failed, falling back to Gemini:", ollamaError.message);
+      try {
+        aiResponse = await geminiGenerate(prompt);
+        console.log("[Chat] Using Gemini for response");
+      } catch (geminiError) {
+        throw new Error(`Both AI services failed - Ollama: ${ollamaError.message}, Gemini: ${geminiError.message}`);
+      }
+    }
+
     return { success: true, response: aiResponse };
   } catch (error) {
     console.error("Chat Error:", error);

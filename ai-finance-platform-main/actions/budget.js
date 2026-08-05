@@ -6,16 +6,11 @@ import { revalidatePath } from "next/cache";
 import { generateWithFallback } from "@/lib/ollama";
 import { sendEmail } from "./send-email";
 import EmailTemplate from "@/emails/template";
+import { getAuthUser } from "@/lib/auth-cache";
 
 export async function getCurrentBudget(accountId) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
+    const user = await getAuthUser();
     if (!user) {
       throw new Error("User not found");
     }
@@ -66,16 +61,133 @@ export async function getCurrentBudget(accountId) {
   }
 }
 
-export async function updateBudget(amount) {
+export async function getBudgetData() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      throw new Error("User not found");
+    }
 
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { id: authUser.id },
+      include: {
+        accounts: true,
+        budgets: true,
+      },
     });
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const currentDate = new Date();
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0,
+      23,
+      59,
+      59
+    );
+
+    const startOfLastMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 1,
+      1
+    );
+    const endOfLastMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      0,
+      23,
+      59,
+      59
+    );
+
+    // Get all transactions for this month
+    const thisMonthTransactions = await db.transaction.findMany({
+      where: {
+        userId: user.id,
+        date: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+      orderBy: { date: "desc" },
+    });
+
+    // Get last month's expense sum
+    const lastMonthExpenses = await db.transaction.aggregate({
+      where: {
+        userId: user.id,
+        type: "EXPENSE",
+        date: {
+          gte: startOfLastMonth,
+          lte: endOfLastMonth,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const budget = user.budgets
+      ? { ...user.budgets, amount: user.budgets.amount.toNumber() }
+      : null;
+
+    const serializedTransactions = thisMonthTransactions.map((t) => ({
+      ...t,
+      amount: t.amount ? t.amount.toNumber() : 0,
+    }));
+
+    const currentExpenses = serializedTransactions
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const currentIncome = serializedTransactions
+      .filter((t) => t.type === "INCOME")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      budget,
+      currentExpenses,
+      currentIncome,
+      transactions: serializedTransactions,
+      accounts: (user.accounts || []).map((acc) => ({
+        ...acc,
+        balance: acc.balance ? acc.balance.toNumber() : 0,
+      })),
+      lastMonthExpenses: lastMonthExpenses._sum.amount
+        ? lastMonthExpenses._sum.amount.toNumber()
+        : 0,
+    };
+  } catch (error) {
+    console.error("Error fetching budget data:", error);
+    return {
+      budget: null,
+      currentExpenses: 0,
+      currentIncome: 0,
+      transactions: [],
+      accounts: [],
+      lastMonthExpenses: 0,
+    };
+  }
+}
+
+export async function updateBudget(amount) {
+  try {
+    const user = await getAuthUser();
     if (!user) throw new Error("User not found");
+
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      throw new Error("Please provide a valid budget amount");
+    }
 
     // Update or create budget
     const budget = await db.budget.upsert({
@@ -83,15 +195,16 @@ export async function updateBudget(amount) {
         userId: user.id,
       },
       update: {
-        amount,
+        amount: numericAmount,
       },
       create: {
         userId: user.id,
-        amount,
+        amount: numericAmount,
       },
     });
 
     revalidatePath("/dashboard");
+    revalidatePath("/budget");
     return {
       success: true,
       data: { ...budget, amount: budget.amount.toNumber() },
@@ -103,13 +216,7 @@ export async function updateBudget(amount) {
 }
 export async function resetBudgetAlert() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
+    const user = await getAuthUser();
     if (!user) throw new Error("User not found");
 
     await db.budget.update({

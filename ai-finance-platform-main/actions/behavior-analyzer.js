@@ -1,16 +1,25 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
 import { generateWithFallback } from "@/lib/ollama";
+import { getAuthUser } from "@/lib/auth-cache";
+import { getFromAICache, setInAICache } from "@/lib/ai-cache";
 
-export async function getBehaviorAnalysis() {
+export async function getBehaviorAnalysis(forceRefresh = false) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const authUser = await getAuthUser();
+    if (!authUser) throw new Error("Unauthorized");
+
+    const cacheKey = `behavior-insights-${authUser.id}`;
+    if (!forceRefresh) {
+      const cached = getFromAICache(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
 
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { id: authUser.id },
       include: {
         transactions: {
           where: { type: "EXPENSE" },
@@ -21,10 +30,11 @@ export async function getBehaviorAnalysis() {
     });
 
     if (!user || !user.transactions || user.transactions.length === 0) {
-      return { 
+      const emptyResult = { 
         analysis: "Not enough transaction data to analyze yet. Start adding your expenses to see insights!",
         categoryTotals: {} 
       };
+      return emptyResult;
     }
 
     const categoryTotals = user.transactions.reduce((acc, t) => {
@@ -51,12 +61,50 @@ export async function getBehaviorAnalysis() {
     `;
 
     const analysis = await generateWithFallback(prompt);
-    return { 
+    const result = { 
       analysis, 
       categoryTotals 
     };
+
+    // Cache the result for 15 minutes
+    setInAICache(cacheKey, result, 15 * 60 * 1000);
+
+    return result;
   } catch (error) {
     console.error("Behavior Analysis Error:", error);
     throw new Error(error.message || "Failed to generate behavior analysis");
+  }
+}
+
+export async function getAnalyticsData() {
+  try {
+    const authUser = await getAuthUser();
+    if (!authUser) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { id: authUser.id },
+      include: {
+        transactions: {
+          where: { type: "EXPENSE" },
+        },
+      },
+    });
+
+    if (!user) {
+      return { categoryTotals: {} };
+    }
+
+    const categoryTotals = user.transactions.reduce((acc, t) => {
+      const cat = t.category;
+      acc[cat] = (acc[cat] || 0) + Number(t.amount);
+      return acc;
+    }, {});
+
+    return { 
+      categoryTotals
+    };
+  } catch (error) {
+    console.error("Analytics Error:", error);
+    throw new Error("Failed to fetch analytics data");
   }
 }

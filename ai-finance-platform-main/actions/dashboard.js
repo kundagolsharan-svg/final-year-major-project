@@ -5,6 +5,7 @@ import { db } from "@/lib/prisma";
 import { request } from "@arcjet/next";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { getAuthUser } from "@/lib/auth-cache";
 
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };
@@ -18,16 +19,8 @@ const serializeTransaction = (obj) => {
 };
 
 export async function getUserAccounts() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthorized");
 
   try {
     const accounts = await db.account.findMany({
@@ -135,16 +128,8 @@ export async function createAccount(data) {
 }
 
 export async function getDashboardData() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
+  const user = await getAuthUser();
+  if (!user) throw new Error("Unauthorized");
 
   // Get all user transactions
   const transactions = await db.transaction.findMany({
@@ -157,14 +142,8 @@ export async function getDashboardData() {
 
 export async function getFinancialHealthScore() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
+    if (!user) throw new Error("Unauthorized");
 
     const defaultAccount = await db.account.findFirst({
       where: { userId: user.id, isDefault: true },
@@ -275,14 +254,8 @@ export async function getFinancialHealthScore() {
 }
 export async function getUpcomingBills() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
+    if (!user) throw new Error("Unauthorized");
 
     const now = new Date();
     const twoWeeksFromNow = new Date();
@@ -314,14 +287,8 @@ export async function getUpcomingBills() {
 }
 export async function getSpendingInsights() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
+    if (!user) throw new Error("Unauthorized");
 
     const now = new Date();
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);

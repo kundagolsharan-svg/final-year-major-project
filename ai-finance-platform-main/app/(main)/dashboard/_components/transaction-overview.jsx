@@ -232,9 +232,9 @@ export function DashboardOverview({ accounts, transactions }) {
 
   if (!accounts || accounts.length === 0) {
     return (
-      <Card className="border-none shadow-xl bg-[#1E293B]/60 backdrop-blur-xl border-white/10 p-8 text-center rounded-[2rem]">
-        <CardTitle className="mb-4 text-white">Welcome to SAMPAT AI</CardTitle>
-        <p className="text-slate-400">Please create an account to start tracking your finances.</p>
+      <Card className="border-none shadow-xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border-white/10 p-8 text-center rounded-[2rem]">
+        <CardTitle className="mb-4 text-slate-900 dark:text-white">Welcome to SAMPAT AI</CardTitle>
+        <p className="text-slate-500 dark:text-slate-400">Please create an account to start tracking your finances.</p>
       </Card>
     );
   }
@@ -264,16 +264,16 @@ export function DashboardOverview({ accounts, transactions }) {
   return (
     <div className="space-y-6">
       {/* AI Statement Import Section */}
-      <Card className="border-none shadow-2xl bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 overflow-hidden rounded-[2.5rem] relative">
+      <Card className="border-none shadow-2xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 overflow-hidden rounded-[2.5rem] relative">
          <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
          <div className="bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] h-1.5 w-full relative z-10" />
          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
            <div className="flex items-center gap-4">
-             <div className="bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] p-3 rounded-2xl text-white shadow-lg">
+             <div className="bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] p-3 rounded-2xl text-slate-900 dark:text-white shadow-lg">
                <Sparkles className="h-6 w-6 animate-pulse" />
              </div>
              <div>
-               <CardTitle className="text-xl font-black tracking-tight text-white">AI Intelligent Import</CardTitle>
+               <CardTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-white">AI Intelligent Import</CardTitle>
                <p className="text-[10px] font-black text-[#8B5CF6] uppercase tracking-[0.2em]">Local AI Optimized (Ollama)</p>
              </div>
            </div>
@@ -284,12 +284,12 @@ export function DashboardOverview({ accounts, transactions }) {
                value={selectedAccountId}
                onValueChange={setSelectedAccountId}
              >
-               <SelectTrigger className="w-48 bg-[#111827] border-slate-800 rounded-xl text-xs font-semibold text-slate-200">
+               <SelectTrigger className="w-48 bg-[#111827] border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200">
                  <SelectValue placeholder="Select Account" />
                </SelectTrigger>
-               <SelectContent className="bg-[#111827] border-slate-800 text-slate-200">
+               <SelectContent className="bg-[#111827] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200">
                  {accounts.map((account) => (
-                   <SelectItem key={account.id} value={account.id} className="focus:bg-[#1E293B] focus:text-white">
+                   <SelectItem key={account.id} value={account.id} className="focus:bg-white dark:bg-[#1E293B] focus:text-slate-900 dark:text-white">
                      {account.name} (₹{parseFloat(account.balance).toLocaleString("en-IN")})
                    </SelectItem>
                  ))}
@@ -306,25 +306,25 @@ export function DashboardOverview({ accounts, transactions }) {
       </Card>
 
       {/* Analytics Charts Panel */}
-      <Card className="border-none shadow-xl bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden">
+      <Card className="border-none shadow-xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden">
         <CardHeader className="flex flex-col md:flex-row md:items-center justify-between pb-0 px-8 pt-8 gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-slate-800/60 border border-slate-700/50 rounded-xl text-[#3B82F6]">
+            <div className="p-2.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl text-[#3B82F6]">
               <TrendingUp size={20} />
             </div>
             <div>
-              <CardTitle className="text-xl font-black text-white">Financial Analytics</CardTitle>
-              <p className="text-xs text-slate-400 font-medium">Interactive intelligence reports</p>
+              <CardTitle className="text-xl font-black text-slate-900 dark:text-white">Financial Analytics</CardTitle>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Interactive intelligence reports</p>
             </div>
           </div>
           
           {/* Chart Selection Tabs */}
-          <div className="flex items-center bg-[#111827] p-1 rounded-2xl border border-slate-800">
+          <div className="flex items-center bg-[#111827] p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setActiveChartTab("area")}
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-wider",
-                activeChartTab === "area" ? "bg-[#3B82F6] text-white" : "text-slate-400 hover:text-white"
+                activeChartTab === "area" ? "bg-[#3B82F6] text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white"
               )}
             >
               Spending Analytics
@@ -333,7 +333,7 @@ export function DashboardOverview({ accounts, transactions }) {
               onClick={() => setActiveChartTab("bar")}
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-wider",
-                activeChartTab === "bar" ? "bg-[#3B82F6] text-white" : "text-slate-400 hover:text-white"
+                activeChartTab === "bar" ? "bg-[#3B82F6] text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white"
               )}
             >
               Income vs Expense
@@ -342,7 +342,7 @@ export function DashboardOverview({ accounts, transactions }) {
               onClick={() => setActiveChartTab("pie")}
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-wider",
-                activeChartTab === "pie" ? "bg-[#3B82F6] text-white" : "text-slate-400 hover:text-white"
+                activeChartTab === "pie" ? "bg-[#3B82F6] text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white"
               )}
             >
               Category Split
@@ -351,7 +351,7 @@ export function DashboardOverview({ accounts, transactions }) {
               onClick={() => setActiveChartTab("line")}
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-wider",
-                activeChartTab === "line" ? "bg-[#3B82F6] text-white" : "text-slate-400 hover:text-white"
+                activeChartTab === "line" ? "bg-[#3B82F6] text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white"
               )}
             >
               Savings Trend
@@ -365,11 +365,11 @@ export function DashboardOverview({ accounts, transactions }) {
                 <TrendingUp className="text-slate-700 h-10 w-10" />
               </div>
             ) : barChartData.every(d => d.income === 0 && d.expense === 0) ? (
-              <div className="h-full w-full flex flex-col items-center justify-center bg-slate-900/20 rounded-3xl border-2 border-dashed border-slate-800">
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-700">
+              <div className="h-full w-full flex flex-col items-center justify-center bg-slate-900/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-700">
                   <TrendingUp className="text-slate-600 h-8 w-8" />
                 </div>
-                <p className="text-slate-400 font-bold">No activity in the last 7 days</p>
+                <p className="text-slate-500 dark:text-slate-400 font-bold">No activity in the last 7 days</p>
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Try importing a statement</p>
               </div>
             ) : (
@@ -411,12 +411,12 @@ export function DashboardOverview({ accounts, transactions }) {
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-[#111827] border border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
+                            <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               <div className="flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-                                  <span className="text-xs font-bold text-slate-300">Daily Expenses</span>
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Daily Expenses</span>
                                 </div>
                                 <span className="text-xs font-black text-[#EF4444]">
                                   ₹{payload[0].value.toLocaleString("en-IN")}
@@ -462,13 +462,13 @@ export function DashboardOverview({ accounts, transactions }) {
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-[#111827] border border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
+                            <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               {payload.map((entry) => (
                                 <div key={entry.name} className="flex items-center justify-between gap-4 mb-1.5 last:mb-0">
                                   <div className="flex items-center gap-2">
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.fill }} />
-                                    <span className="text-xs font-bold text-slate-300">{entry.name}</span>
+                                    <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{entry.name}</span>
                                   </div>
                                   <span className={cn("text-xs font-black", entry.name === 'Income' ? 'text-[#22C55E]' : 'text-[#EF4444]')}>
                                     ₹{entry.value.toLocaleString("en-IN")}
@@ -492,11 +492,11 @@ export function DashboardOverview({ accounts, transactions }) {
                   </BarChart>
                 ) : activeChartTab === "pie" ? (
                   pieChartData.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center bg-slate-900/20 rounded-3xl border-2 border-dashed border-slate-800">
-                      <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-700">
+                    <div className="h-full flex flex-col items-center justify-center text-center bg-slate-900/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
+                      <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-700">
                         <PieChartIcon className="text-slate-600 h-8 w-8" />
                       </div>
-                      <p className="text-slate-400 font-bold">No expenses categorized this month</p>
+                      <p className="text-slate-500 dark:text-slate-400 font-bold">No expenses categorized this month</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 h-full items-center">
@@ -532,7 +532,7 @@ export function DashboardOverview({ accounts, transactions }) {
                               content={({ active, payload }) => {
                                 if (active && payload && payload.length) {
                                   return (
-                                    <div className="bg-[#111827] border border-slate-800 text-white px-4 py-2 rounded-2xl shadow-2xl">
+                                    <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white px-4 py-2 rounded-2xl shadow-2xl">
                                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].name}</p>
                                       <p className="text-sm font-black">₹{payload[0].value.toLocaleString("en-IN")}</p>
                                     </div>
@@ -546,12 +546,12 @@ export function DashboardOverview({ accounts, transactions }) {
                       </div>
                       <div className="space-y-2.5 max-h-[250px] overflow-y-auto pr-2">
                         {pieChartData.sort((a, b) => b.value - a.value).map((category, index) => (
-                          <div key={category.name} className="flex items-center justify-between p-3 rounded-2xl bg-[#111827]/40 hover:bg-[#111827] transition-all border border-slate-800">
+                          <div key={category.name} className="flex items-center justify-between p-3 rounded-2xl bg-[#111827]/40 hover:bg-[#111827] transition-all border border-slate-200 dark:border-slate-800">
                             <div className="flex items-center gap-2">
                               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                              <span className="text-xs font-bold text-slate-300 capitalize">{category.name.replace(/-/g, ' ')}</span>
+                              <span className="text-xs font-bold text-slate-600 dark:text-slate-300 capitalize">{category.name.replace(/-/g, ' ')}</span>
                             </div>
-                            <span className="text-xs font-black text-white">₹{category.value.toLocaleString("en-IN")}</span>
+                            <span className="text-xs font-black text-slate-900 dark:text-white">₹{category.value.toLocaleString("en-IN")}</span>
                           </div>
                         ))}
                       </div>
@@ -579,12 +579,12 @@ export function DashboardOverview({ accounts, transactions }) {
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-[#111827] border border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
+                            <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               <div className="flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]" />
-                                  <span className="text-xs font-bold text-slate-300">Daily Savings</span>
+                                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300">Daily Savings</span>
                                 </div>
                                 <span className={cn(
                                   "text-xs font-black",
@@ -618,11 +618,11 @@ export function DashboardOverview({ accounts, transactions }) {
       </Card>
 
       {/* Upgraded Recent Transactions Table */}
-      <Card className="border-none shadow-2xl bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden" id="alerts">
+      <Card className="border-none shadow-2xl bg-white dark:bg-[#1E293B]/60 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden" id="alerts">
         {/* Table Filters Header */}
-        <CardHeader className="px-8 py-6 border-b border-slate-800">
+        <CardHeader className="px-8 py-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <CardTitle className="text-xl font-black tracking-tight text-white flex items-center gap-3">
+            <CardTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
               <span className="w-2.5 h-6 bg-[#8B5CF6] rounded-full" />
               Recent Transactions
             </CardTitle>
@@ -630,19 +630,19 @@ export function DashboardOverview({ accounts, transactions }) {
             {/* Search and Filters bar */}
             <div className="flex flex-wrap items-center gap-3">
               {/* Search */}
-              <div className="flex items-center gap-2 bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 w-60">
+              <div className="flex items-center gap-2 bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 w-60">
                 <Search size={14} className="text-slate-500" />
                 <input 
                   type="text" 
                   placeholder="Search merchant, category..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-transparent border-none outline-none text-xs text-slate-200 placeholder-slate-500 w-full"
+                  className="bg-transparent border-none outline-none text-xs text-slate-700 dark:text-slate-200 placeholder-slate-500 w-full"
                 />
               </div>
 
               {/* Type Filter */}
-              <div className="flex items-center gap-1.5 bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300">
+              <div className="flex items-center gap-1.5 bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300">
                 <Filter size={12} className="text-slate-500" />
                 <select 
                   value={filterType} 
@@ -656,7 +656,7 @@ export function DashboardOverview({ accounts, transactions }) {
               </div>
 
               {/* Category Filter */}
-              <div className="flex items-center gap-1.5 bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300">
+              <div className="flex items-center gap-1.5 bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300">
                 <Filter size={12} className="text-slate-500" />
                 <select 
                   value={filterCategory} 
@@ -678,7 +678,7 @@ export function DashboardOverview({ accounts, transactions }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-[#111827]/30">
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-[#111827]/30">
                   <th className="p-4 pl-8 text-[10px] font-black uppercase tracking-wider text-slate-500">Date</th>
                   <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Merchant</th>
                   <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Category</th>
@@ -702,10 +702,10 @@ export function DashboardOverview({ accounts, transactions }) {
                     return (
                       <tr
                         key={transaction.id}
-                        className="hover:bg-white/5 transition-all text-xs font-bold text-slate-200"
+                        className="hover:bg-white/5 transition-all text-xs font-bold text-slate-700 dark:text-slate-200"
                       >
                         {/* Date */}
-                        <td className="p-4 pl-8 text-slate-400">
+                        <td className="p-4 pl-8 text-slate-500 dark:text-slate-400">
                           {format(new Date(transaction.date), "dd MMM yyyy")}
                         </td>
 
@@ -720,7 +720,7 @@ export function DashboardOverview({ accounts, transactions }) {
                             )}>
                               {transaction.type === "EXPENSE" ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
                             </div>
-                            <span className="font-extrabold text-white text-sm">
+                            <span className="font-extrabold text-slate-900 dark:text-white text-sm">
                               {transaction.description || "Transaction"}
                             </span>
                           </div>
@@ -728,13 +728,13 @@ export function DashboardOverview({ accounts, transactions }) {
 
                         {/* Category */}
                         <td className="p-4">
-                          <span className="px-2.5 py-1 rounded-full bg-[#111827] border border-slate-800 text-[10px] font-black uppercase tracking-wider text-slate-300 capitalize">
+                          <span className="px-2.5 py-1 rounded-full bg-[#111827] border border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 capitalize">
                             {transaction.category.replace(/-/g, ' ')}
                           </span>
                         </td>
 
                         {/* Payment Method */}
-                        <td className="p-4 text-slate-400">
+                        <td className="p-4 text-slate-500 dark:text-slate-400">
                           <div className="flex items-center gap-1.5">
                             <CreditCard size={12} className="text-slate-500" />
                             <span>{getPaymentMethod(transaction)}</span>
@@ -764,7 +764,7 @@ export function DashboardOverview({ accounts, transactions }) {
                           <button
                             onClick={() => handleDelete(transaction.id)}
                             disabled={deleteLoading}
-                            className="text-slate-500 hover:text-[#EF4444] transition-colors p-1.5 rounded-lg hover:bg-slate-800/80"
+                            className="text-slate-500 hover:text-[#EF4444] transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:bg-slate-800/80"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -779,7 +779,7 @@ export function DashboardOverview({ accounts, transactions }) {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-8 py-4 border-t border-slate-800 text-xs font-bold text-slate-400">
+            <div className="flex items-center justify-between px-8 py-4 border-t border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400">
               <span>
                 Showing Page {currentPage} of {totalPages} ({processedTransactionsList.length} items)
               </span>
@@ -787,14 +787,14 @@ export function DashboardOverview({ accounts, transactions }) {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-[#111827] text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-[#111827] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-50 transition-colors"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="p-1.5 rounded-lg border border-slate-800 bg-[#111827] text-slate-400 hover:text-white disabled:opacity-50 transition-colors"
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-[#111827] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white disabled:opacity-50 transition-colors"
                 >
                   <ChevronRight size={16} />
                 </button>

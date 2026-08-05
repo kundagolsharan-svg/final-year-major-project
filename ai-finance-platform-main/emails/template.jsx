@@ -170,7 +170,7 @@ export default function EmailTemplate({
     );
   }
 
-  if (type === "fraud-alert") {
+  if (type === "anomaly-alert") {
     return (
       <Html>
         <Head />

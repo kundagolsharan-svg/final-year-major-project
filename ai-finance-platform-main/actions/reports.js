@@ -1,8 +1,9 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
 import { generateWithFallback } from "@/lib/ollama";
+import { getAuthUser } from "@/lib/auth-cache";
+import { getFromAICache, setInAICache } from "@/lib/ai-cache";
 
 const serializeTransaction = (obj) => {
   const serialized = { ...obj };
@@ -14,11 +15,11 @@ const serializeTransaction = (obj) => {
 
 export async function getMonthlyReportData(month, year) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const authUser = await getAuthUser();
+    if (!authUser) throw new Error("Unauthorized");
 
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { id: authUser.id },
     });
 
     if (!user) throw new Error("User not found");
@@ -65,9 +66,41 @@ export async function getMonthlyReportData(month, year) {
       .filter((t) => t.type === "EXPENSE")
       .reduce((sum, t) => sum + t.amount, 0);
 
-    // AI Summary
+    const cacheKey = `report-ai-${user.id}-${year}-${month}`;
+    const cachedAiSummary = getFromAICache(cacheKey);
+
+    return {
+      success: true,
+      data: {
+        totalIncome,
+        totalExpenses,
+        categoryBreakdown,
+        taxBreakdown,
+        transactions: serializedTransactions,
+        aiSummary: cachedAiSummary || null,
+        period: { month, year }
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching report data:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getMonthlyReportAISummary(month, year, totalIncome, totalExpenses, categoryBreakdown, taxBreakdown) {
+  try {
+    const authUser = await getAuthUser();
+    if (!authUser) throw new Error("Unauthorized");
+
+    const cacheKey = `report-ai-${authUser.id}-${year}-${month}`;
+    const cached = getFromAICache(cacheKey);
+    if (cached) {
+      return { success: true, aiSummary: cached };
+    }
+
+    const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(new Date(year, month - 1, 1));
     const prompt = `
-      You are an expert financial advisor named SAMPAT AI. Summarize this financial data for ${new Intl.DateTimeFormat('en-US', { month: 'long' }).format(startDate)} ${year}:
+      You are an expert financial advisor named SAMPAT AI. Summarize this financial data for ${monthName} ${year}:
       Total Income: INR ${totalIncome}
       Total Expenses: INR ${totalExpenses}
       Top Expense Categories: ${JSON.stringify(categoryBreakdown)}
@@ -78,23 +111,19 @@ export async function getMonthlyReportData(month, year) {
       2. Provide a brief, professional summary (max 3-4 sentences) of the month's performance.
       3. Provide 3-5 SPECIFIC, ACTIONABLE recommendations to improve money flow, cut unnecessary costs, and increase savings based on this data. Format the recommendations clearly.
     `;
-    
+
     const aiSummary = await generateWithFallback(prompt);
+    setInAICache(cacheKey, aiSummary, 30 * 60 * 1000); // 30 minutes cache
 
     return {
       success: true,
-      data: {
-        totalIncome,
-        totalExpenses,
-        categoryBreakdown,
-        taxBreakdown,
-        transactions: serializedTransactions,
-        aiSummary,
-        period: { month, year }
-      },
+      aiSummary,
     };
   } catch (error) {
-    console.error("Error fetching report data:", error);
-    return { success: false, error: error.message };
+    console.error("Error generating report AI summary:", error);
+    return {
+      success: false,
+      aiSummary: "AI summary currently unavailable. Please check your AI service or try again.",
+    };
   }
 }

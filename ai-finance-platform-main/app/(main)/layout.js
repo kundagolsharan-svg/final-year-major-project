@@ -23,26 +23,27 @@ import {
   Rocket,
   MessageSquare,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Transactions", href: "/transaction/create", icon: Receipt },
   { name: "Analytics", href: "/analyzer", icon: BarChart2 },
-  { name: "AI Insights", href: "/analyzer#insights", icon: Sparkles },
+  { name: "AI Insights", href: "/insights", icon: Sparkles },
   { name: "AI Chat", href: "/chat", icon: MessageSquare },
-  { name: "Budgets", href: "/dashboard#budget", icon: PiggyBank },
+  { name: "Budgets", href: "/budget", icon: PiggyBank },
   { name: "Reports", href: "/reports", icon: FileDown },
   { name: "Goals", href: "/goals", icon: Target },
-  { name: "Alerts", href: "/dashboard#alerts", icon: Bell, badge: 3 },
-  { name: "Settings", href: "/dashboard#settings", icon: Settings },
+  { name: "Alerts", href: "/alerts", icon: Bell },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 function SidebarContent({ pathname, onClose }) {
   return (
     <>
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-800/80 shrink-0">
+      <div className="h-16 flex items-center px-5 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
         <Link
           href="/dashboard"
           onClick={onClose}
@@ -52,10 +53,10 @@ function SidebarContent({ pathname, onClose }) {
             <Sparkles size={16} className="animate-pulse" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="text-base font-black text-white uppercase tracking-wide">
+            <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wide">
               SAMPAT
             </span>
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
               AI Finance Manager
             </span>
           </div>
@@ -63,38 +64,37 @@ function SidebarContent({ pathname, onClose }) {
       </div>
 
       {/* Nav Items */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            (item.href.includes("#") &&
-              pathname === item.href.split("#")[0]);
+            item.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : item.href === "/transaction/create"
+              ? pathname.startsWith("/transaction")
+              : pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
+
           return (
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               onClick={onClose}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group relative",
+                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14.5px] font-semibold transition-all duration-200 group relative",
                 isActive
-                  ? "bg-[#3B82F6] text-white shadow-lg shadow-blue-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                  ? "bg-[#3B82F6] text-white shadow-lg shadow-blue-500/20 font-bold"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
               )}
             >
               <item.icon
-                size={17}
+                size={18}
                 className={cn(
                   isActive
                     ? "text-white"
-                    : "text-slate-400 group-hover:text-slate-200"
+                    : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                 )}
               />
               <span>{item.name}</span>
-              {item.badge && !isActive && (
-                <span className="ml-auto text-[10px] font-black bg-rose-500 text-white w-4 h-4 rounded-full flex items-center justify-center">
-                  {item.badge}
-                </span>
-              )}
             </Link>
           );
         })}
@@ -102,19 +102,19 @@ function SidebarContent({ pathname, onClose }) {
         {/* Logout */}
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200 mt-1"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 mt-1"
         >
-          <LogOut size={17} className="text-slate-400" />
+          <LogOut size={17} className="text-slate-500 dark:text-slate-400" />
           Logout
         </Link>
       </nav>
 
       {/* Upgrade to Pro Card */}
       <div className="p-3 shrink-0">
-        <div className="relative bg-gradient-to-br from-[#1A1F3A] to-[#0F172A] border border-indigo-500/20 rounded-2xl p-4 overflow-hidden">
+        <div className="relative bg-gradient-to-br from-indigo-50 to-slate-100 dark:from-[#1A1F3A] dark:to-[#0F172A] border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 overflow-hidden">
           {/* glow blobs */}
-          <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/20 rounded-full blur-xl" />
-          <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-500/20 rounded-full blur-xl" />
+          <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-xl" />
+          <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-xl" />
 
           {/* rocket icon */}
           <div className="relative z-10 flex justify-center mb-3">
@@ -123,10 +123,10 @@ function SidebarContent({ pathname, onClose }) {
             </div>
           </div>
 
-          <p className="relative z-10 text-sm font-black text-white text-center mb-1">
+          <p className="relative z-10 text-sm font-black text-slate-900 dark:text-white text-center mb-1">
             Upgrade to Pro
           </p>
-          <p className="relative z-10 text-[10px] text-slate-400 text-center mb-3 leading-relaxed">
+          <p className="relative z-10 text-[10px] text-slate-500 dark:text-slate-400 text-center mb-3 leading-relaxed">
             Unlock advanced analytics, AI reports and more insights.
           </p>
           <button className="relative z-10 w-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white text-xs font-bold py-2 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20" suppressHydrationWarning>
@@ -161,9 +161,9 @@ export default function MainLayout({ children }) {
   const fullName = user?.fullName || firstName;
 
   return (
-    <div className="dark bg-[#0B1120] text-slate-100 min-h-screen flex overflow-hidden font-sans">
+    <div className="bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 min-h-screen flex overflow-hidden font-sans transition-colors duration-200">
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-56 bg-[#0F172A] border-r border-slate-800/80 shrink-0">
+      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800/80 shrink-0 transition-colors duration-200">
         <SidebarContent pathname={pathname} onClose={undefined} />
       </aside>
 
@@ -176,19 +176,19 @@ export default function MainLayout({ children }) {
               animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 bg-black z-40 lg:hidden"
+              className="fixed inset-0 bg-black/60 z-40 lg:hidden"
             />
             <motion.aside
               initial="closed"
               animate="open"
               exit="closed"
               variants={sidebarVariants}
-              className="fixed inset-y-0 left-0 w-56 bg-[#0F172A] border-r border-slate-800 z-50 flex flex-col lg:hidden"
+              className="fixed inset-y-0 left-0 w-56 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800 z-50 flex flex-col lg:hidden"
             >
               <div className="absolute top-4 right-4">
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                   suppressHydrationWarning
                 >
                   <X size={18} />
@@ -206,12 +206,12 @@ export default function MainLayout({ children }) {
       {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* ── Top Navbar ── */}
-        <header className="h-14 bg-[#0F172A]/80 backdrop-blur-xl border-b border-slate-800/60 flex items-center justify-between px-5 z-30 shrink-0">
+        <header className="h-14 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between px-5 z-30 shrink-0 transition-colors duration-200">
           {/* Left: mobile toggle + search */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/40 hover:bg-slate-800 border border-slate-700/50"
+              className="lg:hidden text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900 dark:text-white p-2 rounded-xl bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50"
               suppressHydrationWarning
             >
               <Menu size={18} />
@@ -219,27 +219,27 @@ export default function MainLayout({ children }) {
 
             {/* Welcome text (desktop) */}
             <div className="hidden md:block">
-              <p className="text-xs text-slate-400 font-semibold">
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
                 Welcome back,{" "}
-                <span className="text-white font-black">{firstName}!</span>
+                <span className="text-slate-900 dark:text-white font-black">{firstName}!</span>
               </p>
             </div>
           </div>
 
-          {/* Right: search + bell + date range + user */}
+          {/* Right: search + bell + theme toggle + user */}
           <div className="flex items-center gap-3">
             {/* Search */}
-            <div className="hidden md:flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl px-3 py-1.5 w-52 focus-within:border-[#3B82F6]/50 transition-all">
-              <Search size={13} className="text-slate-400" />
+            <div className="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl px-3 py-1.5 w-52 focus-within:border-[#3B82F6]/50 transition-all">
+              <Search size={13} className="text-slate-500 dark:text-slate-400" />
               <input
                 type="text"
                 placeholder="Search anything..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent border-none outline-none text-xs text-slate-200 placeholder-slate-500 w-full"
+                className="bg-transparent border-none outline-none text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 w-full"
                 suppressHydrationWarning
               />
-              <span className="text-[9px] text-slate-600 font-bold border border-slate-700 px-1 py-0.5 rounded hidden lg:block">
+              <span className="text-[9px] text-slate-500 dark:text-slate-600 font-bold border border-slate-300 dark:border-slate-700 px-1 py-0.5 rounded hidden lg:block">
                 ⌘K
               </span>
             </div>
@@ -248,11 +248,11 @@ export default function MainLayout({ children }) {
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-xl bg-slate-800/40 border border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                className="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-100 dark:bg-slate-800 transition-colors"
                 suppressHydrationWarning
               >
                 <Bell size={16} />
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full text-[8px] font-black text-white flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full text-[8px] font-black text-slate-900 dark:text-white flex items-center justify-center">
                   3
                 </span>
               </button>
@@ -263,13 +263,13 @@ export default function MainLayout({ children }) {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="absolute right-0 mt-2 w-72 bg-[#1E293B] border border-slate-700 rounded-2xl shadow-2xl p-4 z-50"
+                    className="absolute right-0 mt-2 w-72 bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-4 z-50"
                   >
-                    <div className="flex items-center justify-between border-b border-slate-700 pb-2 mb-3">
-                      <span className="text-sm font-black text-white">
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2 mb-3">
+                      <span className="text-sm font-black text-slate-900 dark:text-white">
                         Notifications
                       </span>
-                      <span className="text-[9px] bg-rose-500/20 text-rose-400 font-black px-2 py-0.5 rounded-full uppercase">
+                      <span className="text-[9px] bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black px-2 py-0.5 rounded-full uppercase">
                         3 New
                       </span>
                     </div>
@@ -292,17 +292,17 @@ export default function MainLayout({ children }) {
                     ].map((n, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors"
+                        className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-100 dark:bg-slate-800/50 transition-colors"
                       >
                         <div
                           className="w-2 h-2 rounded-full mt-1.5 shrink-0"
                           style={{ background: n.color }}
                         />
                         <div>
-                          <p className="text-xs font-bold text-white">
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">
                             {n.title}
                           </p>
-                          <p className="text-[10px] text-slate-400">{n.time}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{n.time}</p>
                         </div>
                       </div>
                     ))}
@@ -311,20 +311,23 @@ export default function MainLayout({ children }) {
               </AnimatePresence>
             </div>
 
+            {/* Theme Switcher Toggle */}
+            <ThemeToggle />
+
             {/* User */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
               <UserButton
                 appearance={{
                   elements: { avatarBox: "w-8 h-8 ring-2 ring-indigo-500/30" },
                 }}
               />
               <div className="hidden md:flex flex-col leading-none">
-                <span className="text-xs font-bold text-white">{fullName}</span>
-                <span className="text-[9px] text-blue-400 font-bold">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">{fullName}</span>
+                <span className="text-[9px] text-blue-600 dark:text-blue-400 font-bold">
                   Premium User
                 </span>
               </div>
-              <ChevronDown size={13} className="text-slate-500 hidden md:block" />
+              <ChevronDown size={13} className="text-slate-500 dark:text-slate-500 hidden md:block" />
             </div>
           </div>
         </header>
@@ -335,7 +338,7 @@ export default function MainLayout({ children }) {
         </main>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-slate-800/50 px-6 py-3 flex items-center justify-between text-[10px] text-slate-600 font-semibold shrink-0">
+        <footer className="border-t border-slate-200 dark:border-slate-800/50 px-6 py-3 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-600 font-semibold shrink-0">
           <span>© 2024 SAMPAT AI Finance Manager. All rights reserved.</span>
           <span>
             Made with{" "}

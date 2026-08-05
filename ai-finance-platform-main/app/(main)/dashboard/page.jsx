@@ -5,6 +5,12 @@ import {
   getSpendingInsights,
 } from "@/actions/dashboard";
 import { DashboardMain } from "./_components/dashboard-main";
+import { PageSkeleton } from "@/components/page-skeleton";
+
+export const metadata = {
+  title: "Financial Dashboard | SAMPAT AI Finance",
+  description: "Monitor your accounts, real-time balances, recent transactions, and spending insights.",
+};
 
 export default async function DashboardPage() {
   const [accounts, transactions, spendingInsights] = await Promise.all([
@@ -14,13 +20,7 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-64 text-slate-400 text-sm font-semibold animate-pulse">
-          Loading dashboard…
-        </div>
-      }
-    >
+    <Suspense fallback={<PageSkeleton title="Dashboard" cards={4} />}>
       <DashboardMain
         accounts={accounts || []}
         transactions={transactions || []}
