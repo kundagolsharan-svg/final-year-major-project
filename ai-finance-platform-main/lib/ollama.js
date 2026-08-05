@@ -1,7 +1,9 @@
 /**
- * Local Machine Learning Interface using Ollama
- * Replaces Google Gemini for local processing.
+ * Hybrid Machine Learning Interface (Local Ollama + Cloud Gemini Fallback)
+ * Works locally via Ollama, and automatically falls back to FREE Google Gemini when deployed to Vercel/Render.
  */
+
+import { generateWithFallback as geminiGenerate } from "@/lib/gemini";
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 
@@ -11,35 +13,30 @@ async function getInstalledModels() {
     const response = await fetch(`${OLLAMA_URL}/api/tags`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
-      signal: AbortSignal.timeout(5000), // increased from 2000 for better stability
+      signal: AbortSignal.timeout(3000),
     });
     
     if (!response.ok) return [];
     const data = await response.json();
-    return data.models.map(m => m.name);
+    return data.models?.map(m => m.name) || [];
   } catch (error) {
-    if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-      console.error("[Ollama] Connectivity check timed out. Ollama might be busy or starting up.");
-    } else {
-      console.error("[Ollama] Failed to connect to local Ollama server:", error.message);
-    }
     return [];
   }
 }
 
 /**
- * Shared helper for robust generation with local ML models via Ollama.
- * Falls back to different installed models if one fails.
+ * Shared helper for robust generation.
+ * Tries local Ollama first. If unavailable (e.g. deployed on Vercel), seamlessly delegates to Gemini API.
  */
 export async function generateWithFallback(prompt, isVision = false) {
-  console.log(`[Ollama AI] >>> Preparing to generate content (Vision: ${isVision})`);
+  console.log(`[AI Engine] >>> Processing request (Vision: ${isVision})`);
   
   const installedModels = await getInstalledModels();
   
+  // If Ollama is not running (Cloud Vercel / Render deployment), use Gemini API fallback
   if (installedModels.length === 0) {
-    throw new Error(
-      "Ollama is not running or no models are installed. Please download Ollama and run `ollama run llama3.2`."
-    );
+    console.log("[AI Engine] Local Ollama not detected. Using Google Gemini Cloud AI...");
+    return await geminiGenerate(prompt, isVision);
   }
 
   // Pre-filter models if vision is requested
@@ -51,90 +48,79 @@ export async function generateWithFallback(prompt, isVision = false) {
       visionSupportedModels.some(v => m.includes(v))
     );
     if (candidateModels.length === 0) {
-      console.warn("[Ollama AI] No vision models installed. Falling back to text models. Make sure you install 'llava' if you need image/PDF parsing.");
       candidateModels = installedModels;
     }
   }
 
-  // Prioritize faster/smarter models automatically
   const preferredModels = ["llama3.2", "llama3", "mistral", "gemma", "qwen", "phi3"];
   const sortedModels = candidateModels.sort((a, b) => {
-    const aIndex = preferredModels.findIndex(p => a.includes(p));
-    const bIndex = preferredModels.findIndex(p => b.includes(p));
-    
-    if (aIndex === -1 && bIndex === -1) return 0;
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
+    const aPref = preferredModels.findIndex(p => a.includes(p));
+    const bPref = preferredModels.findIndex(p => b.includes(p));
+    if (aPref !== -1 && bPref !== -1) return aPref - bPref;
+    if (aPref !== -1) return -1;
+    if (bPref !== -1) return 1;
+    return 0;
   });
 
   const errors = [];
 
   for (const modelName of sortedModels) {
     try {
-      console.log(`[Ollama AI] >>> Attempting with local model: ${modelName}...`);
-      
+      console.log(`[Ollama AI] >>> Attempting generation with ${modelName}...`);
       const response = await fetch(`${OLLAMA_URL}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Timeout set high (180s) because local inference can take significant time
-        signal: AbortSignal.timeout(180000), 
         body: JSON.stringify({
           model: modelName,
           prompt: prompt,
-          stream: false
-        })
+          stream: false,
+        }),
+        signal: AbortSignal.timeout(60000),
       });
 
       if (!response.ok) {
-        let errorMsg = await response.text();
-        throw new Error(`Ollama API error: ${response.status} - ${errorMsg}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      const text = result.response;
-      
-      if (!text) throw new Error("Empty response from local AI model");
-      
+      const data = await response.json();
+      const text = data.response?.trim();
+
+      if (!text) {
+        throw new Error("Received empty response from local model.");
+      }
+
       console.log(`[Ollama AI] <<< SUCCESS with ${modelName}`);
       return text;
       
     } catch (error) {
-      console.error(`[Ollama AI] !!! FAILED with ${modelName}:`, error.message);
+      console.warn(`[Ollama AI] Failed with ${modelName}:`, error.message);
       errors.push(`${modelName}: ${error.message}`);
-      
-      // If it's a network error (Ollama down entirely), break immediately
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         break;
       }
-      continue;
     }
   }
 
-  const failureDetails = errors.join(" | ");
-  console.error("[Ollama AI] ALL LOCAL MODELS FAILED:", failureDetails);
-  throw new Error(
-    `Local SAMPAT AI is temporarily unavailable. All models failed. Ensure Ollama is running and has sufficient memory. Details: ${failureDetails}`
-  );
+  // If local Ollama failed, delegate to Gemini Cloud API
+  console.log("[AI Engine] Local Ollama models failed. Delegating to Gemini Cloud API...");
+  return await geminiGenerate(prompt, isVision);
 }
 
 /**
- * Streaming version of Ollama for chat bots
+ * Streaming version helper
  */
 export async function streamWithFallback(messages, modelOverride = null) {
   const installedModels = await getInstalledModels();
   if (installedModels.length === 0) {
-    throw new Error("Ollama is not running. Start Ollama locally to use chat.");
+    throw new Error("Ollama is not running locally.");
   }
   
-  // Convert standard Vercel AI SDK messages to Ollama format
   let ollamaMessages = messages.map(m => ({
     role: m.role === 'user' ? 'user' : 'assistant',
     content: m.content
   }));
 
   const modelName = modelOverride || installedModels.find(m => m.includes("llama3")) || installedModels[0];
-  console.log(`[Ollama AI] >>> Streaming Chat with ${modelName}`);
 
   const response = await fetch(`${OLLAMA_URL}/api/chat`, {
     method: "POST",
