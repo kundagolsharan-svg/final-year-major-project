@@ -313,7 +313,7 @@ export default function GoalsPage() {
             </div>
           </div>
           <div className="mt-3">
-            <div className="flex justify-between text-[11px] font-bold text-slate-500 mb-1">
+            <div className="flex justify-between text-sm font-bold text-slate-500 mb-1">
               <span>Overall Progress</span>
               <span className="text-indigo-600 dark:text-indigo-400 font-extrabold">
                 {summary.overallProgress}%
@@ -398,7 +398,7 @@ export default function GoalsPage() {
                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                   {tpl.name}
                 </p>
-                <p className="text-[11px] font-semibold text-slate-500">
+                <p className="text-sm font-semibold text-slate-500">
                   ₹{Number(tpl.targetAmount).toLocaleString("en-IN")} • {tpl.months} mos
                 </p>
               </div>
@@ -779,7 +779,7 @@ export default function GoalsPage() {
                           ₹{goal.monthlySavingNeeded?.toLocaleString("en-IN")}/mo
                         </span>
                       </div>
-                      <div className="flex justify-between text-[11px] text-slate-500">
+                      <div className="flex justify-between text-sm text-slate-500">
                         <span>Daily Pace:</span>
                         <span>₹{goal.dailySavingNeeded?.toLocaleString("en-IN")}/day ({goal.daysRemaining} days left)</span>
                       </div>

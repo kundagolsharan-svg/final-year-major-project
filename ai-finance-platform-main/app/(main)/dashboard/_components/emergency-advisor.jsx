@@ -21,14 +21,14 @@ export function EmergencyAdvisor({ scoreData }) {
             Safety Buffer
           </CardTitle>
           <div className={cn(
-            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm",
+            "px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-sm",
             status === "Full" ? "bg-emerald-500/10 text-[#22C55E] border border-emerald-500/20" : 
             status === "Partial" ? "bg-amber-500/10 text-[#F59E0B] border border-amber-500/20" : "bg-rose-500/10 text-[#EF4444] border border-rose-500/20"
           )}>
             {status}
           </div>
         </div>
-        <CardDescription className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px] mt-2">
+        <CardDescription className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">
           Target: ₹{recommended.toLocaleString('en-IN')} (6 Months)
         </CardDescription>
       </CardHeader>
@@ -48,11 +48,11 @@ export function EmergencyAdvisor({ scoreData }) {
 
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Savings</p>
+            <p className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1">Current Savings</p>
             <p className="text-sm font-black text-slate-900 dark:text-white">₹{current.toLocaleString('en-IN')}</p>
           </div>
           <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Gap to Goal</p>
+            <p className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1">Gap to Goal</p>
             <p className={cn("text-sm font-black", gap > 0 ? "text-[#EF4444]" : "text-[#22C55E]")}>
               ₹{gap.toLocaleString('en-IN')}
             </p>

@@ -5,39 +5,58 @@
 
 import { generateWithFallback as geminiGenerate } from "@/lib/gemini";
 
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+let workingOllamaUrl = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 
 // Fetches the list of installed models from local Ollama
 async function getInstalledModels() {
-  try {
-    const response = await fetch(`${OLLAMA_URL}/api/tags`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-      signal: AbortSignal.timeout(3000),
-    });
-    
-    if (!response.ok) return [];
-    const data = await response.json();
-    return data.models?.map(m => m.name) || [];
-  } catch (error) {
-    return [];
+  const urlsToTry = [process.env.OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"].filter(Boolean);
+  const uniqueUrls = [...new Set(urlsToTry)];
+
+  for (const url of uniqueUrls) {
+    try {
+      const response = await fetch(`${url}/api/tags`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(3000),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const models = data.models?.map(m => m.name) || [];
+        if (models.length > 0) {
+          workingOllamaUrl = url; // Save the working URL
+          console.log(`[Ollama AI] Successfully connected to ${url}. Found models: ${models.join(", ")}`);
+          return models;
+        }
+      }
+    } catch (error) {
+      console.warn(`[Ollama AI] Could not connect to ${url}:`, error.message);
+    }
   }
+  
+  console.warn(`[Ollama AI] Exhausted all local URLs. Ollama appears to be offline or no models are installed.`);
+  return [];
 }
 
 /**
  * Shared helper for robust generation.
  * Tries local Ollama first. If unavailable (e.g. deployed on Vercel), seamlessly delegates to Gemini API.
  */
-export async function generateWithFallback(prompt, isVision = false) {
+export async function generateWithFallback(prompt, isVision = false, format = null) {
   console.log(`[AI Engine] >>> Processing request (Vision: ${isVision})`);
-  
+
+  // Guard against null/empty prompt — prevents "payload must be of type object, received null"
+  if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+    throw new Error("AI prompt cannot be null or empty.");
+  }
+
+  const safePrompt = prompt.trim();
   const installedModels = await getInstalledModels();
   
-  // If Ollama is not running (Cloud Vercel / Render deployment), use Gemini API fallback
   if (installedModels.length === 0) {
-    console.log("[AI Engine] Local Ollama not detected. Using Google Gemini Cloud AI...");
-    return await geminiGenerate(prompt, isVision);
+    throw new Error("Local Ollama not detected or no models installed. Please ensure Ollama is running.");
   }
+
 
   // Pre-filter models if vision is requested
   const visionSupportedModels = ["llava", "bakllava", "moondream"];
@@ -66,16 +85,19 @@ export async function generateWithFallback(prompt, isVision = false) {
 
   for (const modelName of sortedModels) {
     try {
-      console.log(`[Ollama AI] >>> Attempting generation with ${modelName}...`);
-      const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+      console.log(`[Ollama AI] >>> Attempting generation with ${modelName} on ${workingOllamaUrl}...`);
+      const requestBody = {
+        model: modelName,
+        prompt: prompt,
+        stream: false,
+      };
+      if (format) requestBody.format = format;
+
+      const response = await fetch(`${workingOllamaUrl}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: modelName,
-          prompt: prompt,
-          stream: false,
-        }),
-        signal: AbortSignal.timeout(60000),
+        body: JSON.stringify(requestBody)
+        // Removed timeout to allow slow local models to complete
       });
 
       if (!response.ok) {
@@ -101,9 +123,9 @@ export async function generateWithFallback(prompt, isVision = false) {
     }
   }
 
-  // If local Ollama failed, delegate to Gemini Cloud API
-  console.log("[AI Engine] Local Ollama models failed. Delegating to Gemini Cloud API...");
-  return await geminiGenerate(prompt, isVision);
+  // If local Ollama failed, do not fall back to Gemini per user request
+  console.log("[AI Engine] Local Ollama models failed. Gemini fallback is disabled.");
+  throw new Error("All local Ollama models failed to generate a response. Please check Ollama logs.");
 }
 
 /**
@@ -122,7 +144,7 @@ export async function streamWithFallback(messages, modelOverride = null) {
 
   const modelName = modelOverride || installedModels.find(m => m.includes("llama3")) || installedModels[0];
 
-  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+  const response = await fetch(`${workingOllamaUrl}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

@@ -45,7 +45,7 @@ export function SpendingInsights({ insights }) {
               className="p-5 rounded-[2rem] bg-slate-900/40 border border-slate-200 dark:border-slate-800 flex flex-col gap-3 group hover:bg-[#111827] transition-all duration-300"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#EF4444] bg-rose-500/10 shadow-inner px-3 py-1 rounded-full border border-rose-500/20">
+                <span className="text-xs font-black uppercase tracking-widest text-[#EF4444] bg-rose-500/10 shadow-inner px-3 py-1 rounded-full border border-rose-500/20">
                   {insight.category}
                 </span>
                 <span className="text-xs font-black text-[#EF4444] flex items-center gap-1.5 bg-rose-500/10 px-3 py-1 rounded-full">
@@ -58,12 +58,12 @@ export function SpendingInsights({ insights }) {
               </p>
               <div className="flex items-center gap-6 mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Last Month</span>
+                  <span className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1">Last Month</span>
                   <span className="text-xs font-black text-slate-500 dark:text-slate-400">₹{insight.last.toLocaleString("en-IN")}</span>
                 </div>
                 <ArrowRight size={14} className="text-slate-600" />
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Current</span>
+                  <span className="text-sm font-black text-slate-500 uppercase tracking-widest mb-1">Current</span>
                   <span className="text-xs font-black text-[#EF4444]">₹{insight.current.toLocaleString("en-IN")}</span>
                 </div>
               </div>

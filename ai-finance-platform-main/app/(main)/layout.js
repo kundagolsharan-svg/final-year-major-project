@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Rocket,
   MessageSquare,
+  TrendingUp,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ const menuItems = [
   { name: "Analytics", href: "/analyzer", icon: BarChart2 },
   { name: "AI Insights", href: "/insights", icon: Sparkles },
   { name: "AI Chat", href: "/chat", icon: MessageSquare },
+  { name: "AI Forecast", href: "/forecast", icon: TrendingUp },
   { name: "Budgets", href: "/budget", icon: PiggyBank },
   { name: "Reports", href: "/reports", icon: FileDown },
   { name: "Goals", href: "/goals", icon: Target },
@@ -56,7 +58,7 @@ function SidebarContent({ pathname, onClose }) {
             <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wide">
               SAMPAT
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
               AI Finance Manager
             </span>
           </div>
@@ -126,7 +128,7 @@ function SidebarContent({ pathname, onClose }) {
           <p className="relative z-10 text-sm font-black text-slate-900 dark:text-white text-center mb-1">
             Upgrade to Pro
           </p>
-          <p className="relative z-10 text-[10px] text-slate-500 dark:text-slate-400 text-center mb-3 leading-relaxed">
+          <p className="relative z-10 text-xs text-slate-500 dark:text-slate-400 text-center mb-3 leading-relaxed">
             Unlock advanced analytics, AI reports and more insights.
           </p>
           <button className="relative z-10 w-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white text-xs font-bold py-2 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20" suppressHydrationWarning>
@@ -239,7 +241,7 @@ export default function MainLayout({ children }) {
                 className="bg-transparent border-none outline-none text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 w-full"
                 suppressHydrationWarning
               />
-              <span className="text-[9px] text-slate-500 dark:text-slate-600 font-bold border border-slate-300 dark:border-slate-700 px-1 py-0.5 rounded hidden lg:block">
+              <span className="text-sm text-slate-500 dark:text-slate-600 font-bold border border-slate-300 dark:border-slate-700 px-1 py-0.5 rounded hidden lg:block">
                 ⌘K
               </span>
             </div>
@@ -252,7 +254,7 @@ export default function MainLayout({ children }) {
                 suppressHydrationWarning
               >
                 <Bell size={16} />
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full text-[8px] font-black text-slate-900 dark:text-white flex items-center justify-center">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 rounded-full text-sm font-black text-slate-900 dark:text-white flex items-center justify-center">
                   3
                 </span>
               </button>
@@ -269,7 +271,7 @@ export default function MainLayout({ children }) {
                       <span className="text-sm font-black text-slate-900 dark:text-white">
                         Notifications
                       </span>
-                      <span className="text-[9px] bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black px-2 py-0.5 rounded-full uppercase">
+                      <span className="text-sm bg-rose-500/20 text-rose-600 dark:text-rose-400 font-black px-2 py-0.5 rounded-full uppercase">
                         3 New
                       </span>
                     </div>
@@ -302,7 +304,7 @@ export default function MainLayout({ children }) {
                           <p className="text-xs font-bold text-slate-900 dark:text-white">
                             {n.title}
                           </p>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{n.time}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{n.time}</p>
                         </div>
                       </div>
                     ))}
@@ -323,7 +325,7 @@ export default function MainLayout({ children }) {
               />
               <div className="hidden md:flex flex-col leading-none">
                 <span className="text-xs font-bold text-slate-900 dark:text-white">{fullName}</span>
-                <span className="text-[9px] text-blue-600 dark:text-blue-400 font-bold">
+                <span className="text-sm text-blue-600 dark:text-blue-400 font-bold">
                   Premium User
                 </span>
               </div>
@@ -338,8 +340,7 @@ export default function MainLayout({ children }) {
         </main>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-slate-200 dark:border-slate-800/50 px-6 py-3 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-600 font-semibold shrink-0">
-          <span>© 2024 SAMPAT AI Finance Manager. All rights reserved.</span>
+        <footer className="border-t border-slate-200 dark:border-slate-800/50 px-6 py-3 flex items-center justify-center text-xs text-slate-500 dark:text-slate-600 font-semibold shrink-0">
           <span>
             Made with{" "}
             <span className="text-rose-500">♥</span> for smart financial

@@ -274,7 +274,7 @@ export default function ReportsPage() {
                 <ArrowDownLeft size={22} />
               </div>
             </div>
-            <p className="text-[11px] font-semibold text-emerald-600/80 dark:text-emerald-400/80 mt-3">
+            <p className="text-sm font-semibold text-emerald-600/80 dark:text-emerald-400/80 mt-3">
               Total credited receipts for {MONTHS[selectedMonth - 1]}
             </p>
           </Card>
@@ -294,7 +294,7 @@ export default function ReportsPage() {
                 <ArrowUpRight size={22} />
               </div>
             </div>
-            <p className="text-[11px] font-semibold text-rose-600/80 dark:text-rose-400/80 mt-3">
+            <p className="text-sm font-semibold text-rose-600/80 dark:text-rose-400/80 mt-3">
               Across {Object.keys(reportData.categoryBreakdown).length} spending categories
             </p>
           </Card>
@@ -314,7 +314,7 @@ export default function ReportsPage() {
                 <Wallet size={22} />
               </div>
             </div>
-            <p className="text-[11px] font-semibold text-indigo-600/80 dark:text-indigo-400/80 mt-3">
+            <p className="text-sm font-semibold text-indigo-600/80 dark:text-indigo-400/80 mt-3">
               {netSavings >= 0 ? "Positive financial surplus" : "Negative monthly cash balance"}
             </p>
           </Card>
@@ -335,7 +335,7 @@ export default function ReportsPage() {
               </div>
             </div>
             <div className="mt-3">
-              <span className={cn("text-[10px] font-black px-2.5 py-0.5 rounded-full border", savingsRating.color)}>
+              <span className={cn("text-xs font-black px-2.5 py-0.5 rounded-full border", savingsRating.color)}>
                 {savingsRating.label}
               </span>
             </div>
@@ -509,7 +509,7 @@ export default function ReportsPage() {
               </div>
 
               <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-right">
-                <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                   Total Tax-Deductible Spend
                 </span>
                 <p className="text-xl font-black text-emerald-700 dark:text-emerald-300">
@@ -529,7 +529,7 @@ export default function ReportsPage() {
                       <span className="capitalize font-bold text-sm text-slate-900 dark:text-white">
                         {tag}
                       </span>
-                      <p className="text-[11px] text-slate-500">Tax compliance deduction tag</p>
+                      <p className="text-sm text-slate-500">Tax compliance deduction tag</p>
                     </div>
                     <span className="text-base font-black text-slate-900 dark:text-white">
                       ₹{amt.toLocaleString("en-IN")}
@@ -641,7 +641,7 @@ export default function ReportsPage() {
                           </td>
                           <td className="p-4 text-slate-500">
                             {t.taxCategory ? (
-                              <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">
+                              <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                                 {t.taxCategory}
                               </span>
                             ) : (

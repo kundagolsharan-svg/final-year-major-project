@@ -92,7 +92,7 @@ export function CreateAccountDrawer({ children }) {
                   RBI Account Aggregator (AA) Sync
                 </span>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
+              <span className="px-2 py-0.5 rounded-full text-xs bg-white/20 font-black">
                 AUTO-SYNC
               </span>
             </div>
@@ -114,7 +114,7 @@ export function CreateAccountDrawer({ children }) {
 
           <div className="relative flex items-center justify-center my-2">
             <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
-            <span className="bg-white dark:bg-[#0F172A] px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest absolute">
+            <span className="bg-white dark:bg-[#0F172A] px-3 text-xs font-bold text-slate-400 uppercase tracking-widest absolute">
               or create manual account
             </span>
           </div>
@@ -190,7 +190,7 @@ export function CreateAccountDrawer({ children }) {
                 >
                   Set as Default Account
                 </label>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-sm text-slate-500">
                   This account will be selected by default for new transactions
                 </p>
               </div>

@@ -163,40 +163,40 @@ export function AnalyticsView({ initialTransactions = [] }) {
       {/* ── Metric KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Inflow - Green Theme */}
-        <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-5 shadow-sm space-y-3 transition-all hover:shadow-md">
+        <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl p-5 shadow-lg shadow-emerald-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Total Inflow
             </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white shadow-md shadow-emerald-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
               <ArrowUpRight size={18} />
             </div>
           </div>
           <div>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+            <p className="text-2xl font-black tracking-tight">
               {fmt(totalIncome)}
             </p>
-            <p className="text-[11px] font-bold text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">
+            <p className="text-sm text-white/80 mt-0.5">
               All time recorded income
             </p>
           </div>
         </div>
 
         {/* Total Outflow - Red Theme */}
-        <div className="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/30 rounded-2xl p-5 shadow-sm space-y-3 transition-all hover:shadow-md">
+        <div className="bg-gradient-to-br from-rose-500 to-rose-700 text-white rounded-2xl p-5 shadow-lg shadow-rose-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Total Outflow
             </span>
-            <div className="w-8 h-8 rounded-xl bg-rose-500 text-white shadow-md shadow-rose-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
               <ArrowDownRight size={18} />
             </div>
           </div>
           <div>
-            <p className="text-2xl font-black text-rose-600 dark:text-rose-400 tracking-tight">
+            <p className="text-2xl font-black tracking-tight">
               {fmt(totalExpense)}
             </p>
-            <p className="text-[11px] font-bold text-rose-600/80 dark:text-rose-400/80 mt-0.5">
+            <p className="text-sm text-white/80 mt-0.5">
               All time recorded expenses
             </p>
           </div>
@@ -216,27 +216,27 @@ export function AnalyticsView({ initialTransactions = [] }) {
             <p className="text-2xl font-black tracking-tight">
               {fmt(netSavings)}
             </p>
-            <p className="text-[11px] text-white/80 mt-0.5">
+            <p className="text-sm text-white/80 mt-0.5">
               Cumulative net balance
             </p>
           </div>
         </div>
 
         {/* Savings Rate - Orange Theme */}
-        <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-2xl p-5 shadow-sm space-y-3 transition-all hover:shadow-md">
+        <div className="bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl p-5 shadow-lg shadow-amber-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Savings Rate
             </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
               <Percent size={16} />
             </div>
           </div>
           <div>
-            <p className="text-2xl font-black text-amber-600 dark:text-amber-400 tracking-tight">
+            <p className="text-2xl font-black tracking-tight">
               {savingsRate.toFixed(1)}%
             </p>
-            <p className="text-[11px] font-bold text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+            <p className="text-sm text-white/80 mt-0.5">
               Of gross income retained
             </p>
           </div>
@@ -395,7 +395,7 @@ export function AnalyticsView({ initialTransactions = [] }) {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        <span className="text-sm text-slate-500 dark:text-slate-400">
                           {pct.toFixed(1)}%
                         </span>
                         <span className="font-black text-slate-900 dark:text-white">

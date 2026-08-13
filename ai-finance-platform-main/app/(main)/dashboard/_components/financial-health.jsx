@@ -41,7 +41,7 @@ export function FinancialHealthScore({ scoreData }) {
             <Icon className={`h-6 w-6 ${textColor}`} />
           </div>
         </div>
-        <CardDescription className="text-slate-500 dark:text-slate-400 pt-3 font-bold uppercase tracking-widest text-[10px]">
+        <CardDescription className="text-slate-500 dark:text-slate-400 pt-3 font-bold uppercase tracking-widest text-xs">
           AI Financial Diagnostics
         </CardDescription>
       </CardHeader>
@@ -53,7 +53,7 @@ export function FinancialHealthScore({ scoreData }) {
               <span className="text-xl text-slate-500 font-black ml-1">/100</span>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <span className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest", 
+              <span className={cn("px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest", 
                 score >= 70 ? "bg-[#22C55E]/10 text-[#22C55E]" : score >= 40 ? "bg-[#F59E0B]/10 text-[#F59E0B]" : "bg-[#EF4444]/10 text-[#EF4444]")}>
                 {status}
               </span>
@@ -72,11 +72,11 @@ export function FinancialHealthScore({ scoreData }) {
         {metrics && (
           <div className="grid grid-cols-2 gap-6 text-xs font-bold border-t border-slate-200 dark:border-slate-800 pt-6">
             <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <span className="block text-slate-500 uppercase tracking-widest text-[9px] mb-1">Income</span>
+              <span className="block text-slate-500 uppercase tracking-widest text-sm mb-1">Income</span>
               <span className="text-slate-900 dark:text-white text-sm font-black">₹{metrics.income.toLocaleString()}</span>
             </div>
             <div className="bg-[#111827] p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <span className="block text-slate-500 uppercase tracking-widest text-[9px] mb-1">Expenses</span>
+              <span className="block text-slate-500 uppercase tracking-widest text-sm mb-1">Expenses</span>
               <span className="text-slate-900 dark:text-white text-sm font-black">₹{metrics.expenses.toLocaleString()}</span>
             </div>
           </div>

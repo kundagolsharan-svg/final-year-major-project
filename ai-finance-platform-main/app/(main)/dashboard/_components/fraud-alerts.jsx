@@ -85,11 +85,11 @@ export function FraudAlerts({ transactions }) {
           </div>
           <div>
             <h3 className="text-lg font-black text-slate-900 dark:text-white">Security Shield</h3>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">AI Fraud Detection & Alerts</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">AI Fraud Detection & Alerts</p>
           </div>
         </div>
         <span className={cn(
-          "text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full",
+          "text-xs font-black uppercase tracking-wider px-2.5 py-1 rounded-full",
           alerts.some(a => a.type === "CRITICAL") 
             ? "bg-rose-500/20 text-rose-400 border border-rose-500/30 animate-pulse" 
             : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
@@ -125,7 +125,7 @@ export function FraudAlerts({ transactions }) {
                   {alert.title}
                 </span>
                 <span className={cn(
-                  "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded",
+                  "text-sm font-black uppercase tracking-widest px-2 py-0.5 rounded",
                   alert.type === "CRITICAL" ? "bg-rose-500/20 text-rose-300" : "bg-amber-500/20 text-amber-300"
                 )}>
                   {alert.badge}

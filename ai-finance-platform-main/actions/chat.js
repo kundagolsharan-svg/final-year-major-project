@@ -179,19 +179,17 @@ User Query: ${message}
 
 Deliver your response as SAMPAT AI:`;
 
-    // Try Ollama first, fall back to Gemini if unavailable
+    // Try Ollama (which automatically falls back to Gemini if unavailable)
     let aiResponse;
     try {
       aiResponse = await ollamaGenerate(prompt);
-      console.log("[Chat] Using Ollama for response");
-    } catch (ollamaError) {
-      console.warn("[Chat] Ollama failed, falling back to Gemini:", ollamaError.message);
-      try {
-        aiResponse = await geminiGenerate(prompt);
-        console.log("[Chat] Using Gemini for response");
-      } catch (geminiError) {
-        throw new Error(`Both AI services failed - Ollama: ${ollamaError.message}, Gemini: ${geminiError.message}`);
-      }
+      console.log("[Chat] AI generation successful");
+    } catch (aiError) {
+      console.warn("[Chat] AI services failed:", aiError.message);
+      return { 
+        success: true, 
+        response: "I apologize, but my AI services are currently unavailable. If you are accessing this from another device without local AI, the cloud AI fallback (Gemini) may have reached its usage limits. If you are on the host machine, please ensure Ollama is running." 
+      };
     }
 
     return { success: true, response: aiResponse };

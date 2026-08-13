@@ -9,7 +9,17 @@ import { db } from "./prisma";
  */
 export const getAuthUser = cache(async () => {
   try {
-    const { userId } = await auth();
+    // Wrap auth() separately — it can throw ERR_INVALID_ARG_TYPE (JWT payload null)
+    // when accessed from DevTunnel/mobile before signing in on that domain
+    let userId;
+    try {
+      const authResult = await auth();
+      userId = authResult?.userId;
+    } catch (authErr) {
+      // Clerk JWT verification failed (e.g. tunnel URL, no session cookie)
+      return null;
+    }
+
     if (!userId) return null;
 
     let user = await db.user.findUnique({
@@ -33,7 +43,8 @@ export const getAuthUser = cache(async () => {
 
     return user;
   } catch (error) {
-    console.error("getAuthUser error:", error);
+    console.error("getAuthUser error:", error?.message || error);
     return null;
   }
 });
+

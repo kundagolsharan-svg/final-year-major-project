@@ -179,7 +179,7 @@ export function BudgetView({ initialData }) {
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               Monthly Budget Planner
             </h1>
-            <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+            <span className="text-sm font-bold px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
               {format(now, "MMMM yyyy")}
             </span>
           </div>
@@ -253,7 +253,7 @@ export function BudgetView({ initialData }) {
                 >
                   Cancel
                 </button>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 ml-auto">
+                <div className="flex items-center gap-1 text-sm font-bold text-slate-500 dark:text-slate-400 ml-auto">
                   <span>Quick presets:</span>
                   <button
                     onClick={() => handleQuickPreset(5000)}
@@ -288,7 +288,7 @@ export function BudgetView({ initialData }) {
             <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               ₹{budgetAmount.toLocaleString("en-IN")}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {budgetAmount > 0 ? "Configured limit" : "No limit set"}
             </p>
           </div>
@@ -306,7 +306,7 @@ export function BudgetView({ initialData }) {
             <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               ₹{currentExpenses.toLocaleString("en-IN")}
             </p>
-            <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 mt-0.5 flex items-center gap-1">
+            <p className="text-sm font-bold text-rose-600 dark:text-rose-400 mt-0.5 flex items-center gap-1">
               {percentUsed.toFixed(1)}% of total budget
             </p>
           </div>
@@ -336,7 +336,7 @@ export function BudgetView({ initialData }) {
             >
               ₹{(isOverBudget ? overBudgetAmount : remainingBudget).toLocaleString("en-IN")}
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {isOverBudget ? "Exceeded spending cap" : `${remainingDaysInMonth} days left in month`}
             </p>
           </div>
@@ -355,7 +355,7 @@ export function BudgetView({ initialData }) {
               ₹{Math.round(dailyAllowance).toLocaleString("en-IN")}
               <span className="text-xs text-slate-500 font-semibold">/day</span>
             </p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Avg spent: ₹{Math.round(currentDailyPace).toLocaleString("en-IN")}/day
             </p>
           </div>
@@ -368,7 +368,7 @@ export function BudgetView({ initialData }) {
           <div className="space-y-0.5">
             <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
               Budget Consumption Pace
-              <span className={cn("text-[10px] font-black px-2.5 py-0.5 rounded-full border", statusBadge)}>
+              <span className={cn("text-xs font-black px-2.5 py-0.5 rounded-full border", statusBadge)}>
                 {isOverBudget ? "Over Budget" : isDanger ? "Critical (90%+)" : isWarning ? "Warning (75%+)" : "On Track"}
               </span>
             </h2>
@@ -482,7 +482,7 @@ export function BudgetView({ initialData }) {
                       <span className="font-black text-slate-900 dark:text-white">
                         ₹{item.amount.toLocaleString("en-IN")}
                       </span>
-                      <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-2">
+                      <span className="text-sm text-slate-500 dark:text-slate-400 ml-2">
                         ({item.pctOfExpenses.toFixed(1)}%)
                       </span>
                     </div>
@@ -520,7 +520,7 @@ export function BudgetView({ initialData }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   Pacing Strategy
                 </p>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   {dailyAllowance > 0
                     ? `Limiting non-essential spend to ₹${Math.round(dailyAllowance)}/day will ensure you finish ${format(now, "MMMM")} with ₹${remainingBudget.toLocaleString("en-IN")} in savings.`
                     : "You have crossed your budget. Postpone discretionary shopping to reset next month."}
@@ -533,7 +533,7 @@ export function BudgetView({ initialData }) {
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                     Top Spending Category
                   </p>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     <strong className="capitalize">{categoryBreakdown[0].category}</strong> represents{" "}
                     <strong>{categoryBreakdown[0].pctOfExpenses.toFixed(1)}%</strong> of your total expenses this month (₹{categoryBreakdown[0].amount.toLocaleString("en-IN")}).
                   </p>
@@ -545,7 +545,7 @@ export function BudgetView({ initialData }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                   Automated 80% Threshold Guard
                 </p>
-                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   SAMPAT automatically monitors transactions and triggers email alerts with AI advice whenever your spending crosses 80%.
                 </p>
               </div>
@@ -636,7 +636,7 @@ export function BudgetView({ initialData }) {
                         <p className="text-xs font-black text-slate-900 dark:text-white">
                           {tx.description || tx.category || "Expense"}
                         </p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
                           {format(new Date(tx.date), "MMM d, yyyy")} • <span className="capitalize">{tx.category}</span>
                         </p>
                       </div>
@@ -646,7 +646,7 @@ export function BudgetView({ initialData }) {
                       <p className="text-xs font-black text-rose-600 dark:text-rose-400">
                         -₹{Number(tx.amount).toLocaleString("en-IN")}
                       </p>
-                      <span className="text-[9px] text-slate-400 font-semibold uppercase">
+                      <span className="text-sm text-slate-400 font-semibold uppercase">
                         {tx.status || "COMPLETED"}
                       </span>
                     </div>

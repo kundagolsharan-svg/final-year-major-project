@@ -66,7 +66,7 @@ export default function StatementUpload({ accountId, onComplete }) {
                 <span className="text-base font-semibold text-slate-700 block">Upload Bank Statement</span>
                 <span className="text-xs text-slate-500 mt-1 block">Drag and drop CSV or PDF statements</span>
               </div>
-              <div className="mt-4 px-3 py-1 bg-white rounded-full text-[10px] font-bold text-indigo-500 border border-indigo-100 shadow-sm uppercase tracking-wider">
+              <div className="mt-4 px-3 py-1 bg-white rounded-full text-xs font-bold text-indigo-500 border border-indigo-100 shadow-sm uppercase tracking-wider">
                 AI Processing Enabled
               </div>
               <input type="file" className="hidden" accept=".csv,.pdf" onChange={handleFileChange} />
@@ -114,7 +114,7 @@ export default function StatementUpload({ accountId, onComplete }) {
             </div>
           )}
           
-          <div className="flex items-start gap-2 max-w-[300px] text-[10px] text-slate-400 font-medium bg-white/50 p-2 rounded-lg">
+          <div className="flex items-start gap-2 max-w-[300px] text-xs text-slate-400 font-medium bg-white/50 p-2 rounded-lg">
             <AlertCircle className="h-3 w-3 mt-0.5 shrink-0" />
             SAMPAT AI will automatically extract dates, amounts, and categorize your transactions from the statement text.
           </div>

@@ -185,10 +185,10 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
       >
         {/* Header Tag & Timestamp */}
         <div className="flex items-center gap-2 px-1">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {isUser ? "You" : "SAMPAT AI Advisor"}
           </span>
-          <span className="text-[10px] text-slate-400 dark:text-slate-500">
+          <span className="text-xs text-slate-400 dark:text-slate-500">
             {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -301,7 +301,7 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
           <div className="flex items-center gap-1.5 px-1 pt-0.5">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-semibold text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               title="Copy to clipboard"
             >
               {copied ? (
@@ -315,7 +315,7 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
             <button
               onClick={handleSpeak}
               className={cn(
-                "flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold transition-colors",
+                "flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-semibold transition-colors",
                 isSpeaking
                   ? "text-indigo-600 bg-indigo-500/10"
                   : "text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -370,7 +370,7 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
         {/* Suggested Follow-Up Question Chips */}
         {suggestions.length > 0 && (
           <div className="mt-2 space-y-1.5 w-full">
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5 pl-1">
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5 pl-1">
               <Sparkles size={11} className="text-purple-500" />
               Suggested Deep Dives:
             </p>
@@ -616,7 +616,7 @@ export default function ChatPage() {
                   Live Snapshot
                 </h3>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 ● Live Sync
               </span>
             </div>
@@ -629,11 +629,11 @@ export default function ChatPage() {
                 }
                 className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80 text-left hover:border-indigo-400 transition-all group"
               >
-                <span className="text-[10px] font-bold text-slate-400 block">Total Balance</span>
+                <span className="text-xs font-bold text-slate-400 block">Total Balance</span>
                 <span className="text-sm font-black text-purple-600 dark:text-purple-400 mt-0.5 block truncate">
                   ₹{Number(summary.totalBalance || 0).toLocaleString("en-IN")}
                 </span>
-                <span className="text-[9px] text-indigo-500 font-bold group-hover:underline flex items-center gap-0.5 mt-1">
+                <span className="text-sm text-indigo-500 font-bold group-hover:underline flex items-center gap-0.5 mt-1">
                   Ask AI <ChevronRight size={10} />
                 </span>
               </button>
@@ -644,11 +644,11 @@ export default function ChatPage() {
                 }
                 className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/80 text-left hover:border-indigo-400 transition-all group"
               >
-                <span className="text-[10px] font-bold text-slate-400 block">This Month</span>
+                <span className="text-xs font-bold text-slate-400 block">This Month</span>
                 <span className="text-sm font-black text-rose-600 dark:text-rose-400 mt-0.5 block truncate">
                   -₹{Number(summary.monthlyExpense || 0).toLocaleString("en-IN")}
                 </span>
-                <span className="text-[9px] text-indigo-500 font-bold group-hover:underline flex items-center gap-0.5 mt-1">
+                <span className="text-sm text-indigo-500 font-bold group-hover:underline flex items-center gap-0.5 mt-1">
                   Audit <ChevronRight size={10} />
                 </span>
               </button>
@@ -694,7 +694,7 @@ export default function ChatPage() {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(
-                  "py-1.5 px-2 rounded-xl text-[11px] font-bold text-center transition-all truncate",
+                  "py-1.5 px-2 rounded-xl text-sm font-bold text-center transition-all truncate",
                   activeCategory === cat.id
                     ? "bg-white dark:bg-[#1E293B] text-indigo-600 dark:text-indigo-400 shadow-sm"
                     : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -722,7 +722,7 @@ export default function ChatPage() {
             ))}
           </div>
 
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 font-semibold flex items-center justify-between">
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 font-semibold flex items-center justify-between">
             <span className="flex items-center gap-1">
               <ShieldCheck size={12} className="text-indigo-500" /> Bank-Grade Privacy
             </span>
@@ -749,11 +749,11 @@ export default function ChatPage() {
                 <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
                   SAMPAT Wealth AI
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   v2.4 Advisor
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                 Dual-Engine AI • Live Ledger & Goals Context Active
               </p>
             </div>
@@ -850,7 +850,7 @@ export default function ChatPage() {
                       <h4 className="text-xs font-black text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                         {item.title}
                       </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
                         {item.desc}
                       </p>
                     </div>
@@ -913,8 +913,8 @@ export default function ChatPage() {
         ───────────────────────────────────────────────────────────────────── */}
         <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#141B2D] shrink-0 space-y-2">
           {/* Quick Context Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-[11px] no-scrollbar">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-sm no-scrollbar">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">
               Quick:
             </span>
             <button
@@ -987,7 +987,7 @@ export default function ChatPage() {
             </button>
           </div>
 
-          <p className="text-center text-[10px] text-slate-400 font-medium">
+          <p className="text-center text-xs text-slate-400 font-medium">
             SAMPAT AI provides data-driven financial advice. Always verify major tax and legal commitments.
           </p>
         </div>

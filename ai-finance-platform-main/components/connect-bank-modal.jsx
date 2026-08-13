@@ -159,7 +159,7 @@ export function ConnectBankModal({ children }) {
               <div>
                 <DialogTitle className="text-lg font-black text-white flex items-center gap-2">
                   Account Aggregator (AA) Sync
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded-full text-xs bg-white/20 font-bold uppercase">
                     RBI Approved
                   </span>
                 </DialogTitle>
@@ -181,7 +181,7 @@ export function ConnectBankModal({ children }) {
               <div key={st.stepNum} className="flex-1 flex items-center gap-1.5">
                 <div
                   className={cn(
-                    "w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center transition-all",
+                    "w-5 h-5 rounded-full text-xs font-black flex items-center justify-center transition-all",
                     step >= st.stepNum
                       ? "bg-white text-indigo-700 font-extrabold"
                       : "bg-white/20 text-white/70"
@@ -189,7 +189,7 @@ export function ConnectBankModal({ children }) {
                 >
                   {step > st.stepNum ? "✓" : st.stepNum}
                 </div>
-                <span className="text-[10px] font-bold text-white/90 truncate hidden sm:inline">
+                <span className="text-xs font-bold text-white/90 truncate hidden sm:inline">
                   {st.label}
                 </span>
                 {i < 3 && <div className="flex-1 h-0.5 bg-white/20 rounded-full" />}
@@ -254,7 +254,7 @@ export function ConnectBankModal({ children }) {
                   <p className="text-xs font-bold text-slate-900 dark:text-white">
                     OTP sent to +91 {phone}
                   </p>
-                  <p className="text-[11px] text-indigo-600 dark:text-indigo-400">
+                  <p className="text-sm text-indigo-600 dark:text-indigo-400">
                     Use test OTP: <strong className="font-mono text-xs">123456</strong>
                   </p>
                 </div>
@@ -308,11 +308,11 @@ export function ConnectBankModal({ children }) {
                   <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
                     Discovered Bank Accounts
                   </h4>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-sm text-slate-500">
                     Accounts found registered under +91 {phone}
                   </p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <span className="px-2.5 py-1 rounded-full text-sm font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   {discoveredAccounts.length} Accounts Found
                 </span>
               </div>
@@ -340,7 +340,7 @@ export function ConnectBankModal({ children }) {
                           <p className="text-xs font-black text-slate-900 dark:text-white">
                             {acc.bankName}
                           </p>
-                          <p className="text-[10px] font-semibold text-slate-500">
+                          <p className="text-xs font-semibold text-slate-500">
                             {acc.accountType} Acc ({acc.accountNumber})
                           </p>
                         </div>
@@ -351,7 +351,7 @@ export function ConnectBankModal({ children }) {
                           <p className="text-xs font-black text-emerald-600 dark:text-emerald-400">
                             ₹{Number(acc.balance).toLocaleString("en-IN")}
                           </p>
-                          <p className="text-[9px] text-slate-400 font-bold">
+                          <p className="text-sm text-slate-400 font-bold">
                             {acc.txnPreviewCount} Recent Txns
                           </p>
                         </div>
@@ -373,10 +373,10 @@ export function ConnectBankModal({ children }) {
 
               {/* RBI Consent Detail Strip */}
               <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-1">
-                <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                   <Lock size={12} className="text-indigo-600" /> Consent Scope & Validity:
                 </p>
-                <p className="text-[10px] text-slate-500 leading-tight">
+                <p className="text-xs text-slate-500 leading-tight">
                   Scope: Read-Only Bank Statements & Balances • Frequency: Daily Automated Fetch • Duration: 1 Year (Revocable anytime)
                 </p>
               </div>
@@ -416,13 +416,13 @@ export function ConnectBankModal({ children }) {
 
               <div className="grid grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-left">
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400">Accounts Linked</p>
+                  <p className="text-xs font-bold text-slate-400">Accounts Linked</p>
                   <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 mt-0.5">
                     {syncMetrics.linkedAccountsCount} Banks
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400">Transactions Synced</p>
+                  <p className="text-xs font-bold text-slate-400">Transactions Synced</p>
                   <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
                     {syncMetrics.syncedTransactionsCount} Items
                   </p>

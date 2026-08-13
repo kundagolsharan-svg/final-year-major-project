@@ -51,7 +51,7 @@ export function BillReminders() {
             </div>
             Critical Reminders
           </CardTitle>
-          <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-slate-900 shadow-sm px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
+          <span className="text-xs font-black uppercase tracking-widest text-amber-400 bg-slate-900 shadow-sm px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800">
             {bills.length} UPCOMING
           </span>
         </div>
@@ -85,11 +85,11 @@ export function BillReminders() {
                       {bill.description}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">
                         {bill.account.name}
                       </p>
                       <span className="w-1 h-1 bg-slate-100 dark:bg-slate-800 rounded-full" />
-                      <p className="text-[10px] text-[#8B5CF6] font-black uppercase tracking-widest">
+                      <p className="text-xs text-[#8B5CF6] font-black uppercase tracking-widest">
                         {bill.category}
                       </p>
                     </div>
@@ -98,7 +98,7 @@ export function BillReminders() {
                 <div className="text-right">
                   <p className="text-base font-black text-slate-900 dark:text-white tracking-tighter">₹{parseFloat(bill.amount).toLocaleString('en-IN')}</p>
                   <p className={cn(
-                    "text-[10px] font-black uppercase tracking-widest mt-1",
+                    "text-xs font-black uppercase tracking-widest mt-1",
                     isOverdue ? "text-rose-400 animate-pulse" : "text-amber-400"
                   )}>
                     {isOverdue ? "Overdue" : `Due in ${diffDays} days`}

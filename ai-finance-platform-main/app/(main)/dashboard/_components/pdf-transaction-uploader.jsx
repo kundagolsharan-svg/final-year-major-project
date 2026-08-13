@@ -155,10 +155,10 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
             <div>
               <CardTitle className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
                 PDF & CSV Statement Importer
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   <Sparkles size={11} /> Smart AI Categorization
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck size={11} /> Zero Duplication
                 </span>
               </CardTitle>
@@ -191,14 +191,14 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
             {/* Metrics Breakdown Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
               <div className="p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500">New Imported</p>
+                <p className="text-xs font-bold text-slate-500">New Imported</p>
                 <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
                   {uploadResult.count} Txns
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-bold text-slate-500">Duplicates Filtered</p>
+                <p className="text-xs font-bold text-slate-500">Duplicates Filtered</p>
                 <p className="text-base font-black text-slate-700 dark:text-slate-300 mt-0.5">
                   {uploadResult.duplicateCount || 0} Skipped
                 </p>
@@ -206,7 +206,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
 
               {uploadResult.totalInflow > 0 && (
                 <div className="p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                  <p className="text-xs font-bold text-slate-500 flex items-center gap-1">
                     <TrendingUp size={10} className="text-emerald-500" /> Total Inflow
                   </p>
                   <p className="text-base font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
@@ -217,7 +217,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
 
               {uploadResult.totalOutflow > 0 && (
                 <div className="p-3 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800">
-                  <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                  <p className="text-xs font-bold text-slate-500 flex items-center gap-1">
                     <TrendingDown size={10} className="text-rose-500" /> Total Outflow
                   </p>
                   <p className="text-base font-black text-rose-600 dark:text-rose-400 mt-0.5">
@@ -301,7 +301,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                     <p className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[280px]">
                       {file.name}
                     </p>
-                    <p className="text-[11px] text-slate-500 font-semibold">
+                    <p className="text-sm text-slate-500 font-semibold">
                       {(file.size / 1024).toFixed(1)} KB • Click or drop another statement to replace
                     </p>
                   </div>
@@ -318,7 +318,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                         browse files
                       </span>
                     </p>
-                    <p className="text-[11px] text-slate-400 max-w-md mx-auto">
+                    <p className="text-sm text-slate-400 max-w-md mx-auto">
                       Supports HDFC, SBI, ICICI, Axis, Paytm, Cred, PhonePe & all standard bank statements (.pdf / .csv)
                     </p>
                   </div>
@@ -327,8 +327,8 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
             </div>
 
             {/* Smart Category Preview Pill Strip */}
-            <div className="flex items-center gap-1.5 flex-wrap text-[11px] p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
-              <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wider mr-1">
+            <div className="flex items-center gap-1.5 flex-wrap text-sm p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800">
+              <span className="font-bold text-slate-500 text-xs uppercase tracking-wider mr-1">
                 Auto-Categorized:
               </span>
               <span className="px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-bold flex items-center gap-1">
@@ -353,7 +353,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                   <p className="text-xs font-bold text-indigo-900 dark:text-indigo-300">
                     Processing Statement with SAMPAT AI
                   </p>
-                  <p className="text-[11px] text-indigo-600 dark:text-indigo-400 truncate">
+                  <p className="text-sm text-indigo-600 dark:text-indigo-400 truncate">
                     {uploadStatus || "Extracting transaction records..."}
                   </p>
                 </div>
@@ -362,7 +362,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
 
             {/* Action Buttons & Badges */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold">
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
                 <ShieldCheck size={13} className="text-emerald-500" />
                 Deduplication active: identical previous transactions will be preserved without duplicate records.
               </div>

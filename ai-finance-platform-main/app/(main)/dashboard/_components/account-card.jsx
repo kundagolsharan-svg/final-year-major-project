@@ -72,7 +72,7 @@ export function AccountCard({ account }) {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white/70">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-white/70">
                     {type} ACCOUNT
                   </p>
                   {isDefault && (
@@ -99,7 +99,7 @@ export function AccountCard({ account }) {
           <div className="relative z-10 mt-auto">
             {/* Balance Section */}
             <div className="mb-4">
-              <p className="text-[10px] font-bold text-slate-900 dark:text-white/60 uppercase tracking-[0.2em] mb-1">Current Balance</p>
+              <p className="text-xs font-bold text-slate-900 dark:text-white/60 uppercase tracking-[0.2em] mb-1">Current Balance</p>
               <div className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-baseline gap-1">
                 <span className="text-2xl font-bold text-slate-900 dark:text-white/50">₹</span>
                 {parseFloat(balance).toLocaleString("en-IN", {
@@ -117,8 +117,8 @@ export function AccountCard({ account }) {
                     {type === "EXPENSE" ? <ArrowDownRight className="h-4 w-4 text-slate-900 dark:text-white" /> : <ArrowUpRight className="h-4 w-4 text-slate-900 dark:text-white" />}
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-slate-900 dark:text-white/50 uppercase tracking-widest leading-none">Growth</p>
-                    <p className="text-[10px] font-black text-slate-900 dark:text-white leading-none mt-1">Active</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white/50 uppercase tracking-widest leading-none">Growth</p>
+                    <p className="text-xs font-black text-slate-900 dark:text-white leading-none mt-1">Active</p>
                   </div>
                 </div>
               </div>

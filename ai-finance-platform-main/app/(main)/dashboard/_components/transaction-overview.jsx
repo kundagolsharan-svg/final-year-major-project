@@ -274,7 +274,7 @@ export function DashboardOverview({ accounts, transactions }) {
              </div>
              <div>
                <CardTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-white">AI Intelligent Import</CardTitle>
-               <p className="text-[10px] font-black text-[#8B5CF6] uppercase tracking-[0.2em]">Local AI Optimized (Ollama)</p>
+               <p className="text-xs font-black text-[#8B5CF6] uppercase tracking-[0.2em]">Local AI Optimized (Ollama)</p>
              </div>
            </div>
            
@@ -370,7 +370,7 @@ export function DashboardOverview({ accounts, transactions }) {
                   <TrendingUp className="text-slate-600 h-8 w-8" />
                 </div>
                 <p className="text-slate-500 dark:text-slate-400 font-bold">No activity in the last 7 days</p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Try importing a statement</p>
+                <p className="text-xs text-slate-500 uppercase tracking-widest mt-1">Try importing a statement</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%" key={`rc-chart-${activeChartTab}-${chartId}`}>
@@ -412,7 +412,7 @@ export function DashboardOverview({ accounts, transactions }) {
                         if (active && payload && payload.length) {
                           return (
                             <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
+                              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               <div className="flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
@@ -463,7 +463,7 @@ export function DashboardOverview({ accounts, transactions }) {
                         if (active && payload && payload.length) {
                           return (
                             <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
+                              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               {payload.map((entry) => (
                                 <div key={entry.name} className="flex items-center justify-between gap-4 mb-1.5 last:mb-0">
                                   <div className="flex items-center gap-2">
@@ -533,7 +533,7 @@ export function DashboardOverview({ accounts, transactions }) {
                                 if (active && payload && payload.length) {
                                   return (
                                     <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white px-4 py-2 rounded-2xl shadow-2xl">
-                                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].name}</p>
+                                      <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">{payload[0].name}</p>
                                       <p className="text-sm font-black">₹{payload[0].value.toLocaleString("en-IN")}</p>
                                     </div>
                                   );
@@ -580,7 +580,7 @@ export function DashboardOverview({ accounts, transactions }) {
                         if (active && payload && payload.length) {
                           return (
                             <div className="bg-[#111827] border border-slate-200 dark:border-slate-800 p-4 rounded-2xl shadow-2xl min-w-[160px]">
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
+                              <p className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</p>
                               <div className="flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-2">
                                   <div className="w-2.5 h-2.5 rounded-full bg-[#8B5CF6]" />
@@ -679,13 +679,13 @@ export function DashboardOverview({ accounts, transactions }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-800 bg-[#111827]/30">
-                  <th className="p-4 pl-8 text-[10px] font-black uppercase tracking-wider text-slate-500">Date</th>
-                  <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Merchant</th>
-                  <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Category</th>
-                  <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Payment Method</th>
-                  <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 text-right">Amount</th>
-                  <th className="p-4 text-[10px] font-black uppercase tracking-wider text-slate-500">Status</th>
-                  <th className="p-4 pr-8 text-[10px] font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                  <th className="p-4 pl-8 text-xs font-black uppercase tracking-wider text-slate-500">Date</th>
+                  <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-500">Merchant</th>
+                  <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-500">Category</th>
+                  <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-500">Payment Method</th>
+                  <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-500 text-right">Amount</th>
+                  <th className="p-4 text-xs font-black uppercase tracking-wider text-slate-500">Status</th>
+                  <th className="p-4 pr-8 text-xs font-black uppercase tracking-wider text-slate-500 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50">
@@ -728,7 +728,7 @@ export function DashboardOverview({ accounts, transactions }) {
 
                         {/* Category */}
                         <td className="p-4">
-                          <span className="px-2.5 py-1 rounded-full bg-[#111827] border border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 capitalize">
+                          <span className="px-2.5 py-1 rounded-full bg-[#111827] border border-slate-200 dark:border-slate-800 text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 capitalize">
                             {transaction.category.replace(/-/g, ' ')}
                           </span>
                         </td>
@@ -753,7 +753,7 @@ export function DashboardOverview({ accounts, transactions }) {
 
                         {/* Status */}
                         <td className="p-4">
-                          <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider", statusInfo.className)}>
+                          <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-black uppercase tracking-wider", statusInfo.className)}>
                             <StatusIcon size={10} />
                             {transaction.status || "COMPLETED"}
                           </div>

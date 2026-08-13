@@ -140,13 +140,13 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8">
               <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Spent</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Spent</p>
                 <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
                   ₹{currentExpenses.toLocaleString("en-IN")}
                 </p>
               </div>
               <div className="bg-[#111827] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Remaining</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Remaining</p>
                 <p className="text-2xl font-black tracking-tighter" style={{ color: statusColor }}>
                   ₹{remaining.toLocaleString("en-IN")}
                 </p>
@@ -165,10 +165,10 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
                 />
               </div>
               <div className="flex justify-between items-center px-2">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                <span className="text-xs font-black text-slate-500 uppercase tracking-widest">
                   {percentUsed.toFixed(1)}% Consumed
                 </span>
-                <span className="text-[10px] font-black text-[#8B5CF6] uppercase tracking-widest">
+                <span className="text-xs font-black text-[#8B5CF6] uppercase tracking-widest">
                   Limit: ₹{initialBudget.amount.toLocaleString("en-IN")}
                 </span>
               </div>
@@ -197,7 +197,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }) {
             <Button
               size="lg"
               onClick={() => setIsEditing(true)}
-              className="rounded-2xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-slate-900 dark:text-white shadow-xl px-8 font-black uppercase tracking-widest text-[10px]"
+              className="rounded-2xl bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-slate-900 dark:text-white shadow-xl px-8 font-black uppercase tracking-widest text-xs"
             >
               Activate Budget
             </Button>

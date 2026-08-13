@@ -123,7 +123,7 @@ export function KPICards({ accounts, transactions }) {
             <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               ₹{card.value.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
             </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
               {card.description}
             </span>
           </div>

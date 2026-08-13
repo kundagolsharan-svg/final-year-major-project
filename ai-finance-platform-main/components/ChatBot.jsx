@@ -202,11 +202,11 @@ export default function ChatBot() {
               <div>
                 <div className="text-white font-black text-sm tracking-tight flex items-center gap-1.5">
                   SAMPAT AI
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-white/20 font-bold uppercase">
+                  <span className="px-1.5 py-0.2 rounded-full text-sm bg-white/20 font-bold uppercase">
                     Advisor
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-indigo-100 font-semibold">
+                <div className="flex items-center gap-1.5 text-sm text-indigo-100 font-semibold">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Real-time Financial Sync</span>
                 </div>
@@ -244,7 +244,7 @@ export default function ChatBot() {
                   key={idx}
                   className={cn("flex flex-col gap-1.5", isAssistant ? "items-start" : "items-end")}
                 >
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
                     <span>{isAssistant ? "SAMPAT AI" : "You"}</span>
                   </div>
 
@@ -270,7 +270,7 @@ export default function ChatBot() {
                             components={{
                               table: ({ node, ...props }) => (
                                 <div className="overflow-x-auto my-2 rounded-lg border border-slate-200 dark:border-slate-700">
-                                  <table className="w-full text-[11px] text-left border-collapse" {...props} />
+                                  <table className="w-full text-sm text-left border-collapse" {...props} />
                                 </div>
                               ),
                               th: ({ node, ...props }) => (
@@ -293,7 +293,7 @@ export default function ChatBot() {
                         <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-800">
                           <button
                             onClick={() => handleCopy(mainContent, idx)}
-                            className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1 text-[10px] font-semibold"
+                            className="p-1 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1 text-xs font-semibold"
                             title="Copy message"
                           >
                             {copiedIndex === idx ? (
@@ -307,7 +307,7 @@ export default function ChatBot() {
                           <button
                             onClick={() => handleSpeak(mainContent, idx)}
                             className={cn(
-                              "p-1 rounded-md flex items-center gap-1 text-[10px] font-semibold transition-colors",
+                              "p-1 rounded-md flex items-center gap-1 text-xs font-semibold transition-colors",
                               speakingIndex === idx
                                 ? "text-indigo-600 bg-indigo-500/10"
                                 : "text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -333,7 +333,7 @@ export default function ChatBot() {
                         <button
                           key={sIdx}
                           onClick={() => handleSend(q)}
-                          className="w-full text-left flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 hover:border-indigo-500 text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors shadow-2xs group/chip"
+                          className="w-full text-left flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 hover:border-indigo-500 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors shadow-2xs group/chip"
                         >
                           <span className="truncate">{q}</span>
                           <ChevronRight size={11} className="text-indigo-500 shrink-0 group-hover/chip:translate-x-0.5 transition-transform" />
@@ -363,7 +363,7 @@ export default function ChatBot() {
                 <button
                   key={p}
                   onClick={() => handleSend(p)}
-                  className="whitespace-nowrap px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0"
+                  className="whitespace-nowrap px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors shrink-0"
                 >
                   ⚡ {p}
                 </button>
