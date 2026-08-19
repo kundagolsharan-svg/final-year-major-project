@@ -155,6 +155,11 @@ ${user.transactions
             .join("\n")
         : "";
 
+    const currentHourIst = parseInt(new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour: 'numeric', hour12: false }));
+    let greeting = "Good morning";
+    if (currentHourIst >= 12 && currentHourIst < 17) greeting = "Good afternoon";
+    else if (currentHourIst >= 17 || currentHourIst < 4) greeting = "Good evening";
+
     const prompt = `
 You are SAMPAT AI, the executive AI wealth and financial intelligence advisor built into the SAMPAT platform.
 
@@ -170,6 +175,7 @@ YOUR CAPABILITIES & TONE:
 1. [Specific context-relevant follow up question]
 2. [Specific context-relevant follow up question]
 3. [Specific context-relevant follow up question]
+5. **Spoken Summary**: At the very beginning of your response, ALWAYS provide a concise, spoken summary designed for Text-to-Speech (TTS) wrapped in \`<spoken_summary>...</spoken_summary>\` tags. This summary MUST NOT read the whole response. It should only explain the main content, actionable steps, and suggestions. It MUST start with the greeting "${greeting}" and MUST end with "Thank you". Do not include formatting like markdown or tables in this tag.
 
 USER'S LIVE FINANCIAL PROFILE & LEDGER:
 ${context}

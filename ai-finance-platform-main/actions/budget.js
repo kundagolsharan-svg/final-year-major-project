@@ -272,6 +272,18 @@ export async function checkBudgetAlert(userId) {
     console.log(`Budget: ${budgetAmount}, Expenses: ${totalExpenses}, Percentage: ${percentageUsed.toFixed(1)}%`);
 
     if (percentageUsed >= 80) {
+      // Check if alert was already sent this month
+      if (budget.lastAlertSent) {
+        const lastAlert = new Date(budget.lastAlertSent);
+        const now = new Date();
+        if (
+          lastAlert.getMonth() === now.getMonth() &&
+          lastAlert.getFullYear() === now.getFullYear()
+        ) {
+          return true; // Already sent this month, but still return true for UI
+        }
+      }
+
       console.log("Threshold exceeded! Sending email...");
       const monthName = new Date().toLocaleString("default", {
         month: "long",
@@ -307,9 +319,14 @@ export async function checkBudgetAlert(userId) {
         where: { id: budget.id },
         data: { lastAlertSent: new Date() },
       });
+      
+      return true; // Budget exceeded
     }
+    
+    return false; // Budget not exceeded
   } catch (error) {
     console.error("Error in checkBudgetAlert server action:", error);
+    return false;
   }
 }
 

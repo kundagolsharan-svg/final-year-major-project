@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { getBehaviorAnalysis } from "@/actions/behavior-analyzer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -185,8 +186,8 @@ export default function InsightsPage() {
       </div>
 
       {/* ── ROW 1: Health Score + Summary ─────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-none shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl flex flex-col items-center justify-center p-8 gap-3">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="border-none shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl flex flex-col items-center justify-center p-8 gap-3">
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Financial Health Score</p>
           <HealthRing score={s?.healthScore ?? 70} label={s?.healthLabel ?? "Good"} />
         </Card>
@@ -215,12 +216,12 @@ export default function InsightsPage() {
             </div>
           </div>
         </Card>
-      </div>
+      </motion.div>
 
       {/* ── ROW 2: Behavioral Profile + Budget Analysis ────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Behavioral Profile */}
-        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
               <User2 className="h-5 w-5 text-violet-500" /> Behavioral Profile
@@ -251,7 +252,7 @@ export default function InsightsPage() {
         </Card>
 
         {/* Budget Analysis */}
-        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
               <Wallet className="h-5 w-5 text-blue-500" /> Budget Analysis
@@ -288,12 +289,12 @@ export default function InsightsPage() {
             ) : <p className="text-slate-400 text-sm">Budget data unavailable.</p>}
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* ── ROW 3: Spending Patterns + Trends ────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Patterns */}
-        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
               <BrainCircuit className="h-5 w-5 text-indigo-500" /> Spending Patterns
@@ -325,7 +326,7 @@ export default function InsightsPage() {
         </Card>
 
         {/* Trends */}
-        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
               <Zap className="h-5 w-5 text-amber-500" /> Trend Detection
@@ -345,10 +346,11 @@ export default function InsightsPage() {
             ))}
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* ── ROW 4: Actionable Tips ────────────────────────────────────────── */}
-      <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
+      <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
         <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
           <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
             <Lightbulb className="h-5 w-5 text-amber-500" /> Actionable Recommendations
@@ -378,10 +380,12 @@ export default function InsightsPage() {
           })}
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* ── ROW 5: Category Deep-Dives ────────────────────────────────────── */}
       {(s?.categoryInsights || []).length > 0 && (
-        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
+        <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
           <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
             <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
               <BarChart3 className="h-5 w-5 text-blue-500" /> Category Deep-Dive
@@ -411,10 +415,12 @@ export default function InsightsPage() {
             ))}
           </CardContent>
         </Card>
+        </motion.div>
       )}
 
       {/* ── ROW 6: Full Category Breakdown ───────────────────────────────── */}
-      <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#141B2D] rounded-3xl overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+      <Card className="border border-slate-200 dark:border-slate-800/80 shadow-xl bg-white dark:bg-[#0a0a0f] rounded-3xl overflow-hidden">
         <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-6 py-4">
           <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 dark:text-white">
             <Target className="h-5 w-5 text-indigo-500" /> Full Spending Breakdown
@@ -446,6 +452,7 @@ export default function InsightsPage() {
           })}
         </CardContent>
       </Card>
+      </motion.div>
 
     </div>
   );

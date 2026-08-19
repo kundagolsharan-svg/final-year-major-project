@@ -1,17 +1,18 @@
 import React from "react";
 import { Button } from "./ui/button";
-import { PenBox, LayoutDashboard, BrainCircuit, Target, Sparkles, FileDown } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { checkUser } from "@/lib/checkUser";
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
+import { WelcomeMessage } from "./welcome-message";
 
 const Header = async () => {
-  await checkUser();
+  const user = await checkUser();
 
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800 bg-white/75 dark:bg-slate-900/75 backdrop-blur-3xl">
+    <header className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-slate-800/60 bg-white/75 dark:bg-black/75 backdrop-blur-3xl transition-colors duration-500">
       <nav className="container mx-auto px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
@@ -44,50 +45,6 @@ const Header = async () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <SignedIn>
-            <Link href="/dashboard">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-medium"
-              >
-                <LayoutDashboard size={16} />
-                <span className="hidden md:inline">Dashboard</span>
-              </Button>
-            </Link>
-            <Link href="/analyzer">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-medium"
-              >
-                <BrainCircuit size={16} />
-                <span className="hidden md:inline">Analyzer</span>
-              </Button>
-            </Link>
-            <Link href="/goals">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-medium"
-              >
-                <Target size={16} />
-                <span className="hidden md:inline">Goals</span>
-              </Button>
-            </Link>
-            <Link href="/reports">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl text-sm font-medium"
-              >
-                <FileDown size={16} />
-                <span className="hidden md:inline">Reports</span>
-              </Button>
-            </Link>
-            <Link href="/transaction/create">
-              <Button className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-lg shadow-indigo-500/25 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-100">
-                <PenBox size={16} />
-                <span className="hidden md:inline">Add Transaction</span>
-              </Button>
-            </Link>
-          </SignedIn>
           <SignedOut>
             <SignInButton forceRedirectUrl="/dashboard">
               <Button
@@ -105,6 +62,7 @@ const Header = async () => {
             </SignInButton>
           </SignedOut>
           <SignedIn>
+            <WelcomeMessage userName={user?.name?.split(" ")[0] || "User"} />
             <UserButton
               appearance={{
                 elements: {

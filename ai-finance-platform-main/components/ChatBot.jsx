@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
   X,
@@ -27,20 +28,34 @@ import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-function extractSuggestions(rawText) {
-  if (!rawText) return { mainContent: "", suggestions: [] };
-  const marker = "💡 You might also want to ask:";
-  const idx = rawText.indexOf(marker);
-  if (idx === -1) return { mainContent: rawText, suggestions: [] };
+function extractSpokenSummaryAndSuggestions(rawText) {
+  if (!rawText) return { mainContent: "", suggestions: [], spokenSummary: null };
+  
+  let spokenSummary = null;
+  let textWithoutSummary = rawText;
+  const summaryMatch = rawText.match(/<spoken_summary>([\s\S]*?)<\/spoken_summary>/i);
+  if (summaryMatch) {
+    spokenSummary = summaryMatch[1].trim();
+    let cleaned = rawText.replace(/```[a-z]*\s*<spoken_summary>[\s\S]*?<\/spoken_summary>\s*```/i, "");
+    if (cleaned === rawText) {
+      cleaned = rawText.replace(/<spoken_summary>[\s\S]*?<\/spoken_summary>/i, "");
+    }
+    // Also remove any stray single quotes if the AI added them
+    textWithoutSummary = cleaned.replace(/^'|'$/g, "").trim();
+  }
 
-  const mainContent = rawText.slice(0, idx).trim();
-  const rawSuggestions = rawText.slice(idx + marker.length).trim();
+  const marker = "💡 You might also want to ask:";
+  const idx = textWithoutSummary.indexOf(marker);
+  if (idx === -1) return { mainContent: textWithoutSummary, suggestions: [], spokenSummary };
+
+  const mainContent = textWithoutSummary.slice(0, idx).trim();
+  const rawSuggestions = textWithoutSummary.slice(idx + marker.length).trim();
   const suggestions = rawSuggestions
     .split("\n")
     .map((s) => s.replace(/^\d+[\.\)]\s*/, "").replace(/^[-*•]\s*/, "").trim())
     .filter((s) => s.length > 8 && !s.toLowerCase().includes("might also want to ask"));
 
-  return { mainContent, suggestions };
+  return { mainContent, suggestions, spokenSummary };
 }
 
 export default function ChatBot() {
@@ -108,7 +123,7 @@ export default function ChatBot() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const handleSpeak = (text, index) => {
+  const handleSpeak = (text, spokenSummaryText, index) => {
     if (!window.speechSynthesis) {
       toast.error("Text-to-speech not supported in this browser.");
       return;
@@ -119,8 +134,15 @@ export default function ChatBot() {
       return;
     }
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[#*`_~]/g, "").replace(/₹/g, "Rupees ").replace(/💡.*/g, "");
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    let textToSpeak = spokenSummaryText;
+    if (!textToSpeak) {
+      textToSpeak = text.replace(/[#*`_~]/g, "").replace(/₹/g, "Rupees ").replace(/💡.*/g, "");
+    } else {
+      textToSpeak = textToSpeak.replace(/₹/g, "Rupees ");
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.onend = () => setSpeakingIndex(null);
     utterance.onerror = () => setSpeakingIndex(null);
     setSpeakingIndex(index);
@@ -167,32 +189,45 @@ export default function ChatBot() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {!isOpen ? (
-        /* --- Floating Trigger Button --- */
-        <button
-          onClick={() => setIsOpen(true)}
-          className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-100 bg-gradient-to-tr from-indigo-600 to-purple-600 text-white cursor-pointer group"
-          aria-label="Open SAMPAT AI Financial Assistant"
-          suppressHydrationWarning
-        >
-          <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 group-hover:rotate-12 transition-transform" />
-          <span className="absolute inset-0 rounded-full animate-ping opacity-25 bg-indigo-500 pointer-events-none" />
-          {/* Live indicator dot */}
-          <span className="absolute top-0 right-0 flex h-4 w-4">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white dark:border-slate-900" />
-          </span>
-        </button>
-      ) : (
-        /* --- High-End Chat Panel --- */
-        <div
-          className={cn(
-            "flex flex-col rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-2xl transition-all duration-300",
-            isExpanded
-              ? "w-[92vw] sm:w-[540px] h-[80vh] max-h-[720px]"
-              : "w-[92vw] sm:w-[410px] h-[580px]"
-          )}
-        >
+      <AnimatePresence mode="wait">
+        {!isOpen ? (
+          /* --- Floating Trigger Button --- */
+          <motion.button
+            key="chatbot-trigger"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            onClick={() => setIsOpen(true)}
+            className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white cursor-pointer group"
+            aria-label="Open SAMPAT AI Financial Assistant"
+            suppressHydrationWarning
+          >
+            <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 group-hover:rotate-12 transition-transform" />
+            <span className="absolute inset-0 rounded-full animate-ping opacity-25 bg-indigo-500 pointer-events-none" />
+            {/* Live indicator dot */}
+            <span className="absolute top-0 right-0 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-white dark:border-slate-900" />
+            </span>
+          </motion.button>
+        ) : (
+          /* --- High-End Chat Panel --- */
+          <motion.div
+            key="chatbot-panel"
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            className={cn(
+              "flex flex-col rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-2xl transition-[width,height] duration-300",
+              isExpanded
+                ? "w-[92vw] sm:w-[540px] h-[80vh] max-h-[720px]"
+                : "w-[92vw] sm:w-[410px] h-[580px]"
+            )}
+          >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white shrink-0 shadow-md">
             <div className="flex items-center gap-3">
@@ -235,9 +270,9 @@ export default function ChatBot() {
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 dark:bg-[#0B1120]/50">
             {messages.map((m, idx) => {
               const isAssistant = m.role === "assistant";
-              const { mainContent, suggestions } = isAssistant
-                ? extractSuggestions(m.content)
-                : { mainContent: m.content, suggestions: [] };
+              const { mainContent, suggestions, spokenSummary } = isAssistant
+                ? extractSpokenSummaryAndSuggestions(m.content)
+                : { mainContent: m.content, suggestions: [], spokenSummary: null };
 
               return (
                 <div
@@ -305,7 +340,7 @@ export default function ChatBot() {
                           </button>
 
                           <button
-                            onClick={() => handleSpeak(mainContent, idx)}
+                            onClick={() => handleSpeak(mainContent, spokenSummary, idx)}
                             className={cn(
                               "p-1 rounded-md flex items-center gap-1 text-xs font-semibold transition-colors",
                               speakingIndex === idx
@@ -419,8 +454,9 @@ export default function ChatBot() {
               </Button>
             </form>
           </div>
-        </div>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -167,7 +167,7 @@ export function AlertsView() {
 
       {/* ── Alert Cards List ── */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[300px] gap-3 bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 rounded-3xl p-8">
+        <div className="flex flex-col items-center justify-center min-h-[300px] gap-3 bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 rounded-3xl p-8">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
           <p className="text-xs font-semibold text-slate-500">Checking real-time financial triggers...</p>
         </div>
@@ -175,7 +175,7 @@ export function AlertsView() {
         <div className="space-y-3">
           <AnimatePresence>
             {filteredAlerts.length === 0 ? (
-              <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-12 text-center text-slate-500 dark:text-slate-400 text-xs space-y-2">
+              <div className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-12 text-center text-slate-500 dark:text-slate-400 text-xs space-y-2">
                 <CheckCircle2 size={36} className="mx-auto text-emerald-500" />
                 <p className="font-bold text-slate-900 dark:text-white text-base">You are all caught up!</p>
                 <p className="text-sm">No active alerts matching your current filter.</p>
@@ -195,7 +195,7 @@ export function AlertsView() {
                     className={cn(
                       "p-5 rounded-2xl border transition-all relative overflow-hidden flex flex-col sm:flex-row sm:items-start justify-between gap-4",
                       alert.read
-                        ? "bg-white dark:bg-[#141B2D] border-slate-200 dark:border-slate-800/80"
+                        ? "bg-white dark:bg-[#0a0a0f] border-slate-200 dark:border-slate-800/80"
                         : "bg-indigo-50/50 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-500/30 shadow-sm"
                     )}
                   >

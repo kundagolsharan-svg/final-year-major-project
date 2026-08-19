@@ -126,7 +126,7 @@ export const triggerRecurringTransactions = inngest.createFunction(
 );
 
 // 2. Monthly Report Generation
-async function generateFinancialInsights(stats, month) {
+export async function generateFinancialInsights(stats, month) {
   const prompt = `
     Analyze this financial data and provide 3 concise, actionable insights.
     Focus on spending patterns and practical advice.
@@ -140,18 +140,18 @@ async function generateFinancialInsights(stats, month) {
       .map(([category, amount]) => `${category}: ₹${amount}`)
       .join(", ")}
     `;
-    try {
-      const text = await generateWithFallback(prompt);
-      const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-      return JSON.parse(cleanedText);
-    } catch (error) {
-      console.error("Error generating insights:", error);
-      return [
-        "Review your highest expense category this month for savings opportunities.",
-        "Consider setting up automatic transfers to boost your savings rate.",
-        "Track your recurring expenses to identify subscriptions you no longer use.",
-      ];
-    }
+  try {
+    const text = await generateWithFallback(prompt);
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Error generating insights:", error);
+    return [
+      "Review your highest expense category this month for savings opportunities.",
+      "Consider setting up automatic transfers to boost your savings rate.",
+      "Track your recurring expenses to identify subscriptions you no longer use.",
+    ];
+  }
 }
 
 export const generateMonthlyReports = inngest.createFunction(
@@ -182,7 +182,7 @@ export const generateMonthlyReports = inngest.createFunction(
 
         await sendEmail({
           to: user.email,
-          subject: `Your Monthly Financial Report - ${monthName}`,
+          subject: `✨ Your SAMPAT Financial Report - ${monthName}`,
           react: EmailTemplate({
             userName: user.name,
             type: "monthly-report",
@@ -232,8 +232,8 @@ async function generateBudgetInsights(expenses, budgetAmount, month) {
 }
 
 export const checkBudgetAlerts = inngest.createFunction(
-  { 
-    id: "check-budget-alerts", 
+  {
+    id: "check-budget-alerts",
     name: "Check Budget Alerts",
     event: "budget.check",
   },
@@ -263,7 +263,7 @@ export const checkBudgetAlerts = inngest.createFunction(
     const defaultAccount =
       budget.user.accounts.find((acc) => acc.isDefault) ||
       budget.user.accounts[0];
-    
+
     console.log("Using account for budget check:", defaultAccount.name, defaultAccount.id);
 
     const budgetAmount = budget.amount.toNumber();
@@ -334,8 +334,8 @@ export const checkBudgetAlerts = inngest.createFunction(
 
 // Monthly Cron to check all budgets
 export const triggerBudgetChecks = inngest.createFunction(
-  { 
-    id: "trigger-budget-checks", 
+  {
+    id: "trigger-budget-checks",
     name: "Trigger Budget Checks",
     cron: "0 */6 * * *", // Still run every 6 hours as a fallback
   },
@@ -395,7 +395,7 @@ function calculateNextRecurringDate(date, interval) {
   return next;
 }
 
-async function getMonthlyStats(userId, month) {
+export async function getMonthlyStats(userId, month) {
   const startDate = new Date(month.getFullYear(), month.getMonth(), 1);
   const endDate = new Date(month.getFullYear(), month.getMonth() + 1, 0);
 

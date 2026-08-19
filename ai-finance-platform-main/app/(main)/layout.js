@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { UserButton, useUser } from "@clerk/nextjs";
 import {
   LayoutDashboard,
@@ -66,7 +66,18 @@ function SidebarContent({ pathname, onClose }) {
       </div>
 
       {/* Nav Items */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+      <motion.nav 
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.05 }
+          }
+        }}
+        className="flex-1 px-3 py-4 space-y-1 overflow-y-auto"
+      >
         {menuItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
@@ -76,40 +87,66 @@ function SidebarContent({ pathname, onClose }) {
               : pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
 
           return (
-            <Link
+            <motion.div
               key={item.name}
-              href={item.href}
-              prefetch={true}
-              onClick={onClose}
-              className={cn(
-                "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14.5px] font-semibold transition-all duration-200 group relative",
-                isActive
-                  ? "bg-[#3B82F6] text-white shadow-lg shadow-blue-500/20 font-bold"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
-              )}
+              variants={{
+                hidden: { opacity: 0, x: -20 },
+                show: { opacity: 1, x: 0 }
+              }}
+              whileHover={{ x: 4 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <item.icon
-                size={18}
+              <Link
+                href={item.href}
+                prefetch={true}
+                onClick={onClose}
                 className={cn(
+                  "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14.5px] font-semibold transition-all duration-200 group relative",
                   isActive
-                    ? "text-white"
-                    : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                    ? "text-[#3B82F6] dark:text-indigo-400 font-bold"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 )}
-              />
-              <span>{item.name}</span>
-            </Link>
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active-indicator"
+                    className="absolute inset-0 rounded-xl bg-blue-50 dark:bg-indigo-500/10 border border-blue-200/50 dark:border-indigo-500/20 z-0"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <item.icon
+                  size={18}
+                  className={cn(
+                    "relative z-10 transition-colors duration-200",
+                    isActive
+                      ? "text-[#3B82F6] dark:text-indigo-400"
+                      : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                  )}
+                />
+                <span className="relative z-10">{item.name}</span>
+              </Link>
+            </motion.div>
           );
         })}
 
         {/* Logout */}
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 mt-1"
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, x: -20 },
+            show: { opacity: 1, x: 0 }
+          }}
+          whileHover={{ x: 4 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
-          <LogOut size={17} className="text-slate-500 dark:text-slate-400" />
-          Logout
-        </Link>
-      </nav>
+          <Link
+            href="/"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 mt-1"
+          >
+            <LogOut size={17} className="text-slate-500 dark:text-slate-400" />
+            Logout
+          </Link>
+        </motion.div>
+      </motion.nav>
 
       {/* Upgrade to Pro Card */}
       <div className="p-3 shrink-0">
@@ -163,9 +200,9 @@ export default function MainLayout({ children }) {
   const fullName = user?.fullName || firstName;
 
   return (
-    <div className="bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 min-h-screen flex overflow-hidden font-sans transition-colors duration-200">
+    <div className="bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 min-h-screen flex overflow-hidden font-sans transition-colors duration-500">
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800/80 shrink-0 transition-colors duration-200">
+      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-[#0a0a0f] border-r border-slate-200 dark:border-slate-800/60 shrink-0 transition-colors duration-500">
         <SidebarContent pathname={pathname} onClose={undefined} />
       </aside>
 
@@ -185,7 +222,7 @@ export default function MainLayout({ children }) {
               animate="open"
               exit="closed"
               variants={sidebarVariants}
-              className="fixed inset-y-0 left-0 w-56 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800 z-50 flex flex-col lg:hidden"
+              className="fixed inset-y-0 left-0 w-56 bg-white dark:bg-[#0a0a0f] border-r border-slate-200 dark:border-slate-800/60 z-50 flex flex-col lg:hidden transition-colors duration-500"
             >
               <div className="absolute top-4 right-4">
                 <button
@@ -208,7 +245,7 @@ export default function MainLayout({ children }) {
       {/* ── Main Content ── */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* ── Top Navbar ── */}
-        <header className="h-14 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between px-5 z-30 shrink-0 transition-colors duration-200">
+        <header className="h-14 bg-white/80 dark:bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between px-5 z-30 shrink-0 transition-colors duration-500">
           {/* Left: mobile toggle + search */}
           <div className="flex items-center gap-3">
             <button
@@ -336,7 +373,19 @@ export default function MainLayout({ children }) {
 
         {/* ── Page Body ── */}
         <main className="flex-1 overflow-y-auto px-5 py-6 md:px-6">
-          {children}
+          <MotionConfig reducedMotion="never">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </MotionConfig>
         </main>
 
         {/* ── Footer ── */}

@@ -91,13 +91,17 @@ export async function createTransaction(data) {
       });
 
       return newTransaction;
+    }, {
+      maxWait: 5000, // 5 seconds max wait to connect
+      timeout: 10000, // 10 seconds timeout
     });
 
-    // Trigger budget check
+    // Trigger budget check synchronously to ensure the email is sent if no background worker is configured
+    let budgetAlertResult = false;
     try {
-      await checkBudgetAlert(user.id);
+      budgetAlertResult = await checkBudgetAlert(user.id);
     } catch (budgetError) {
-      console.error("Failed to check budget:", budgetError);
+      console.error("Failed to start budget check:", budgetError);
     }
 
     try {
@@ -209,7 +213,8 @@ export async function createTransaction(data) {
     return { 
       success: true, 
       data: serializeAmount(transaction),
-      anomaly: anomaly.isAnomaly ? anomaly.reason : null 
+      anomaly: anomaly?.isAnomaly ? anomaly.reason : null,
+      budgetAlert: budgetAlertResult
     };
   } catch (error) {
     throw new Error(error.message);

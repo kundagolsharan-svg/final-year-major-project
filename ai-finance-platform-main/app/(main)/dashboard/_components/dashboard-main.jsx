@@ -359,38 +359,46 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       icon: TrendingUp,
       color: "#EF4444",
       bg: "bg-red-500/10",
-      text: s.message,
-      highlight: `${s.percent}%`,
-      sub: "Compared to last month",
+      title: `Increased spending in ${s.category.replace(/-/g, " ")}`,
+      text: `You've spent ₹${Number(s.increase).toLocaleString("en-IN")} more on ${s.category.replace(/-/g, " ")} than last month.`,
+      highlight: `+${s.percent}%`,
+      sub: "vs last month",
     }));
+
     if (list.length === 0) {
       list.push({
-        icon: TrendingUp,
-        color: "#EF4444",
-        bg: "bg-red-500/10",
-        text: "Track your expenses to get AI-powered spending insights",
+        icon: Sparkles,
+        color: "#3B82F6",
+        bg: "bg-blue-500/10",
+        title: "AI Analysis Ready",
+        text: "Track your expenses regularly to get personalized AI-powered spending insights and recommendations.",
         highlight: null,
-        sub: "Add transactions to get started",
+        sub: "Add transactions to start",
       });
     }
+
     if (topCategories[0]) {
       list.push({
         icon: ShoppingBag,
         color: "#F59E0B",
         bg: "bg-amber-500/10",
-        text: `${topCategories[0].name.replace(/-/g, " ")} expenses are high`,
-        highlight: `₹${topCategories[0].value.toLocaleString("en-IN")} spent`,
-        sub: `You spent ₹${topCategories[0].value.toLocaleString("en-IN")} this period`,
+        title: `High spending on ${topCategories[0].name.replace(/-/g, " ")}`,
+        text: `A significant portion of your recent spending is going towards ${topCategories[0].name.replace(/-/g, " ")}.`,
+        highlight: `₹${topCategories[0].value.toLocaleString("en-IN")}`,
+        sub: "this period",
       });
     }
+
     list.push({
       icon: DollarSign,
       color: "#8B5CF6",
       bg: "bg-purple-500/10",
-      text: "Budget Suggestion — Reduce non-essential expenses to improve savings",
-      highlight: null,
+      title: "Optimization Opportunity",
+      text: "Consider reviewing your non-essential subscriptions and expenses to improve your monthly savings rate.",
+      highlight: "Tip",
       sub: "SAMPAT AI recommendation",
     });
+
     return list.slice(0, 3);
   }, [spendingInsights, topCategories]);
 
@@ -538,10 +546,15 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
   // Render
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-5 pb-10 animate-in fade-in duration-500">
+    <div className="space-y-5 pb-10">
 
       {/* ── Header + Global Range Picker ── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.4 }}
+        className="flex items-start justify-between gap-4 flex-wrap"
+      >
         <div>
           <h1 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
             Welcome back, {accounts?.[0]?.name?.split(" ")[0] || "User"}! 👋
@@ -586,7 +599,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* ── PDF Statement Upload Section ── */}
       <AnimatePresence>
@@ -609,7 +622,12 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       </AnimatePresence>
 
       {/* ── Accounts Quick Strip ── */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between flex-wrap gap-3">
+      <motion.div 
+        initial={{ opacity: 0, y: 15 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.4, delay: 0.1 }}
+        className="p-4 rounded-2xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between flex-wrap gap-3"
+      >
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
             <Wallet size={16} />
@@ -626,21 +644,22 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
 
         <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar">
           {accounts?.map((acc) => (
-            <Link
-              key={acc.id}
-              href={`/account/${acc.id}`}
-              className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 transition-all shrink-0 flex items-center gap-2"
-            >
-              <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <div>
-                <p className="text-xs font-black text-slate-900 dark:text-white truncate max-w-[120px]">
-                  {acc.name}
-                </p>
-                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                  ₹{Number(acc.balance || 0).toLocaleString("en-IN")}
-                </p>
-              </div>
-            </Link>
+            <motion.div key={acc.id} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+              <Link
+                href={`/account/${acc.id}`}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 transition-all shrink-0 flex items-center gap-2"
+              >
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div>
+                  <p className="text-xs font-black text-slate-900 dark:text-white truncate max-w-[120px]">
+                    {acc.name}
+                  </p>
+                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    ₹{Number(acc.balance || 0).toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </Link>
+            </motion.div>
           ))}
 
           <ConnectBankModal>
@@ -657,7 +676,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
             </button>
           </CreateAccountDrawer>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* ── KPI Cards ── */}
@@ -667,7 +686,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
             key={card.label}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.07 }}
+            whileHover={{ scale: 1.03, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.3, delay: i * 0.07 }}
             className={cn(
               "relative rounded-2xl p-5 border overflow-hidden shadow-lg transition-all duration-300",
               card.cardBg,
@@ -710,7 +729,12 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Income vs Expense Bar Chart */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#141B2D] rounded-2xl p-5 border border-slate-200 dark:border-white/5">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.2 }}
+          className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Income vs Expense Overview</h2>
             <span className="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-lg font-semibold">
@@ -746,10 +770,15 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               </BarChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </motion.div>
 
         {/* Expense by Category Donut */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#141B2D] rounded-2xl p-5 border border-slate-200 dark:border-white/5">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.3 }}
+          className="lg:col-span-4 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Expense by Category</h2>
             <span className="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-lg font-semibold">
@@ -825,10 +854,15 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Top Spending Categories */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#141B2D] rounded-2xl p-5 border border-slate-200 dark:border-white/5">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.4 }}
+          className="lg:col-span-3 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+        >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Top Spending</h2>
             <span className="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-lg font-semibold">
@@ -880,14 +914,19 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               })}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Row 3: Recent Transactions | AI Insights | Recent Alerts ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Recent Transactions */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#141B2D] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.5 }}
+          className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden"
+        >
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800/80">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Recent Transactions</h2>
             <Link href="/transaction/create"
@@ -939,44 +978,73 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* AI Insights */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#141B2D] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
-          <div className="flex items-center gap-2 px-5 py-3.5 border-b border-slate-200 dark:border-slate-800/80">
-            <Sparkles size={15} className="text-purple-400" />
-            <h2 className="text-sm font-black text-slate-900 dark:text-white">✨ AI Insights</h2>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="lg:col-span-4 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden flex flex-col"
+        >
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800/80">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-purple-500/10 rounded-lg">
+                <Sparkles size={14} className="text-purple-600 dark:text-purple-400" />
+              </div>
+              <h2 className="text-sm font-black text-slate-900 dark:text-white">AI Insights</h2>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-500/20 px-2 py-0.5 rounded-full">
+              Beta
+            </span>
           </div>
-          <div className="p-4 space-y-3">
+          
+          <div className="p-4 space-y-3 flex-1 flex flex-col">
             {aiInsights.map((ins, i) => (
-              <div key={i} className="p-3 bg-slate-100 dark:bg-slate-800/25 rounded-xl border border-slate-200 dark:border-slate-700/30">
-                <div className="flex items-start gap-3">
-                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5", ins.bg)}>
-                    <ins.icon size={14} style={{ color: ins.color }} />
+              <div key={i} className="group p-3.5 bg-slate-50 hover:bg-slate-100 dark:bg-[#1A2235] dark:hover:bg-[#1E293B] rounded-xl border border-slate-200 dark:border-slate-700/50 transition-all duration-200">
+                <div className="flex items-start gap-3.5">
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm", ins.bg)}>
+                    <ins.icon size={16} style={{ color: ins.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-900 dark:text-white font-bold leading-snug">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1 tracking-tight">
+                      {ins.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-2 line-clamp-2">
                       {ins.text}
+                    </p>
+                    <div className="flex items-center gap-2 mt-auto">
                       {ins.highlight && (
-                        <span className="font-black ml-1" style={{ color: ins.color }}>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-md" style={{ color: ins.color, backgroundColor: `${ins.color}15`, border: `1px solid ${ins.color}30` }}>
                           {ins.highlight}
                         </span>
                       )}
-                    </p>
-                    <p className="text-xs text-slate-500 mt-0.5 font-semibold">{ins.sub}</p>
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        {ins.sub}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
-            <Link href="/analyzer#insights"
-              className="block w-full text-center bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-slate-900 dark:text-white text-xs font-bold py-2.5 rounded-xl hover:opacity-90 transition-opacity mt-1 shadow-lg shadow-indigo-500/20">
-              View All Insights
-            </Link>
+            
+            <div className="mt-auto pt-2">
+              <Link href="/analyzer"
+                className="flex items-center justify-center gap-1.5 w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md">
+                <Sparkles size={12} />
+                Open Full AI Analysis
+              </Link>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Recent Alerts */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#141B2D] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.5, delay: 0.7 }}
+          className="lg:col-span-3 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden"
+        >
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800/80">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Recent Alerts</h2>
             <Link href="/dashboard#alerts"
@@ -998,7 +1066,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

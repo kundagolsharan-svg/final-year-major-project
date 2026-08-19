@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -258,8 +259,16 @@ export default function ReportsPage() {
           ))}
         </div>
       ) : reportData ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div 
+          initial="hidden" animate="show" 
+          variants={{
+            hidden: { opacity: 0 },
+            show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }} 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
           {/* Total Inflow */}
+          <motion.div variants={{hidden: {opacity: 0, y: 20}, show: {opacity: 1, y: 0}}}>
           <Card className="rounded-3xl border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/50 dark:bg-emerald-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -278,8 +287,10 @@ export default function ReportsPage() {
               Total credited receipts for {MONTHS[selectedMonth - 1]}
             </p>
           </Card>
+          </motion.div>
 
           {/* Total Outflow */}
+          <motion.div variants={{hidden: {opacity: 0, y: 20}, show: {opacity: 1, y: 0}}}>
           <Card className="rounded-3xl border-rose-200 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -298,8 +309,10 @@ export default function ReportsPage() {
               Across {Object.keys(reportData.categoryBreakdown).length} spending categories
             </p>
           </Card>
+          </motion.div>
 
           {/* Net Surplus / Savings */}
+          <motion.div variants={{hidden: {opacity: 0, y: 20}, show: {opacity: 1, y: 0}}}>
           <Card className="rounded-3xl border-indigo-200 dark:border-indigo-900/40 bg-indigo-50/50 dark:bg-indigo-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -318,8 +331,10 @@ export default function ReportsPage() {
               {netSavings >= 0 ? "Positive financial surplus" : "Negative monthly cash balance"}
             </p>
           </Card>
+          </motion.div>
 
           {/* Savings Rate & Efficiency */}
+          <motion.div variants={{hidden: {opacity: 0, y: 20}, show: {opacity: 1, y: 0}}}>
           <Card className="rounded-3xl border-purple-200 dark:border-purple-900/40 bg-purple-50/50 dark:bg-purple-950/20 p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -340,7 +355,8 @@ export default function ReportsPage() {
               </span>
             </div>
           </Card>
-        </div>
+          </motion.div>
+        </motion.div>
       ) : null}
 
       {/* ── Structured Tab Navigation ── */}
@@ -387,9 +403,9 @@ export default function ReportsPage() {
 
       {/* ── TAB 1: Executive Overview & AI ── */}
       {activeTab === "overview" && reportData && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 animate-in fade-in duration-200">
           {/* AI Financial Analysis Card */}
-          <Card className="rounded-3xl border-indigo-200 dark:border-indigo-900/50 bg-white dark:bg-[#141B2D] shadow-sm overflow-hidden">
+          <Card className="rounded-3xl border-indigo-200 dark:border-indigo-900/50 bg-white dark:bg-[#0a0a0f] shadow-sm overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-transparent p-6 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
@@ -443,7 +459,7 @@ export default function ReportsPage() {
           </Card>
 
           {/* Category Expenditure Breakdown */}
-          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-sm p-6 space-y-4">
+          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-sm p-6 space-y-4">
             <div>
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <PieChart size={18} className="text-indigo-600" />
@@ -490,13 +506,13 @@ export default function ReportsPage() {
               )}
             </div>
           </Card>
-        </div>
+        </motion.div>
       )}
 
       {/* ── TAB 2: Tax & Deductions Audit ── */}
       {activeTab === "tax" && reportData && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-sm p-6 space-y-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-6 animate-in fade-in duration-200">
+          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-sm p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -547,14 +563,14 @@ export default function ReportsPage() {
               )}
             </div>
           </Card>
-        </div>
+        </motion.div>
       )}
 
       {/* ── TAB 3: Itemized Ledger ── */}
       {activeTab === "ledger" && reportData && (
-        <div className="space-y-4 animate-in fade-in duration-200">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-4 animate-in fade-in duration-200">
           {/* Search & Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#141B2D] p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-[#0a0a0f] p-3 rounded-2xl border border-slate-200 dark:border-slate-800">
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
@@ -603,7 +619,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Ledger Table Card */}
-          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-sm overflow-hidden">
+          <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
@@ -669,7 +685,7 @@ export default function ReportsPage() {
               </table>
             </div>
           </Card>
-        </div>
+        </motion.div>
       )}
     </div>
   );

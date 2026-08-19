@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
@@ -145,6 +146,12 @@ export function AddTransactionForm({
         });
       }
 
+      if (transactionResult.budgetAlert) {
+        toast.warning("Budget limit exceeded! We've sent you an email alert.", {
+          duration: 5000,
+        });
+      }
+
       reset();
       router.push(`/account/${transactionResult.data.accountId}`);
     }
@@ -159,12 +166,22 @@ export function AddTransactionForm({
   );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <motion.form 
+      onSubmit={handleSubmit(onSubmit)} 
+      className="space-y-6 max-w-2xl mx-auto bg-white dark:bg-[#0a0a0f] p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Receipt Scanner - Only show in create mode */}
-      {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
+      {!editMode && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <ReceiptScanner onScanComplete={handleScanComplete} />
+        </motion.div>
+      )}
 
       {/* Type */}
-      <div className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="space-y-2">
         <label className="text-sm font-medium">Type</label>
         <Select
           onValueChange={(value) => setValue("type", value)}
@@ -181,10 +198,10 @@ export function AddTransactionForm({
         {errors.type && (
           <p className="text-sm text-red-500">{errors.type.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Amount and Account */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-medium">Amount</label>
           <Input
@@ -227,10 +244,10 @@ export function AddTransactionForm({
             <p className="text-sm text-red-500">{errors.accountId.message}</p>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Category */}
-      <div className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="space-y-2">
         <label className="text-sm font-medium">Category</label>
         <Select
           onValueChange={(value) => setValue("category", value)}
@@ -250,10 +267,10 @@ export function AddTransactionForm({
         {errors.category && (
           <p className="text-sm text-red-500">{errors.category.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Tax Category */}
-      <div className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-2">
         <label className="text-sm font-medium">Tax Category (Optional)</label>
         <Select
           onValueChange={(value) => setValue("taxCategory", value)}
@@ -277,10 +294,10 @@ export function AddTransactionForm({
         {errors.taxCategory && (
           <p className="text-sm text-red-500">{errors.taxCategory.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Date */}
-      <div className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="space-y-2">
         <label className="text-sm font-medium">Date</label>
         <Popover>
           <PopoverTrigger asChild>
@@ -310,10 +327,10 @@ export function AddTransactionForm({
         {errors.date && (
           <p className="text-sm text-red-500">{errors.date.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Description */}
-      <div className="space-y-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="space-y-2">
         <label className="text-sm font-medium">Description</label>
         <Input 
           placeholder="Enter description" 
@@ -323,10 +340,10 @@ export function AddTransactionForm({
         {errors.description && (
           <p className="text-sm text-red-500">{errors.description.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Recurring Toggle */}
-      <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="flex flex-row items-center justify-between rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-4">
         <div className="space-y-0.5">
           <label className="text-base font-medium">Recurring Transaction</label>
           <div className="text-sm text-muted-foreground">
@@ -337,11 +354,11 @@ export function AddTransactionForm({
           checked={isRecurring}
           onCheckedChange={(checked) => setValue("isRecurring", checked)}
         />
-      </div>
+      </motion.div>
 
       {/* Recurring Interval */}
       {isRecurring && (
-        <div className="space-y-2">
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} transition={{ duration: 0.3 }} className="space-y-2">
           <label className="text-sm font-medium">Recurring Interval</label>
           <Select
             onValueChange={(value) => setValue("recurringInterval", value)}
@@ -362,11 +379,11 @@ export function AddTransactionForm({
               {errors.recurringInterval.message}
             </p>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Actions */}
-      <div className="flex gap-4">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="flex gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
         <Button
           type="button"
           variant="outline"
@@ -387,7 +404,7 @@ export function AddTransactionForm({
             "Create Transaction"
           )}
         </Button>
-      </div>
-    </form>
+      </motion.div>
+    </motion.form>
   );
 }

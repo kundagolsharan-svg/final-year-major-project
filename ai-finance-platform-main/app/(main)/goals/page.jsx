@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   getGoals,
   createGoal,
@@ -300,7 +301,8 @@ export default function GoalsPage() {
 
       {/* ── Portfolio Overview KPIs ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] p-5 shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.1 }}>
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Saved</p>
@@ -322,8 +324,10 @@ export default function GoalsPage() {
             <Progress value={summary.overallProgress} className="h-2 rounded-full bg-slate-100 dark:bg-slate-800" />
           </div>
         </Card>
+        </motion.div>
 
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] p-5 shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Target</p>
@@ -339,8 +343,10 @@ export default function GoalsPage() {
             Across {goals.length} portfolio targets
           </p>
         </Card>
+        </motion.div>
 
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] p-5 shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.3 }}>
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Goals</p>
@@ -354,8 +360,10 @@ export default function GoalsPage() {
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-3">In active accumulation</p>
         </Card>
+        </motion.div>
 
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] p-5 shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.4 }}>
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Goals Achieved</p>
@@ -369,6 +377,7 @@ export default function GoalsPage() {
           </div>
           <p className="text-xs font-semibold text-slate-500 mt-3">100% Milestone reached 🎉</p>
         </Card>
+        </motion.div>
       </div>
 
       {/* ── Preset Templates Quick Bar ── */}
@@ -384,7 +393,7 @@ export default function GoalsPage() {
             <button
               key={i}
               onClick={() => handleApplyPreset(tpl)}
-              className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:shadow-md transition-all text-left group"
+              className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] hover:border-indigo-400 dark:hover:border-indigo-500/50 hover:shadow-md transition-all text-left group"
             >
               <div
                 className={cn(
@@ -409,7 +418,7 @@ export default function GoalsPage() {
 
       {/* ── Add / Edit Goal Form ── */}
       {showAdd && (
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-xl overflow-hidden animate-in slide-in-from-top-4 duration-300">
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-xl overflow-hidden animate-in slide-in-from-top-4 duration-300">
           <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
             <CardTitle className="text-xl font-black flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-amber-300" />
@@ -507,7 +516,7 @@ export default function GoalsPage() {
       {/* ── Quick Deposit Funds Modal / Drawer ── */}
       {depositGoal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <Card className="w-full max-w-md rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200">
+          <Card className="w-full max-w-md rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
@@ -578,7 +587,7 @@ export default function GoalsPage() {
 
       {/* ── AI Strategy Roadmap Display ── */}
       {plan && (
-        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-300 relative">
+        <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0a0a0f] shadow-2xl overflow-hidden animate-in slide-in-from-top-4 duration-300 relative">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
             <Trophy className="h-64 w-64 text-indigo-500" />
           </div>
@@ -617,7 +626,7 @@ export default function GoalsPage() {
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all",
                 filter === "all"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
-                  : "bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  : "bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               )}
             >
               All Goals ({goals.length})
@@ -628,7 +637,7 @@ export default function GoalsPage() {
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all",
                 filter === "active"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
-                  : "bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  : "bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               )}
             >
               In Progress ({summary.activeCount})
@@ -639,7 +648,7 @@ export default function GoalsPage() {
                 "px-4 py-2 rounded-xl text-xs font-bold transition-all",
                 filter === "completed"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
-                  : "bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  : "bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               )}
             >
               Achieved ({summary.completedCount})
@@ -649,15 +658,15 @@ export default function GoalsPage() {
 
         {/* Grid of Goal Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGoals.map((goal) => {
+          {filteredGoals.map((goal, index) => {
             const isCompleted = goal.isCompleted;
             const progress = goal.progressPercent;
 
             return (
+              <motion.div key={goal.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
               <Card
-                key={goal.id}
                 className={cn(
-                  "rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-white dark:bg-[#141B2D] flex flex-col justify-between overflow-hidden relative",
+                  "rounded-3xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl bg-white dark:bg-[#0a0a0f] flex flex-col justify-between overflow-hidden relative",
                   isCompleted
                     ? "border-emerald-300 dark:border-emerald-500/40 shadow-emerald-500/5"
                     : "border-slate-200 dark:border-slate-800"
@@ -818,11 +827,12 @@ export default function GoalsPage() {
                   </div>
                 </CardFooter>
               </Card>
+              </motion.div>
             );
           })}
 
           {filteredGoals.length === 0 && !showAdd && (
-            <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl text-center bg-white dark:bg-[#141B2D] p-8 space-y-3">
+            <div className="col-span-full py-16 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl text-center bg-white dark:bg-[#0a0a0f] p-8 space-y-3">
               <Target className="h-12 w-12 text-slate-300 dark:text-slate-600" />
               <p className="text-base font-bold text-slate-900 dark:text-white">
                 No Goals in this view

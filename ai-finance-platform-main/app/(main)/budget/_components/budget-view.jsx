@@ -277,7 +277,7 @@ export function BudgetView({ initialData }) {
       {/* ── KPI Row Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Monthly Budget */}
-        <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.1 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Monthly Budget</span>
             <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center text-[#8B5CF6]">
@@ -292,10 +292,10 @@ export function BudgetView({ initialData }) {
               {budgetAmount > 0 ? "Configured limit" : "No limit set"}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2: Spent This Month */}
-        <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Spent This Month</span>
             <div className="w-8 h-8 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500">
@@ -310,10 +310,10 @@ export function BudgetView({ initialData }) {
               {percentUsed.toFixed(1)}% of total budget
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 3: Remaining Balance */}
-        <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.3 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
               {isOverBudget ? "Over Budget By" : "Remaining Budget"}
@@ -340,10 +340,10 @@ export function BudgetView({ initialData }) {
               {isOverBudget ? "Exceeded spending cap" : `${remainingDaysInMonth} days left in month`}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 4: Daily Safe Allowance */}
-        <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.4 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Daily Safe Limit</span>
             <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-[#3B82F6]">
@@ -359,11 +359,11 @@ export function BudgetView({ initialData }) {
               Avg spent: ₹{Math.round(currentDailyPace).toLocaleString("en-IN")}/day
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Main Progress Bar Section ── */}
-      <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.5 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -434,12 +434,12 @@ export function BudgetView({ initialData }) {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* ── Category Breakdown & AI Insights ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left 7 cols: Category Budget Utilization */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.6 }} className="lg:col-span-7 bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-black text-slate-900 dark:text-white">
@@ -501,12 +501,12 @@ export function BudgetView({ initialData }) {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right 5 cols: AI Budget Advisor & 50/30/20 Rule */}
         <div className="lg:col-span-5 space-y-6">
           {/* AI Smart Advisor */}
-          <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-slate-100 dark:from-[#1E1B4B]/50 dark:via-[#141B2D] dark:to-[#0F172A] border border-indigo-200 dark:border-indigo-500/30 rounded-3xl p-6 shadow-sm space-y-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.7 }} className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-slate-100 dark:from-[#1E1B4B]/50 dark:via-[#0a0a0f] dark:to-black border border-indigo-200 dark:border-indigo-500/30 rounded-3xl p-6 shadow-sm space-y-4">
             <div className="flex items-center gap-2 text-[#8B5CF6]">
               <Sparkles size={18} className="animate-pulse" />
               <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
@@ -550,10 +550,10 @@ export function BudgetView({ initialData }) {
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Quick Actions Card */}
-          <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-4">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.8 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">
               Quick Budget Adjustments
             </h2>
@@ -583,12 +583,12 @@ export function BudgetView({ initialData }) {
                 Custom Limit
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       {/* ── Recent Budget Transactions ── */}
-      <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-4">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.9 }} className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-black text-slate-900 dark:text-white">
@@ -655,7 +655,7 @@ export function BudgetView({ initialData }) {
               })}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

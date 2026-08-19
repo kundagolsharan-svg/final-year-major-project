@@ -94,21 +94,35 @@ const PROMPT_CATEGORIES = [
   },
 ];
 
-// ─── Extract Suggested Follow-Up Questions ──────────────────────────────────
-function extractSuggestions(rawText) {
-  if (!rawText) return { mainContent: "", suggestions: [] };
-  const marker = "💡 You might also want to ask:";
-  const idx = rawText.indexOf(marker);
-  if (idx === -1) return { mainContent: rawText, suggestions: [] };
+// ─── Extract Spoken Summary & Suggested Follow-Up Questions ──────────────────
+function extractSpokenSummaryAndSuggestions(rawText) {
+  if (!rawText) return { mainContent: "", suggestions: [], spokenSummary: null };
+  
+  let spokenSummary = null;
+  let textWithoutSummary = rawText;
+  const summaryMatch = rawText.match(/<spoken_summary>([\s\S]*?)<\/spoken_summary>/i);
+  if (summaryMatch) {
+    spokenSummary = summaryMatch[1].trim();
+    let cleaned = rawText.replace(/```[a-z]*\s*<spoken_summary>[\s\S]*?<\/spoken_summary>\s*```/i, "");
+    if (cleaned === rawText) {
+      cleaned = rawText.replace(/<spoken_summary>[\s\S]*?<\/spoken_summary>/i, "");
+    }
+    // Also remove any stray single quotes if the AI added them
+    textWithoutSummary = cleaned.replace(/^'|'$/g, "").trim();
+  }
 
-  const mainContent = rawText.slice(0, idx).trim();
-  const rawSuggestions = rawText.slice(idx + marker.length).trim();
+  const marker = "💡 You might also want to ask:";
+  const idx = textWithoutSummary.indexOf(marker);
+  if (idx === -1) return { mainContent: textWithoutSummary, suggestions: [], spokenSummary };
+
+  const mainContent = textWithoutSummary.slice(0, idx).trim();
+  const rawSuggestions = textWithoutSummary.slice(idx + marker.length).trim();
   const suggestions = rawSuggestions
     .split("\n")
     .map((s) => s.replace(/^\d+[\.\)]\s*/, "").replace(/^[-*•]\s*/, "").trim())
     .filter((s) => s.length > 8 && !s.toLowerCase().includes("might also want to ask"));
 
-  return { mainContent, suggestions };
+  return { mainContent, suggestions, spokenSummary };
 }
 
 // ─── Single Message Bubble Component ─────────────────────────────────────────
@@ -118,9 +132,9 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
   const [feedback, setFeedback] = useState(null); // 'like' | 'dislike' | null
   const isUser = msg.role === "user";
 
-  const { mainContent, suggestions } = isUser
-    ? { mainContent: msg.content, suggestions: [] }
-    : extractSuggestions(msg.content);
+  const { mainContent, suggestions, spokenSummary } = isUser
+    ? { mainContent: msg.content, suggestions: [], spokenSummary: null }
+    : extractSpokenSummaryAndSuggestions(msg.content);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(mainContent);
@@ -141,13 +155,19 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
     }
 
     window.speechSynthesis.cancel();
-    // Strip markdown formatting for clean audio
-    const cleanText = mainContent
-      .replace(/[#*`_~]/g, "")
-      .replace(/₹/g, "Rupees ")
-      .replace(/💡.*/g, "");
+    
+    let textToSpeak = spokenSummary;
+    if (!textToSpeak) {
+      // Strip markdown formatting for clean audio fallback
+      textToSpeak = mainContent
+        .replace(/[#*`_~]/g, "")
+        .replace(/₹/g, "Rupees ")
+        .replace(/💡.*/g, "");
+    } else {
+      textToSpeak = textToSpeak.replace(/₹/g, "Rupees ");
+    }
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.rate = 1.05;
     utterance.pitch = 1.0;
     utterance.onend = () => setIsSpeaking(false);
@@ -202,7 +222,7 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
             "relative rounded-3xl px-5 py-4 text-sm leading-relaxed transition-all shadow-sm",
             isUser
               ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm shadow-indigo-500/20"
-              : "bg-white dark:bg-[#141B2D] text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800 rounded-tl-sm shadow-slate-200/50 dark:shadow-none"
+              : "bg-white dark:bg-[#0a0a0f] text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-800 rounded-tl-sm shadow-slate-200/50 dark:shadow-none"
           )}
         >
           {isUser ? (
@@ -382,7 +402,7 @@ function MessageBubble({ msg, onSuggestionClick, onRegenerate }) {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
                   onClick={() => onSuggestionClick(q)}
-                  className="w-full text-left flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all duration-200 shadow-sm group/btn"
+                  className="w-full text-left flex items-center justify-between gap-2 px-3.5 py-2.5 bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all duration-200 shadow-sm group/btn"
                 >
                   <span className="truncate">{q}</span>
                   <ChevronRight
@@ -411,7 +431,7 @@ function TypingIndicator() {
       <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 to-indigo-900 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30 shadow-md">
         <Bot size={18} />
       </div>
-      <div className="bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 rounded-3xl rounded-tl-sm px-5 py-3.5 flex items-center gap-2 shadow-sm">
+      <div className="bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 rounded-3xl rounded-tl-sm px-5 py-3.5 flex items-center gap-2 shadow-sm">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: "0ms" }} />
           <span className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -606,7 +626,7 @@ export default function ChatPage() {
       >
         {/* Live Financial Metrics Snapshot */}
         {summary && (
-          <div className="p-4 rounded-3xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div className="p-4 rounded-3xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
@@ -675,7 +695,7 @@ export default function ChatPage() {
         )}
 
         {/* Categorized Prompt Library */}
-        <div className="flex-1 p-4 rounded-3xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-3">
+        <div className="flex-1 p-4 rounded-3xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -734,7 +754,7 @@ export default function ChatPage() {
       {/* ───────────────────────────────────────────────────────────────────────
           CENTRAL PANEL: Conversation View & Command Dock
       ───────────────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col h-full rounded-3xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative">
+      <div className="flex-1 flex flex-col h-full rounded-3xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative">
         {/* Top Header Bar */}
         <div className="px-5 py-3.5 border-b border-slate-100 dark:border-slate-800/80 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-transparent flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -841,7 +861,7 @@ export default function ChatPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06 }}
                     onClick={() => sendMessage(item.desc)}
-                    className="p-4 rounded-3xl bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:shadow-md transition-all group flex items-start gap-3"
+                    className="p-4 rounded-3xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:shadow-md transition-all group flex items-start gap-3"
                   >
                     <div className={cn("p-2.5 rounded-2xl shrink-0", item.color)}>
                       <item.icon size={18} />
@@ -911,7 +931,7 @@ export default function ChatPage() {
         {/* ───────────────────────────────────────────────────────────────────
             BOTTOM DOCK: Command Bar Input Box
         ───────────────────────────────────────────────────────────────────── */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#141B2D] shrink-0 space-y-2">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800/80 bg-white dark:bg-[#0a0a0f] shrink-0 space-y-2">
           {/* Quick Context Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 text-sm no-scrollbar">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">

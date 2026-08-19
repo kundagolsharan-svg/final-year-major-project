@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   BarChart2,
   TrendingUp,
@@ -163,7 +164,7 @@ export function AnalyticsView({ initialTransactions = [] }) {
       {/* ── Metric KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Inflow - Green Theme */}
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl p-5 shadow-lg shadow-emerald-500/20 space-y-3 transition-all hover:shadow-xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.1 }} className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl p-5 shadow-lg shadow-emerald-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Total Inflow
@@ -180,10 +181,10 @@ export function AnalyticsView({ initialTransactions = [] }) {
               All time recorded income
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Total Outflow - Red Theme */}
-        <div className="bg-gradient-to-br from-rose-500 to-rose-700 text-white rounded-2xl p-5 shadow-lg shadow-rose-500/20 space-y-3 transition-all hover:shadow-xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-gradient-to-br from-rose-500 to-rose-700 text-white rounded-2xl p-5 shadow-lg shadow-rose-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Total Outflow
@@ -200,10 +201,10 @@ export function AnalyticsView({ initialTransactions = [] }) {
               All time recorded expenses
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Net Savings - Blue/Indigo Gradient */}
-        <div className="bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] text-white rounded-2xl p-5 shadow-lg shadow-indigo-500/20 space-y-3 transition-all hover:shadow-xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.3 }} className="bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] text-white rounded-2xl p-5 shadow-lg shadow-indigo-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Net Savings
@@ -220,10 +221,10 @@ export function AnalyticsView({ initialTransactions = [] }) {
               Cumulative net balance
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Savings Rate - Orange Theme */}
-        <div className="bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl p-5 shadow-lg shadow-amber-500/20 space-y-3 transition-all hover:shadow-xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.4 }} className="bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-2xl p-5 shadow-lg shadow-amber-500/20 space-y-3 transition-all hover:shadow-xl">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-white/80 uppercase tracking-wider">
               Savings Rate
@@ -240,13 +241,13 @@ export function AnalyticsView({ initialTransactions = [] }) {
               Of gross income retained
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Main Charts Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left 7 cols: Monthly Trend Chart */}
-        <div className="lg:col-span-7 bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.5 }} className="lg:col-span-7 bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-blue-500/10 text-[#3B82F6]">
@@ -311,10 +312,10 @@ export function AnalyticsView({ initialTransactions = [] }) {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right 5 cols: Category Breakdown */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#141B2D] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} whileHover={{ scale: 1.02, y: -5, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.6 }} className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-5">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500">
               <PieChartIcon size={18} />
@@ -408,7 +409,7 @@ export function AnalyticsView({ initialTransactions = [] }) {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
