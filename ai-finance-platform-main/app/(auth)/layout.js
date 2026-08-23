@@ -1,5 +1,11 @@
+import { Auth3DWrapper } from "./_components/auth-3d-wrapper";
+
 const AuthLayout = ({ children }) => {
-  return <div className="flex justify-center pt-40">{children}</div>;
+  return (
+    <Auth3DWrapper>
+      {children}
+    </Auth3DWrapper>
+  );
 };
 
 export default AuthLayout;

@@ -6,6 +6,8 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { checkUser } from "@/lib/checkUser";
 import Image from "next/image";
 import { ThemeToggle } from "./theme-toggle";
+import { PrivacyToggle } from "./privacy-toggle";
+import { CurrencySelector } from "./currency-selector";
 import { WelcomeMessage } from "./welcome-message";
 
 const Header = async () => {
@@ -71,6 +73,8 @@ const Header = async () => {
               }}
             />
           </SignedIn>
+          <CurrencySelector />
+          <PrivacyToggle />
           <ThemeToggle />
         </div>
       </nav>

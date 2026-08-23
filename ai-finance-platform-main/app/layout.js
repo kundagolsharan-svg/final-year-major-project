@@ -6,6 +6,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import ChatBot from "@/components/ChatBot";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PrivacyProvider } from "@/components/providers/privacy-provider";
+import { CurrencyProvider } from "@/components/providers/currency-provider";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -43,12 +45,16 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           >
-            <HeaderWrapper>
-              <Header />
-            </HeaderWrapper>
-            <main className="min-h-screen">{children}</main>
-            <ChatBot />
-            <Toaster richColors position="top-right" />
+            <CurrencyProvider>
+              <PrivacyProvider>
+                <HeaderWrapper>
+                  <Header />
+                </HeaderWrapper>
+                <main className="min-h-screen">{children}</main>
+                <ChatBot />
+                <Toaster richColors position="top-right" />
+              </PrivacyProvider>
+            </CurrencyProvider>
           </ThemeProvider>
         </body>
       </html>

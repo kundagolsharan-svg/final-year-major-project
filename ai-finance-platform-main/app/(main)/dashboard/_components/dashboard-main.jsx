@@ -3,8 +3,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -38,10 +38,16 @@ import {
   FileUp,
   Plus,
   Landmark,
+  Trophy,
+  Flame,
+  Target,
+  X,
 } from "lucide-react";
 import { PDFTransactionUploader } from "./pdf-transaction-uploader";
 import { CreateAccountDrawer } from "@/components/create-account-drawer";
 import { ConnectBankModal } from "@/components/connect-bank-modal";
+import { Badge3D } from "@/components/badge-3d";
+import { MilestoneCelebration } from "@/components/milestone-celebration";
 import {
   format,
   subMonths,
@@ -54,6 +60,8 @@ import {
 } from "date-fns";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { usePrivacy } from "@/components/providers/privacy-provider";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -173,14 +181,14 @@ function Sparkline({ color, up }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Custom Donut Centre Label
 // ─────────────────────────────────────────────────────────────────────────────
-function DonutLabel({ cx, cy, totalExpense }) {
+function DonutLabel({ cx, cy, totalExpense, symbol, locale }) {
   return (
     <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
       <tspan x={cx} dy="-10" fill="#94A3B8" fontSize="9" fontWeight="700">TOTAL</tspan>
       <tspan x={cx} dy="18" fill="#FFFFFF" fontSize="13" fontWeight="900">
-        ₹{totalExpense >= 1000
+        {symbol}{totalExpense >= 1000
           ? `${(totalExpense / 1000).toFixed(1)}K`
-          : totalExpense.toLocaleString("en-IN")}
+          : totalExpense.toLocaleString(locale)}
       </tspan>
     </text>
   );
@@ -236,9 +244,13 @@ function RangePicker({ value, onChange }) {
 // Main Component
 // ─────────────────────────────────────────────────────────────────────────────
 export function DashboardMain({ accounts, transactions, spendingInsights }) {
+  const { isPrivacyMode } = usePrivacy();
+  const { currency } = useCurrency();
   const [isMounted, setIsMounted] = useState(false);
   const [range, setRange] = useState("this_month");
   const [showPdfUploader, setShowPdfUploader] = useState(false);
+  const [celebratedBadge, setCelebratedBadge] = useState(null);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -360,7 +372,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       color: "#EF4444",
       bg: "bg-red-500/10",
       title: `Increased spending in ${s.category.replace(/-/g, " ")}`,
-      text: `You've spent ₹${Number(s.increase).toLocaleString("en-IN")} more on ${s.category.replace(/-/g, " ")} than last month.`,
+      text: `You've spent ${currency.symbol}${Number(s.increase).toLocaleString(currency.locale)} more on ${s.category.replace(/-/g, " ")} than last month.`,
       highlight: `+${s.percent}%`,
       sub: "vs last month",
     }));
@@ -384,7 +396,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
         bg: "bg-amber-500/10",
         title: `High spending on ${topCategories[0].name.replace(/-/g, " ")}`,
         text: `A significant portion of your recent spending is going towards ${topCategories[0].name.replace(/-/g, " ")}.`,
-        highlight: `₹${topCategories[0].value.toLocaleString("en-IN")}`,
+        highlight: `${currency.symbol}${topCategories[0].value.toLocaleString(currency.locale)}`,
         sub: "this period",
       });
     }
@@ -436,7 +448,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
 
   // ── Formatters ──────────────────────────────────────────────────────────
   const fmt = (n) =>
-    `₹${Math.abs(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `${currency.symbol}${Math.abs(n).toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const rangeName = TIME_RANGES.find((r) => r.key === range)?.label ?? "Period";
 
@@ -520,7 +532,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               <div className="w-2 h-2 rounded-full" style={{ background: p.fill }} />
               <span className="text-slate-600 dark:text-slate-300">{p.name}</span>
             </div>
-            <span className="font-black text-slate-900 dark:text-white">₹{p.value.toLocaleString("en-IN")}</span>
+            <span className="font-black text-slate-900 dark:text-white">{currency.symbol}{p.value.toLocaleString(currency.locale)}</span>
           </div>
         ))}
       </div>
@@ -549,9 +561,9 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
     <div className="space-y-5 pb-10">
 
       {/* ── Header + Global Range Picker ── */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }} 
-        animate={{ opacity: 1, y: 0 }} 
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="flex items-start justify-between gap-4 flex-wrap"
       >
@@ -622,9 +634,9 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       </AnimatePresence>
 
       {/* ── Accounts Quick Strip ── */}
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }} 
-        animate={{ opacity: 1, y: 0 }} 
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
         whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.4, delay: 0.1 }}
         className="p-4 rounded-2xl bg-white dark:bg-[#0a0a0f] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between flex-wrap gap-3"
       >
@@ -654,8 +666,8 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
                   <p className="text-xs font-black text-slate-900 dark:text-white truncate max-w-[120px]">
                     {acc.name}
                   </p>
-                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    ₹{Number(acc.balance || 0).toLocaleString("en-IN")}
+                  <p className={cn("text-xs font-bold text-emerald-600 dark:text-emerald-400", isPrivacyMode && "blur-sm opacity-60 select-none")}>
+                    {currency.symbol}{Number(acc.balance || 0).toLocaleString(currency.locale)}
                   </p>
                 </div>
               </Link>
@@ -701,7 +713,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               <span className={cn("text-sm font-bold", card.labelColor)}>{card.label}</span>
             </div>
 
-            <p className={cn("text-[22px] font-black tracking-tight leading-none", card.valueColor)}>
+            <p className={cn("text-[22px] font-black tracking-tight leading-none", card.valueColor, isPrivacyMode && "blur-md opacity-60 select-none")}>
               {card.value}
             </p>
 
@@ -729,11 +741,13 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Income vs Expense Bar Chart */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          layoutId="income-expense-card"
+          onClick={() => setExpandedCard("income-expense")}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.2 }}
-          className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+          className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80 cursor-pointer hover:ring-2 hover:ring-indigo-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Income vs Expense Overview</h2>
@@ -751,7 +765,21 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={barChartData} margin={{ top: 0, right: 4, left: -22, bottom: 0 }} barCategoryGap="28%">
+              <AreaChart data={barChartData} margin={{ top: 10, right: 4, left: -22, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22C55E" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                  </linearGradient>
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1E293B" />
                 <XAxis dataKey="label" axisLine={false} tickLine={false}
                   tick={{ fill: "#64748B", fontSize: 10, fontWeight: 700 }}
@@ -761,23 +789,25 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
                   tick={{ fill: "#64748B", fontSize: 10, fontWeight: 700 }}
                   tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v}
                 />
-                <Tooltip content={<BarTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+                <Tooltip content={<BarTooltip />} cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 2 }} />
                 <Legend iconType="circle" iconSize={7}
                   wrapperStyle={{ fontSize: "10px", fontWeight: 700, paddingTop: "10px", color: "#94A3B8" }}
                 />
-                <Bar name="Income" dataKey="income" fill="#22C55E" radius={[3, 3, 0, 0]} maxBarSize={14} />
-                <Bar name="Expense" dataKey="expense" fill="#EF4444" radius={[3, 3, 0, 0]} maxBarSize={14} />
-              </BarChart>
+                <Area type="monotone" name="Income" dataKey="income" stroke="#22C55E" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" filter="url(#glow)" />
+                <Area type="monotone" name="Expense" dataKey="expense" stroke="#EF4444" strokeWidth={3} fillOpacity={1} fill="url(#colorExpense)" filter="url(#glow)" />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </motion.div>
 
         {/* Expense by Category Donut */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          layoutId="expense-card"
+          onClick={() => setExpandedCard("expense")}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.3 }}
-          className="lg:col-span-4 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+          className="lg:col-span-4 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80 flex flex-col cursor-pointer hover:ring-2 hover:ring-indigo-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Expense by Category</h2>
@@ -814,7 +844,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
                       animationDuration={800}
                       labelLine={false}
                       label={({ cx, cy }) => (
-                        <DonutLabel cx={cx} cy={cy} totalExpense={totalExpense} />
+                        <DonutLabel cx={cx} cy={cy} totalExpense={totalExpense} symbol={currency.symbol} locale={currency.locale} />
                       )}
                     >
                       {pieData.map((entry, index) => (
@@ -857,11 +887,13 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
         </motion.div>
 
         {/* Top Spending Categories */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          layoutId="top-spending-card"
+          onClick={() => setExpandedCard("top-spending")}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.4 }}
-          className="lg:col-span-3 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80"
+          className="lg:col-span-3 bg-white dark:bg-[#0a0a0f] rounded-2xl p-5 border border-slate-200 dark:border-slate-800/80 cursor-pointer hover:ring-2 hover:ring-indigo-500/50 transition-all"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-black text-slate-900 dark:text-white">Top Spending</h2>
@@ -921,9 +953,9 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
         {/* Recent Transactions */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           whileHover={{ scale: 1.02, y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }} transition={{ duration: 0.5, delay: 0.5 }}
           className="lg:col-span-5 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden"
         >
@@ -981,9 +1013,9 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
         </motion.div>
 
         {/* AI Insights */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.6 }}
           className="lg:col-span-4 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden flex flex-col"
         >
@@ -998,7 +1030,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
               Beta
             </span>
           </div>
-          
+
           <div className="p-4 space-y-3 flex-1 flex flex-col">
             {aiInsights.map((ins, i) => (
               <div key={i} className="group p-3.5 bg-slate-50 hover:bg-slate-100 dark:bg-[#1A2235] dark:hover:bg-[#1E293B] rounded-xl border border-slate-200 dark:border-slate-700/50 transition-all duration-200">
@@ -1027,7 +1059,7 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
                 </div>
               </div>
             ))}
-            
+
             <div className="mt-auto pt-2">
               <Link href="/analyzer"
                 className="flex items-center justify-center gap-1.5 w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md">
@@ -1039,9 +1071,9 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
         </motion.div>
 
         {/* Recent Alerts */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
           className="lg:col-span-3 bg-white dark:bg-[#0a0a0f] rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden"
         >
@@ -1068,6 +1100,333 @@ export function DashboardMain({ accounts, transactions, spendingInsights }) {
           </div>
         </motion.div>
       </div>
+
+      {/* ── Row 4: Gamification & Milestones ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="text-amber-500" size={20} />
+          <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+            Milestones & Achievements
+          </h2>
+        </div>
+        <div className="flex flex-wrap gap-6 items-center justify-center lg:justify-start">
+          <Badge3D
+            icon={Trophy}
+            title="Budget Master"
+            description="Stayed under budget for 3 consecutive months."
+            colorClass="text-amber-500 bg-amber-500/20"
+            borderClass="border-amber-500/30"
+            bgClass="bg-white/5"
+            shadowClass="shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+            onClick={() => setCelebratedBadge({
+              icon: Trophy,
+              title: "Budget Master",
+              description: "Stayed under budget for 3 consecutive months.",
+              colorClass: "text-amber-500 bg-amber-500/20"
+            })}
+          />
+          <Badge3D
+            icon={Target}
+            title="First 10K Saved"
+            description={`Reached ${currency.symbol}10,000 in net savings this month!`}
+            colorClass="text-emerald-500 bg-emerald-500/20"
+            borderClass="border-emerald-500/30"
+            bgClass="bg-white/5"
+            shadowClass="shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+            onClick={() => setCelebratedBadge({
+              icon: Target,
+              title: "First 10K Saved",
+              description: `Reached ${currency.symbol}10,000 in net savings this month!`,
+              colorClass: "text-emerald-500 bg-emerald-500/20"
+            })}
+          />
+          <Badge3D
+            icon={Flame}
+            title="7-Day Streak"
+            description="Logged expenses for 7 days in a row."
+            colorClass="text-rose-500 bg-rose-500/20"
+            borderClass="border-rose-500/30"
+            bgClass="bg-white/5"
+            shadowClass="shadow-[0_0_30px_rgba(244,63,94,0.2)]"
+            onClick={() => setCelebratedBadge({
+              icon: Flame,
+              title: "7-Day Streak",
+              description: "Logged expenses for 7 days in a row.",
+              colorClass: "text-rose-500 bg-rose-500/20"
+            })}
+          />
+        </div>
+      </motion.div>
+
+      {/* Milestone Celebration Popup */}
+      <MilestoneCelebration
+        badge={celebratedBadge}
+        onClose={() => setCelebratedBadge(null)}
+      />
+
+      {/* Expanded Modal Overlay */}
+      <AnimatePresence>
+        {expandedCard === "expense" && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setExpandedCard(null)}
+              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[100]"
+            />
+            <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 md:p-8 pointer-events-none">
+              <motion.div
+                layoutId="expense-card"
+                className="bg-white dark:bg-[#0a0a0f] rounded-3xl p-6 md:p-10 border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col relative"
+                style={{
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 100px rgba(99, 102, 241, 0.2)"
+                }}
+              >
+                <button
+                  onClick={() => setExpandedCard(null)}
+                  className="absolute top-6 right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors z-10"
+                >
+                  <X size={22} strokeWidth={3} />
+                </button>
+                
+                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Detailed Expense Analysis</h2>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mb-10 text-lg flex items-center gap-2">
+                  <Calendar size={18} />
+                  {rangeName}
+                </p>
+                
+                <div className="flex flex-col md:flex-row gap-12 items-center md:items-start flex-1">
+                  <div className="w-full md:w-1/2 flex items-center justify-center relative min-h-[350px]">
+                     <div className="absolute inset-0 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-[80px] -z-10" />
+                     <ResponsiveContainer width="100%" height={400} className="max-w-[400px]">
+                       <PieChart>
+                         <Pie
+                           data={pieData}
+                           cx="50%"
+                           cy="50%"
+                           innerRadius={90}
+                           outerRadius={150}
+                           paddingAngle={4}
+                           dataKey="value"
+                           animationBegin={0}
+                           animationDuration={1500}
+                           labelLine={false}
+                           label={({ cx, cy }) => (
+                             <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central">
+                               <tspan x={cx} dy="-15" fill="#94A3B8" fontSize="14" fontWeight="800" letterSpacing="0.1em">TOTAL EXPENSE</tspan>
+                               <tspan x={cx} dy="30" fill="currentColor" className="dark:fill-white fill-slate-900" fontSize="32" fontWeight="900">
+                                 {currency.symbol}{totalExpense >= 1000 ? `${(totalExpense / 1000).toFixed(1)}K` : totalExpense.toLocaleString(currency.locale)}
+                               </tspan>
+                             </text>
+                           )}
+                         >
+                           {pieData.map((entry, index) => (
+                             <Cell
+                               key={`cell-${index}`}
+                               fill={CATEGORY_COLORS[entry.name] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]}
+                               stroke="rgba(255,255,255,0.15)"
+                               strokeWidth={2}
+                               style={{ filter: "drop-shadow(0px 20px 25px rgba(0,0,0,0.3))" }}
+                             />
+                           ))}
+                         </Pie>
+                         <Tooltip content={<PieTooltip />} />
+                       </PieChart>
+                     </ResponsiveContainer>
+                  </div>
+                  
+                  <div className="w-full md:w-1/2 space-y-4 pt-4">
+                    {pieData.map((d, i) => {
+                      const color = CATEGORY_COLORS[d.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+                      return (
+                        <motion.div 
+                          key={d.name} 
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + (i * 0.08), type: "spring", stiffness: 300, damping: 24 }}
+                          className="flex items-center justify-between p-4 md:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 dark:hover:border-indigo-500/50 hover:bg-white dark:hover:bg-slate-900 transition-all shadow-sm group"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-white dark:bg-[#0f172a]" style={{ borderLeft: `4px solid ${color}` }}>
+                              <div className="w-4 h-4 rounded-full shadow-sm" style={{ background: color }} />
+                            </div>
+                            <div>
+                              <p className="text-slate-900 dark:text-white capitalize font-extrabold text-xl group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                {d.name.replace(/-/g, " ")}
+                              </p>
+                              <p className="text-slate-500 font-bold tracking-wide">{d.pct}% of total</p>
+                            </div>
+                          </div>
+                          <span className="text-2xl font-black text-slate-900 dark:text-white group-hover:scale-105 transition-transform">{fmt(d.value)}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+        {expandedCard === "income-expense" && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setExpandedCard(null)}
+              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[100]"
+            />
+            <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 md:p-8 pointer-events-none">
+              <motion.div
+                layoutId="income-expense-card"
+                className="bg-white dark:bg-[#0a0a0f] rounded-3xl p-6 md:p-10 border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col relative"
+                style={{
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 100px rgba(99, 102, 241, 0.2)"
+                }}
+              >
+                <button
+                  onClick={() => setExpandedCard(null)}
+                  className="absolute top-6 right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors z-10"
+                >
+                  <X size={22} strokeWidth={3} />
+                </button>
+                
+                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Income vs Expense Overview</h2>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mb-10 text-lg flex items-center gap-2">
+                  <Calendar size={18} />
+                  {rangeName}
+                </p>
+
+                <div className="flex-1 w-full relative min-h-[400px]">
+                  <div className="absolute inset-0 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-3xl blur-[100px] -z-10" />
+                  <ResponsiveContainer width="100%" height={400}>
+                    <AreaChart data={barChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorIncomeLg" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22C55E" stopOpacity={0.6} />
+                          <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorExpenseLg" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#EF4444" stopOpacity={0.6} />
+                          <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                        </linearGradient>
+                        <filter id="glowLg" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="6" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+                      <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#334155" opacity={0.5} />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#64748B", fontSize: 12, fontWeight: 700 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748B", fontSize: 12, fontWeight: 700 }} tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}K` : v} dx={-10} />
+                      <Tooltip content={<BarTooltip />} cursor={{ stroke: "rgba(255,255,255,0.15)", strokeWidth: 2 }} />
+                      <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: "14px", fontWeight: 700, paddingTop: "20px", color: "#94A3B8" }} />
+                      <Area type="monotone" name="Income" dataKey="income" stroke="#22C55E" strokeWidth={4} fillOpacity={1} fill="url(#colorIncomeLg)" filter="url(#glowLg)" activeDot={{ r: 8, strokeWidth: 0, fill: "#22C55E" }} />
+                      <Area type="monotone" name="Expense" dataKey="expense" stroke="#EF4444" strokeWidth={4} fillOpacity={1} fill="url(#colorExpenseLg)" filter="url(#glowLg)" activeDot={{ r: 8, strokeWidth: 0, fill: "#EF4444" }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+        {expandedCard === "top-spending" && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setExpandedCard(null)}
+              className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[100]"
+            />
+            <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 md:p-8 pointer-events-none">
+              <motion.div
+                layoutId="top-spending-card"
+                transition={{ duration: 0.8, type: "spring", bounce: 0.35 }}
+                className="bg-white dark:bg-[#0a0a0f] rounded-3xl p-6 md:p-10 border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto pointer-events-auto flex flex-col relative"
+                style={{
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 100px rgba(99, 102, 241, 0.2)"
+                }}
+              >
+                <button
+                  onClick={() => setExpandedCard(null)}
+                  className="absolute top-6 right-6 p-2.5 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors z-10"
+                >
+                  <X size={22} strokeWidth={3} />
+                </button>
+                
+                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Top Spending Categories</h2>
+                <p className="text-slate-500 dark:text-slate-400 font-medium mb-10 text-lg flex items-center gap-2">
+                  <Calendar size={18} />
+                  {rangeName}
+                </p>
+
+                {topCategories.length === 0 ? (
+                  <div className="text-center py-20 text-slate-500 text-lg font-semibold flex flex-col items-center gap-4">
+                    <TrendingUp size={48} className="opacity-20" />
+                    No expenses for {rangeName}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {topCategories.map((cat, i) => {
+                      const Icon = CATEGORY_ICONS[cat.name] || MoreHorizontal;
+                      const color = CATEGORY_COLORS[cat.name] || FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+                      const maxVal = topCategories[0].value;
+                      const barW = maxVal > 0 ? Math.round((cat.value / maxVal) * 100) : 0;
+                      return (
+                        <motion.div 
+                          key={cat.name} 
+                          initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                          animate={{ opacity: 1, x: 0, scale: 1 }}
+                          transition={{ delay: 0.3 + (i * 0.15), type: "spring", stiffness: 200, damping: 20 }}
+                          className="p-5 md:p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-white dark:hover:bg-slate-900 transition-all shadow-sm group"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div
+                                className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-500"
+                                style={{ background: `${color}15`, border: `1px solid ${color}30` }}
+                              >
+                                <Icon size={24} style={{ color }} />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white capitalize group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                  {cat.name.replace(/-/g, " ")}
+                                </h3>
+                                <p className="text-slate-500 font-semibold">{cat.pct}% of total expense</p>
+                              </div>
+                            </div>
+                            <span className="text-3xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
+                              {fmt(cat.value)}
+                            </span>
+                          </div>
+                          
+                          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner relative">
+                            <motion.div
+                              key={`${cat.name}-${range}-expanded`}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${barW}%` }}
+                              transition={{ duration: 1.2, delay: 0.5 + (i * 0.1), type: "spring", bounce: 0.3 }}
+                              className="h-full rounded-full relative"
+                              style={{ background: `linear-gradient(90deg, ${color} 0%, ${color}ee 100%)` }}
+                            >
+                              <div className="absolute inset-0 bg-white/20 dark:bg-white/10 w-full h-full" style={{ mixBlendMode: "overlay" }} />
+                            </motion.div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

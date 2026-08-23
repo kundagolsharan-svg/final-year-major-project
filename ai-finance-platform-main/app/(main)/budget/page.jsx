@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
 import { getBudgetData } from "@/actions/budget";
 import { BudgetView } from "./_components/budget-view";
 
@@ -7,9 +8,12 @@ export const metadata = {
   description: "Set spending limits, track expenses, and optimize your monthly budget with AI insights.",
 };
 
-export default async function BudgetPage() {
+async function BudgetData() {
   const data = await getBudgetData();
+  return <BudgetView initialData={data} />;
+}
 
+export default function BudgetPage() {
   return (
     <Suspense
       fallback={
@@ -18,7 +22,7 @@ export default async function BudgetPage() {
         </div>
       }
     >
-      <BudgetView initialData={data} />
+      <BudgetData />
     </Suspense>
   );
 }

@@ -12,9 +12,12 @@ import {
   ChevronRight,
   RefreshCw,
   Clock,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { usePrivacy } from "@/components/providers/privacy-provider";
+import { useCurrency } from "@/components/providers/currency-provider";
 
 import {
   Table,
@@ -65,6 +68,8 @@ const RECURRING_INTERVALS = {
 };
 
 export function TransactionTable({ transactions }) {
+  const { isPrivacyMode } = usePrivacy();
+  const { currency } = useCurrency();
   const [selectedIds, setSelectedIds] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     field: "date",
@@ -196,6 +201,37 @@ export function TransactionTable({ transactions }) {
     setSelectedIds([]); // Clear selections on page change
   };
 
+  const handleExportCSV = () => {
+    if (filteredAndSortedTransactions.length === 0) {
+      toast.error("No transactions to export");
+      return;
+    }
+    const headers = ["Date", "Description", "Category", "Type", "Amount", "IsRecurring"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredAndSortedTransactions.map((t) =>
+        [
+          format(new Date(t.date), "yyyy-MM-dd"),
+          `"${(t.description || "").replace(/"/g, '""')}"`,
+          t.category,
+          t.type,
+          t.amount.toFixed(2),
+          t.isRecurring ? "Yes" : "No",
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `transactions_export_${format(new Date(), "yyyy-MM-dd")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Transactions exported to CSV");
+  };
+
   return (
     <div className="space-y-4">
       {deleteLoading && (
@@ -272,6 +308,15 @@ export function TransactionTable({ transactions }) {
               <X className="h-4 w-5" />
             </Button>
           )}
+
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+            title="Export to CSV"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
       </div>
 
@@ -374,10 +419,11 @@ export function TransactionTable({ transactions }) {
                       "text-right font-medium",
                       transaction.type === "EXPENSE"
                         ? "text-red-500"
-                        : "text-green-500"
+                        : "text-green-500",
+                      isPrivacyMode && "blur-sm opacity-60 select-none"
                     )}
                   >
-                    {transaction.type === "EXPENSE" ? "-" : "+"}₹
+                    {transaction.type === "EXPENSE" ? "-" : "+"}{currency.symbol}
                     {transaction.amount.toFixed(2)}
                   </TableCell>
                   <TableCell>

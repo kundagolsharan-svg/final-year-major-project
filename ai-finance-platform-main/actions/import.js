@@ -246,33 +246,17 @@ export async function importTransactions(formData) {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 1: In-File Deduplication + Hash Calculation
+    // STEP 1 & 2: Data Formatting (Deduplication Disabled)
     // ─────────────────────────────────────────────────────────────────────────
-    const seenHashesInBatch = new Set();
-    const batchUniqueTransactions = [];
-    let inFileDuplicates = 0;
+    const newTransactionsToInsert = [];
 
     for (const t of rawTransactions) {
       if (!t.amount || isNaN(Number(t.amount)) || Number(t.amount) <= 0) continue;
       if (!t.date || isNaN(new Date(t.date).getTime())) continue;
 
-      const hash = computeTransactionHash(
-        user.id,
-        t.date,
-        t.amount,
-        t.description,
-        t.type || "EXPENSE"
-      );
-
-      if (seenHashesInBatch.has(hash)) {
-        inFileDuplicates++;
-        continue;
-      }
-
-      seenHashesInBatch.add(hash);
-      batchUniqueTransactions.push({
+      newTransactionsToInsert.push({
         ...t,
-        hash,
+        hash: null,
         amount: parseFloat(t.amount),
         type: t.type === "INCOME" ? "INCOME" : "EXPENSE",
         date: new Date(t.date),
@@ -280,75 +264,12 @@ export async function importTransactions(formData) {
       });
     }
 
-    if (batchUniqueTransactions.length === 0) {
-      return {
-        success: true,
-        count: 0,
-        duplicateCount: inFileDuplicates,
-        message: "No new valid transactions found in the statement.",
-      };
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // STEP 2: Database Deduplication (Check Existing Hashes & Composite Keys)
-    // ─────────────────────────────────────────────────────────────────────────
-    const batchHashes = batchUniqueTransactions.map((t) => t.hash);
-
-    const existingHashRecords = await db.transaction.findMany({
-      where: {
-        userId: user.id,
-        hash: { in: batchHashes },
-      },
-      select: { hash: true },
-    });
-
-    const existingHashSet = new Set(existingHashRecords.map((r) => r.hash));
-
-    // Also look up candidate date range to catch legacy records without hashes
-    const dates = batchUniqueTransactions.map((t) => t.date);
-    const minDate = new Date(Math.min(...dates));
-    const maxDate = new Date(Math.max(...dates));
-    // Add 1 day buffer to either side
-    minDate.setDate(minDate.getDate() - 1);
-    maxDate.setDate(maxDate.getDate() + 1);
-
-    const existingRangeTransactions = await db.transaction.findMany({
-      where: {
-        userId: user.id,
-        accountId: accountId,
-        date: { gte: minDate, lte: maxDate },
-      },
-      select: { date: true, amount: true, description: true, type: true },
-    });
-
-    const existingCompositeKeys = new Set(
-      existingRangeTransactions.map(
-        (e) =>
-          `${new Date(e.date).toISOString().split("T")[0]}|${parseFloat(e.amount).toFixed(2)}|${normalizeDescription(e.description).substring(0, 60)}|${e.type}`
-      )
-    );
-
-    const newTransactionsToInsert = [];
-    let dbDuplicates = 0;
-
-    for (const t of batchUniqueTransactions) {
-      const compKey = `${new Date(t.date).toISOString().split("T")[0]}|${parseFloat(t.amount).toFixed(2)}|${normalizeDescription(t.description).substring(0, 60)}|${t.type}`;
-
-      if (existingHashSet.has(t.hash) || existingCompositeKeys.has(compKey)) {
-        dbDuplicates++;
-        continue;
-      }
-      newTransactionsToInsert.push(t);
-    }
-
-    const totalDuplicatesSkipped = inFileDuplicates + dbDuplicates;
-
     if (newTransactionsToInsert.length === 0) {
       return {
         success: true,
         count: 0,
-        duplicateCount: totalDuplicatesSkipped,
-        message: `All ${totalDuplicatesSkipped} transaction(s) were already present in your ledger. No duplicates were added.`,
+        duplicateCount: 0,
+        message: "No valid transactions found in the statement.",
       };
     }
 
@@ -405,11 +326,10 @@ export async function importTransactions(formData) {
     return {
       success: true,
       count: categorizedTransactions.length,
-      duplicateCount: totalDuplicatesSkipped,
+      duplicateCount: 0,
       totalInflow,
       totalOutflow,
-      message: `Successfully imported ${categorizedTransactions.length} transaction(s)${totalDuplicatesSkipped > 0 ? ` (${totalDuplicatesSkipped} duplicate(s) safely skipped)` : ""
-        }.`,
+      message: `Successfully imported ${categorizedTransactions.length} transaction(s).`,
     };
   } catch (error) {
     console.error("Import Transactions Error:", error);

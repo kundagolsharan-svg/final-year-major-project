@@ -23,8 +23,13 @@ import {
   Rocket,
   MessageSquare,
   TrendingUp,
+  Calendar,
+  ShieldCheck,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { PrivacyToggle } from "@/components/privacy-toggle";
+import { CurrencySelector } from "@/components/currency-selector";
+import { PageTransition } from "@/components/page-transition";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -35,9 +40,11 @@ const menuItems = [
   { name: "AI Chat", href: "/chat", icon: MessageSquare },
   { name: "AI Forecast", href: "/forecast", icon: TrendingUp },
   { name: "Budgets", href: "/budget", icon: PiggyBank },
+  { name: "Subscriptions", href: "/subscriptions", icon: Calendar },
   { name: "Reports", href: "/reports", icon: FileDown },
   { name: "Goals", href: "/goals", icon: Target },
   { name: "Alerts", href: "/alerts", icon: Bell },
+  { name: "Security", href: "/security", icon: ShieldCheck },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -350,7 +357,9 @@ export default function MainLayout({ children }) {
               </AnimatePresence>
             </div>
 
-            {/* Theme Switcher Toggle */}
+            {/* Global Toggles */}
+            <CurrencySelector />
+            <PrivacyToggle />
             <ThemeToggle />
 
             {/* User */}
@@ -372,20 +381,8 @@ export default function MainLayout({ children }) {
         </header>
 
         {/* ── Page Body ── */}
-        <main className="flex-1 overflow-y-auto px-5 py-6 md:px-6">
-          <MotionConfig reducedMotion="never">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3 }}
-              >
-                {children}
-              </motion.div>
-            </AnimatePresence>
-          </MotionConfig>
+        <main className="flex-1 p-4 md:p-8 overflow-x-hidden relative max-w-7xl mx-auto w-full pb-24 md:pb-8">
+          <PageTransition>{children}</PageTransition>
         </main>
 
         {/* ── Footer ── */}

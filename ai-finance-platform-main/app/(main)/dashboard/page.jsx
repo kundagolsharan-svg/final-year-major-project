@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
 import {
   getUserAccounts,
   getDashboardData,
@@ -12,7 +13,7 @@ export const metadata = {
   description: "Monitor your accounts, real-time balances, recent transactions, and spending insights.",
 };
 
-export default async function DashboardPage() {
+async function DashboardData() {
   const [accounts, transactions, spendingInsights] = await Promise.all([
     getUserAccounts(),
     getDashboardData(),
@@ -20,12 +21,20 @@ export default async function DashboardPage() {
   ]);
 
   return (
+    <DashboardMain
+      accounts={accounts || []}
+      transactions={transactions || []}
+      spendingInsights={spendingInsights || []}
+    />
+  );
+}
+
+export default function DashboardPage() {
+  return (
     <Suspense fallback={<PageSkeleton title="Dashboard" cards={4} />}>
-      <DashboardMain
-        accounts={accounts || []}
-        transactions={transactions || []}
-        spendingInsights={spendingInsights || []}
-      />
+      <DashboardData />
     </Suspense>
   );
 }
+
+

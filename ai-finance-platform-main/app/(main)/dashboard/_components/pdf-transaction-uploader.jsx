@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export function PDFTransactionUploader({ accounts = [], onUploadSuccess, className }) {
   const router = useRouter();
@@ -78,7 +79,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("Please select a PDF transaction statement to upload.");
+      toast.error("Please select a PDF or CSV transaction statement to upload.");
       return;
     }
 
@@ -159,11 +160,11 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                   <Sparkles size={11} /> Smart AI Categorization
                 </span>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                  <ShieldCheck size={11} /> Zero Duplication
+                  <ShieldCheck size={11} /> All Records Imported
                 </span>
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 mt-0.5">
-                Drop your bank or card PDF statements. SAMPAT AI automatically parses, categorizes (Shopping, Cold Drinks, Dining, Groceries), and deduplicates entries.
+                Drop your bank or card PDF or CSV statements. SAMPAT AI automatically parses and categorizes (Shopping, Cold Drinks, Dining, Groceries).
               </CardDescription>
             </div>
           </div>
@@ -275,7 +276,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
               onDrop={handleDrop}
               onClick={() => !isUploading && fileInputRef.current?.click()}
               className={cn(
-                "border-2 border-dashed rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group relative",
+                "border-2 border-dashed rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 group relative overflow-hidden",
                 isDragOver
                   ? "border-indigo-500 bg-indigo-500/5"
                   : file
@@ -283,6 +284,16 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                   : "border-slate-200 dark:border-slate-800 hover:border-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-900/40"
               )}
             >
+              {/* Laser Scanning Animation */}
+              {(isUploading || file) && (
+                <motion.div
+                  className="absolute left-0 right-0 h-1 bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] z-10 rounded-full pointer-events-none"
+                  initial={{ top: "0%" }}
+                  animate={{ top: ["0%", "100%", "0%"] }}
+                  transition={{ duration: 2, ease: "linear", repeat: Infinity }}
+                />
+              )}
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -364,7 +375,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
               <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
                 <ShieldCheck size={13} className="text-emerald-500" />
-                Deduplication active: identical previous transactions will be preserved without duplicate records.
+                Deduplication disabled: all transactions from the statement will be imported.
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -387,7 +398,7 @@ export function PDFTransactionUploader({ accounts = [], onUploadSuccess, classNa
                   {isUploading ? (
                     <>
                       <Loader2 size={14} className="animate-spin mr-2" />
-                      Parsing PDF Statement...
+                      Parsing Statement...
                     </>
                   ) : (
                     <>

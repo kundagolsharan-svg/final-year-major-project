@@ -55,12 +55,15 @@ export async function generateWithFallback(prompt, isVision = false) {
     );
   }
 
-  // Guard: ensure prompt is a valid non-empty string to avoid "payload is null" error
-  if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+  let safePrompt;
+  if (Array.isArray(prompt)) {
+    safePrompt = prompt;
+  } else if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     throw new Error("AI prompt cannot be null or empty.");
+  } else {
+    safePrompt = prompt.trim();
   }
 
-  const safePrompt = prompt.trim();
   const models = getModelList(isVision);
   const errors = [];
 

@@ -11,6 +11,7 @@ import { checkBudgetAlert } from "./budget";
 import { sendEmail } from "./send-email";
 import EmailTemplate from "@/emails/template";
 import { getAuthUser } from "@/lib/auth-cache";
+import crypto from "crypto";
 
 const serializeAmount = (obj) => ({
   ...obj,
@@ -72,12 +73,31 @@ export async function createTransaction(data) {
     const balanceChange = data.type === "EXPENSE" ? -data.amount : data.amount;
     const newBalance = account.balance.toNumber() + balanceChange;
 
+    // Helper to compute hash for duplication detection
+    const dateStr = new Date(data.date).toISOString().split("T")[0];
+    const amtStr = Number(data.amount).toFixed(2);
+    const normDesc = String(data.description || "").toLowerCase().trim().substring(0, 50);
+    const hash = crypto
+      .createHash("sha256")
+      .update(`${user.id}|${dateStr}|${amtStr}|${normDesc}`)
+      .digest("hex");
+
+    // Check for duplicate
+    const existingTxn = await db.transaction.findFirst({
+      where: { userId: user.id, hash },
+    });
+
+    if (existingTxn) {
+      throw new Error("A duplicate transaction already exists.");
+    }
+
     // Create transaction and update account balance
     const transaction = await db.$transaction(async (tx) => {
       const newTransaction = await tx.transaction.create({
         data: {
           ...data,
           userId: user.id,
+          hash: hash,
           nextRecurringDate:
             data.isRecurring && data.recurringInterval
               ? calculateNextRecurringDate(data.date, data.recurringInterval)
@@ -275,6 +295,12 @@ export async function updateTransaction(id, data) {
         },
         data: {
           ...data,
+          hash: crypto
+            .createHash("sha256")
+            .update(
+              `${user.id}|${new Date(data.date).toISOString().split("T")[0]}|${Number(data.amount).toFixed(2)}|${String(data.description || "").toLowerCase().trim().substring(0, 50)}`
+            )
+            .digest("hex"),
           nextRecurringDate:
             data.isRecurring && data.recurringInterval
               ? calculateNextRecurringDate(data.date, data.recurringInterval)
@@ -392,10 +418,15 @@ export async function scanReceipt(file) {
       prompt,
     ];
 
-    const text = await generateWithFallback(contentArray, true);
-    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+    const text = await generateWithFallback(contentArray, true, "json");
+    let cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
 
     try {
+      const jsonStart = cleanedText.indexOf("{");
+      const jsonEnd = cleanedText.lastIndexOf("}");
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        cleanedText = cleanedText.substring(jsonStart, jsonEnd + 1);
+      }
       const data = JSON.parse(cleanedText);
       return {
         amount: parseFloat(data.amount),

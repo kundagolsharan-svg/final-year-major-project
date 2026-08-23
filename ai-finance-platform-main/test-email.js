@@ -16,7 +16,7 @@ async function main() {
 
     const result = await sendEmail({
       to: user.email,
-      subject: "✨ Your Premium SAMPAT Report",
+      subject: "✨ Your SAMPAT Report",
       react: EmailTemplate({
         userName: user.name || "Sharan",
         type: "monthly-report",

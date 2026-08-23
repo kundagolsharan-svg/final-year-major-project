@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
 import { getAccountWithTransactions } from "@/actions/account";
 import { BarLoader } from "react-spinners";
 import { TransactionTable } from "../_components/transaction-table";
@@ -6,8 +7,8 @@ import { notFound } from "next/navigation";
 import { AccountChart } from "../_components/account-chart";
 import StatementUpload from "@/components/StatementUpload";
 
-export default async function AccountPage({ params }) {
-  const accountData = await getAccountWithTransactions(params.id);
+async function AccountData({ accountId }) {
+  const accountData = await getAccountWithTransactions(accountId);
 
   if (!accountData) {
     notFound();
@@ -57,5 +58,13 @@ export default async function AccountPage({ params }) {
         <TransactionTable transactions={transactions} />
       </Suspense>
     </div>
+  );
+}
+
+export default function AccountPage({ params }) {
+  return (
+    <Suspense fallback={<BarLoader className="mt-4" width={"100%"} color="#9333ea" />}>
+      <AccountData accountId={params.id} />
+    </Suspense>
   );
 }

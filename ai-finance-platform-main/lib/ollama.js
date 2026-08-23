@@ -45,12 +45,19 @@ async function getInstalledModels() {
 export async function generateWithFallback(prompt, isVision = false, format = null) {
   console.log(`[AI Engine] >>> Processing request (Vision: ${isVision})`);
 
-  // Guard against null/empty prompt — prevents "payload must be of type object, received null"
-  if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+  let safePrompt = prompt;
+  let base64Images = [];
+  if (Array.isArray(prompt)) {
+    const textPart = prompt.find(p => typeof p === "string");
+    const imagePart = prompt.find(p => p.inlineData && p.inlineData.data);
+    safePrompt = textPart ? textPart.trim() : "";
+    if (imagePart) base64Images.push(imagePart.inlineData.data);
+  } else if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     throw new Error("AI prompt cannot be null or empty.");
+  } else {
+    safePrompt = prompt.trim();
   }
 
-  const safePrompt = prompt.trim();
   const installedModels = await getInstalledModels();
   
   if (installedModels.length === 0) {
@@ -88,9 +95,10 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
       console.log(`[Ollama AI] >>> Attempting generation with ${modelName} on ${workingOllamaUrl}...`);
       const requestBody = {
         model: modelName,
-        prompt: prompt,
+        prompt: safePrompt,
         stream: false,
       };
+      if (base64Images.length > 0) requestBody.images = base64Images;
       if (format) requestBody.format = format;
 
       const response = await fetch(`${workingOllamaUrl}/api/generate`, {
