@@ -10,7 +10,7 @@ const models = [
   "gemini-2.0-flash-lite-preview-02-05"
 ];
 
-const API_KEY = "AIzaSyDauM1WfFFBS_Cy0rJ5b9mG_nhp_QHIYNI"; // User's key
+const API_KEY = // User's key
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 async function testAll() {
