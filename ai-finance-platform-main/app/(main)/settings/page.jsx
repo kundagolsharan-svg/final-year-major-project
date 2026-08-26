@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { format } from "date-fns";
 import {
   getUserSettings,
   updateUserProfile,
   exportAllUserData,
   clearAICacheAction,
   deleteAllUserTransactions,
+  updateNotificationPreferences,
 } from "@/actions/settings";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,9 @@ import {
   AlertTriangle,
   Loader2,
   HardDrive,
+  Activity,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,6 +60,10 @@ export default function SettingsPage() {
       if (res.success && res.data) {
         setUserSettings(res.data);
         setName(res.data.name || "");
+        setBudgetAlerts(res.data.budgetAlerts ?? true);
+        setFraudAlerts(res.data.fraudAlerts ?? true);
+        setBillReminders(res.data.billReminders ?? true);
+        setWeeklyDigest(res.data.weeklyDigest ?? false);
       } else {
         toast.error(res.error || "Failed to load user settings");
       }
@@ -68,6 +77,35 @@ export default function SettingsPage() {
   useEffect(() => {
     fetchSettings();
   }, [fetchSettings]);
+
+  const handleTogglePreference = async (key, value) => {
+    // Optimistic local update
+    if (key === "budgetAlerts") setBudgetAlerts(value);
+    if (key === "fraudAlerts") setFraudAlerts(value);
+    if (key === "billReminders") setBillReminders(value);
+    if (key === "weeklyDigest") setWeeklyDigest(value);
+
+    try {
+      const newPrefs = {
+        budgetAlerts,
+        fraudAlerts,
+        billReminders,
+        weeklyDigest,
+        [key]: value,
+      };
+      
+      const res = await updateNotificationPreferences(newPrefs);
+      if (res.success) {
+        toast.success("Preferences updated");
+      } else {
+        toast.error(res.error || "Failed to update preferences");
+        fetchSettings(); // Revert on failure
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+      fetchSettings(); // Revert on failure
+    }
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -293,7 +331,7 @@ export default function SettingsPage() {
                 <p className="text-sm font-bold text-slate-900 dark:text-white">Budget Overrun Alerts</p>
                 <p className="text-xs text-slate-500">Alert when spending crosses 80% of your monthly budget</p>
               </div>
-              <Switch checked={budgetAlerts} onCheckedChange={setBudgetAlerts} />
+              <Switch checked={budgetAlerts} onCheckedChange={(val) => handleTogglePreference("budgetAlerts", val)} />
             </div>
 
             <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800">
@@ -301,7 +339,7 @@ export default function SettingsPage() {
                 <p className="text-sm font-bold text-slate-900 dark:text-white">Fraud & Anomaly Alerts</p>
                 <p className="text-xs text-slate-500">Flag unusual transactions and double-charges immediately</p>
               </div>
-              <Switch checked={fraudAlerts} onCheckedChange={setFraudAlerts} />
+              <Switch checked={fraudAlerts} onCheckedChange={(val) => handleTogglePreference("fraudAlerts", val)} />
             </div>
 
             <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800">
@@ -309,7 +347,7 @@ export default function SettingsPage() {
                 <p className="text-sm font-bold text-slate-900 dark:text-white">Recurring Bill Reminders</p>
                 <p className="text-xs text-slate-500">Notify 3 days before subscriptions or bills are due</p>
               </div>
-              <Switch checked={billReminders} onCheckedChange={setBillReminders} />
+              <Switch checked={billReminders} onCheckedChange={(val) => handleTogglePreference("billReminders", val)} />
             </div>
 
             <div className="flex items-center justify-between py-2">
@@ -317,7 +355,7 @@ export default function SettingsPage() {
                 <p className="text-sm font-bold text-slate-900 dark:text-white">Weekly Summary Digest</p>
                 <p className="text-xs text-slate-500">Receive a weekly AI breakdown of savings and cash flow</p>
               </div>
-              <Switch checked={weeklyDigest} onCheckedChange={setWeeklyDigest} />
+              <Switch checked={weeklyDigest} onCheckedChange={(val) => handleTogglePreference("weeklyDigest", val)} />
             </div>
           </CardContent>
         </Card>
@@ -387,6 +425,47 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* System Logs */}
+      <Card className="rounded-3xl border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141B2D] shadow-sm overflow-hidden">
+        <CardHeader className="bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800 p-6">
+          <CardTitle className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-white">
+            <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            System & Security Logs
+          </CardTitle>
+          <CardDescription>Recent login and logout activity for your account.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-80 overflow-y-auto">
+            {userSettings?.systemLogs?.length > 0 ? (
+              userSettings.systemLogs.map((log) => (
+                <div key={log.id} className="flex items-center justify-between p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl ${log.action === "LOGIN" ? "bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"}`}>
+                      {log.action === "LOGIN" ? <LogIn size={16} /> : <LogOut size={16} />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
+                        {log.action === "LOGIN" ? "Signed In" : "Signed Out"}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {format(new Date(log.timestamp), "MMM dd, yyyy • hh:mm a")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-xs font-semibold px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    Success
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-slate-500 text-sm">
+                No recent activity logs found.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Danger Zone */}
       <Card className="rounded-3xl border-rose-200 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/10 shadow-sm overflow-hidden">

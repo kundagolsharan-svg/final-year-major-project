@@ -8,6 +8,7 @@ import ChatBot from "@/components/ChatBot";
 import { ThemeProvider } from "@/components/theme-provider";
 import { PrivacyProvider } from "@/components/providers/privacy-provider";
 import { CurrencyProvider } from "@/components/providers/currency-provider";
+import { SessionTracker } from "@/components/session-tracker";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({ children }) {
                 </HeaderWrapper>
                 <main className="min-h-screen">{children}</main>
                 <ChatBot />
+                <SessionTracker />
                 <Toaster richColors position="top-right" />
               </PrivacyProvider>
             </CurrencyProvider>

@@ -139,24 +139,28 @@ export async function createTransaction(data) {
       console.warn(`Anomaly detected: ${anomaly.reason}`);
       
       // Send email alert for anomaly
-      try {
-        await sendEmail({
-          to: user.email,
-          subject: "Suspicious Transaction Alert",
-          react: EmailTemplate({
-            userName: user.name,
-            type: "anomaly-alert",
-            data: {
-              transaction: {
-                ...data,
-                date: data.date.toISOString(),
+      if (user.fraudAlerts !== false) {
+        try {
+          await sendEmail({
+            to: user.email,
+            subject: "Suspicious Transaction Alert",
+            react: EmailTemplate({
+              userName: user.name,
+              type: "anomaly-alert",
+              data: {
+                transaction: {
+                  ...data,
+                  date: data.date.toISOString(),
+                },
+                reason: anomaly.reason,
               },
-              reason: anomaly.reason,
-            },
-          }),
-        });
-      } catch (emailError) {
-        console.error("Failed to send anomaly email:", emailError);
+            }),
+          });
+        } catch (emailError) {
+          console.error("Failed to send anomaly email:", emailError);
+        }
+      } else {
+        console.log("Fraud alerts are disabled by user, skipping email.");
       }
     }
 
@@ -204,24 +208,28 @@ export async function createTransaction(data) {
 
       // If we just exceeded last month's spending and it wasn't already exceeded
       if (lastTotal > 0 && currentTotal > lastTotal && (currentTotal - data.amount) <= lastTotal) {
-        const increase = currentTotal - lastTotal;
-        const percent = ((increase / lastTotal) * 100).toFixed(1);
-        
-        await sendEmail({
-          to: user.email,
-          subject: `Spending Alert: ${data.category} limit exceeded`,
-          react: EmailTemplate({
-            userName: user.name,
-            type: "spending-increase",
-            data: {
-              category: data.category,
-              current: currentTotal,
-              last: lastTotal,
-              increase,
-              percent
-            },
-          }),
-        });
+        if (user.budgetAlerts !== false) {
+          const increase = currentTotal - lastTotal;
+          const percent = ((increase / lastTotal) * 100).toFixed(1);
+          
+          await sendEmail({
+            to: user.email,
+            subject: `Spending Alert: ${data.category} limit exceeded`,
+            react: EmailTemplate({
+              userName: user.name,
+              type: "spending-increase",
+              data: {
+                category: data.category,
+                current: currentTotal,
+                last: lastTotal,
+                increase,
+                percent
+              },
+            }),
+          });
+        } else {
+          console.log("Budget alerts are disabled by user, skipping category spending email.");
+        }
       }
     } catch (spendingError) {
       console.error("Failed to check spending increase alert:", spendingError);

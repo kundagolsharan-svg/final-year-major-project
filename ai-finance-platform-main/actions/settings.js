@@ -20,6 +20,10 @@ export async function getUserSettings() {
         _count: {
           select: { transactions: true, goals: true, accounts: true },
         },
+        systemLogs: {
+          orderBy: { timestamp: "desc" },
+          take: 10,
+        },
       },
     });
 
@@ -41,6 +45,11 @@ export async function getUserSettings() {
           ...a,
           balance: Number(a.balance),
         })),
+        systemLogs: fullUser.systemLogs || [],
+        budgetAlerts: fullUser.budgetAlerts,
+        fraudAlerts: fullUser.fraudAlerts,
+        billReminders: fullUser.billReminders,
+        weeklyDigest: fullUser.weeklyDigest,
       },
     };
   } catch (error) {
@@ -163,6 +172,52 @@ export async function deleteAllUserTransactions() {
     return { success: true, message: "All transactions cleared successfully." };
   } catch (error) {
     console.error("Delete Transactions Error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function logUserSessionAction(actionType) {
+  try {
+    const user = await getAuthUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    if (actionType !== "LOGIN" && actionType !== "LOGOUT") {
+      return { success: false, error: "Invalid action type" };
+    }
+
+    await db.systemLog.create({
+      data: {
+        userId: user.id,
+        action: actionType,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Log User Session Error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateNotificationPreferences(data) {
+  try {
+    const user = await getAuthUser();
+    if (!user) throw new Error("Unauthorized");
+
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        budgetAlerts: data.budgetAlerts,
+        fraudAlerts: data.fraudAlerts,
+        billReminders: data.billReminders,
+        weeklyDigest: data.weeklyDigest,
+      },
+    });
+
+    revalidatePath("/settings");
+    return { success: true, message: "Notification preferences saved" };
+  } catch (error) {
+    console.error("Update Preferences Error:", error);
     return { success: false, error: error.message };
   }
 }

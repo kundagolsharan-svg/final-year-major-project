@@ -22,6 +22,13 @@ model User {
   transactions Transaction[]
   bankConnections BankConnection[]
   merchantCaches  MerchantCategoryCache[]
+  systemLogs      SystemLog[]
+
+  // Notification Preferences
+  budgetAlerts    Boolean         @default(true)
+  fraudAlerts     Boolean         @default(true)
+  billReminders   Boolean         @default(true)
+  weeklyDigest    Boolean         @default(false)
 
   @@map("users")
 }
@@ -135,6 +142,17 @@ model FinancialGoal {
 
   @@index([userId])
   @@map("financial_goals")
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // "LOGIN" or "LOGOUT"
+  timestamp DateTime @default(now())
+
+  @@index([userId])
+  @@map("system_logs")
 }
 
 enum TransactionType {

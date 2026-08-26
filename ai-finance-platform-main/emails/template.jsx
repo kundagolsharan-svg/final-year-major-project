@@ -169,6 +169,22 @@ export default function EmailTemplate({
               </div>
             </Section>
 
+            {/* AI Insights */}
+            {data?.insights && (
+              <Section style={{...styles.section, background: 'linear-gradient(to right, #fef2f2, #fff1f2)'}} className="hover-card">
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                  <Text style={{ fontSize: '18px', marginRight: '8px', margin: 0 }}>💡</Text>
+                  <Heading style={{...styles.heading, margin: 0, color: '#be123c'}}>Action Plan</Heading>
+                </div>
+                {data.insights.map((insight, index) => (
+                  <div key={index} style={styles.insightRow}>
+                    <Text style={{...styles.insightBullet, color: '#be123c'}}>{index + 1}.</Text>
+                    <Text style={styles.insightText}>{insight}</Text>
+                  </div>
+                ))}
+              </Section>
+            )}
+
             <div style={{ textAlign: 'center', marginTop: '30px' }}>
               <a href="https://sampat.app/budget" style={{...styles.button, background: 'linear-gradient(to right, #6366f1, #a855f7)'}} className="btn-hover">
                 Review Budget

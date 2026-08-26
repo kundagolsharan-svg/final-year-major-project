@@ -284,35 +284,39 @@ export async function checkBudgetAlert(userId) {
         }
       }
 
-      console.log("Threshold exceeded! Sending email...");
-      const monthName = new Date().toLocaleString("default", {
-        month: "long",
-      });
+      if (budget.user.budgetAlerts !== false) {
+        console.log("Threshold exceeded! Generating insights and sending email...");
+        const monthName = new Date().toLocaleString("default", {
+          month: "long",
+        });
 
-      // Generate AI insights for the budget alert
-      const insights = await generateBudgetInsights(
-        totalExpenses,
-        budgetAmount,
-        monthName
-      );
+        // Generate AI insights for the budget alert
+        const insights = await generateBudgetInsights(
+          totalExpenses,
+          budgetAmount,
+          monthName
+        );
 
-      const emailResult = await sendEmail({
-        to: budget.user.email,
-        subject: `Budget Alert for ${defaultAccount.name}`,
-        react: EmailTemplate({
-          userName: budget.user.name,
-          type: "budget-alert",
-          data: {
-            percentageUsed,
-            budgetAmount: budgetAmount.toFixed(1),
-            totalExpenses: totalExpenses.toFixed(1),
-            accountName: defaultAccount.name,
-            insights,
-          },
-        }),
-      });
+        const emailResult = await sendEmail({
+          to: budget.user.email,
+          subject: `Budget Alert for ${defaultAccount.name}`,
+          react: EmailTemplate({
+            userName: budget.user.name,
+            type: "budget-alert",
+            data: {
+              percentageUsed,
+              budgetAmount: budgetAmount.toFixed(1),
+              totalExpenses: totalExpenses.toFixed(1),
+              accountName: defaultAccount.name,
+              insights,
+            },
+          }),
+        });
 
-      console.log("Email send result:", emailResult);
+        console.log("Email send result:", emailResult);
+      } else {
+        console.log("Budget alerts are disabled by user, skipping email.");
+      }
 
       // Update last alert sent
       await db.budget.update({
@@ -334,17 +338,18 @@ async function generateBudgetInsights(expenses, budgetAmount, month) {
   const percentageUsed = (expenses / budgetAmount) * 100;
 
   const prompt = `
-    Analyze this budget situation and provide 2 concise, helpful financial advice / insights.
+    Analyze this budget situation and provide exactly 5 concise, actionable financial insights.
     The user has used ${percentageUsed.toFixed(1)}% of their $${budgetAmount} budget for ${month}.
     Total expenses so far: $${expenses}.
 
     Focus on:
-    - If they are close to the limit (80-100%), suggest where to cut back.
+    - Clear, step-by-step actions the user should take regarding their expenses and savings.
+    - If they are close to the limit (80-100%), suggest where to cut back immediately.
     - If they are over the limit (>100%), suggest how to handle the deficit.
-    - Keep it encouraging and practical.
+    - Keep it highly encouraging, practical, and easy to understand.
 
-    Format the response as a JSON array of strings, like this:
-    ["insight 1", "insight 2"]
+    Format the response as a JSON array of exactly 5 strings, like this:
+    ["insight 1", "insight 2", "insight 3", "insight 4", "insight 5"]
   `;
 
   try {
@@ -354,8 +359,11 @@ async function generateBudgetInsights(expenses, budgetAmount, month) {
   } catch (error) {
     console.error("Error generating budget insights:", error);
     return [
-      "Consider reviewing your recent expenses to identify non-essential spending.",
-      "Try to keep your daily spending in check for the rest of the month.",
+      "Review your recent expenses to identify non-essential spending.",
+      "Pause any automated subscriptions for the rest of the month.",
+      "Try to cook meals at home instead of dining out to save immediately.",
+      "Avoid any large purchases until your budget resets next month.",
+      "Keep track of your daily spending limits to stay on track.",
     ];
   }
 }
