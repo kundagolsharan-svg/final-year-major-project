@@ -153,6 +153,14 @@ export const defaultCategories = [
     subcategories: ["Bank Fees", "Late Fees", "Service Charges"],
   },
   {
+    id: "government",
+    name: "Government & Taxes",
+    type: "EXPENSE",
+    color: "#0284c7", // sky-600
+    icon: "Landmark",
+    subcategories: ["Challans", "Khajane / Treasury", "Taxes & Fines", "Civic Services", "Govt Fees"],
+  },
+  {
     id: "other-expense",
     name: "Other Expenses",
     type: "EXPENSE",

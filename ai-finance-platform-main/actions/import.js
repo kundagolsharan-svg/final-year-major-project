@@ -73,7 +73,8 @@ function matchCategoryFromDescription(description) {
     "ice cream", "naturals", "vadilal", "amul parlour", "biryani", "paradise",
     "bawarchi", "behrouz", "faasos", "waffle", "belgian waffle", "tiffin",
     "canteen", "mess", "snack", "snacks", "food court", "kitchen", "rolls",
-    "shawarma", "shawarmaji", "dosa", "idli", "curry", "diner", "lunch", "dinner", "breakfast"
+    "shawarma", "shawarmaji", "dosa", "idli", "curry", "diner", "lunch", "dinner", "breakfast",
+    "pan shop", "chats", "chat center", "fast food", "tiffin center", "bhojanalaya"
   ];
   if (foodKeywords.some((k) => desc.includes(k))) return "food";
 
@@ -88,7 +89,8 @@ function matchCategoryFromDescription(description) {
     "mall", "store", "bazaar", "superstore", "market", "fabindia", "pantaloons",
     "trends", "zudio", "snitch", "bewakoof", "souled store", "boat", "noise",
     "oneplus", "samsung", "watch", "jewel", "jewellers", "tanishq", "malabar",
-    "kalyan", "caratlane", "bluestone", "gift", "handloom", "tailor", "fabrics"
+    "kalyan", "caratlane", "bluestone", "gift", "handloom", "tailor", "fabrics",
+    "bhandar", "multistores"
   ];
   if (shoppingKeywords.some((k) => desc.includes(k))) return "shopping";
 
@@ -110,7 +112,7 @@ function matchCategoryFromDescription(description) {
     "fuel", "petrol", "diesel", "cng", "hpcl", "hindustan petroleum", "bpcl",
     "bharat petroleum", "iocl", "indian oil", "shell", "fastag", "toll", "nhai",
     "parking", "auto", "cab", "taxi", "transport", "bus", "vrl", "srs", "ksrtc",
-    "msrtc", "apsrtc", "driver", "garage", "vehicle service", "puncture"
+    "nwkrtc", "bmtc", "kkrtc", "nekkrtc", "msrtc", "apsrtc", "driver", "garage", "vehicle service", "puncture"
   ];
   if (transportKeywords.some((k) => desc.includes(k))) return "transportation";
 
@@ -197,6 +199,21 @@ function matchCategoryFromDescription(description) {
     "received from", "upi/received", "to mr", "to ms", "to mrs", "to shri"
   ];
   if (personalKeywords.some((k) => desc.includes(k))) return "personal";
+
+  // 14. Government, Treasury, Taxes, Fines & Civic Portals
+  const governmentKeywords = [
+    "khajane", "khajane dot 2", "khajane.2", "khajane-2", "khajane 2", "khajane ii", "k2",
+    "challan", "echallan", "e-challan", "treasury", "govt of", "government",
+    "parivahan", "mparivahan", "rto", "sarathi", "vahan",
+    "incometax", "income tax", "advance tax", "tds", "tin-nsdl", "protean",
+    "gst", "gstn", "cbic", "icegate", "commercial tax",
+    "passport", "seva kendra", "psk",
+    "police fine", "traffic police", "ksp",
+    "property tax", "bbmp", "bda", "municipality", "nagar nigam", "gram panchayat",
+    "water board", "bwssb", "kuwsdb",
+    "stamp duty", "sub registrar", "kaveri online", "igr", "bhoomi"
+  ];
+  if (governmentKeywords.some((k) => desc.includes(k))) return "government";
 
   return null;
 }
@@ -448,7 +465,7 @@ async function categorizeTransactionsSmartly(transactions, userId) {
   const VALID_CATEGORIES = [
     "housing", "transportation", "groceries", "utilities", "entertainment",
     "food", "shopping", "healthcare", "education", "personal",
-    "travel", "insurance", "gifts", "bills", "other-expense", "income", "salary",
+    "travel", "insurance", "gifts", "bills", "government", "other-expense", "income", "salary",
     "soft drinks"
   ];
 
@@ -524,6 +541,7 @@ async function categorizeTransactionsSmartly(transactions, userId) {
       - education (school, college, tuition, fees, courses, books)
       - housing (rent, society maintenance, flat maintenance)
       - insurance (lic, health insurance, policy premium, investments)
+      - government (khajane, khajane 2, challan, taxes, traffic police fines, rto, parivahan, passport, bbmp, municipality, stamp duty, treasury, govt fees)
       - other-expense (any general miscellaneous expense)
 
       Understand the intent: If it is a hotel/restaurant meal, use "food". If it's just a beverage/tea stall, use "soft drinks". If it's a direct transfer to a person (like "paid to tushar" or a phone number), use "personal".
