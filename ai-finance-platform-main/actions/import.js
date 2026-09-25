@@ -7,12 +7,27 @@ import Papa from "papaparse";
 import { generateWithFallback } from "@/lib/ollama";
 import crypto from "crypto";
 
-// Robustly discover the PDF parser from the module
-const { PDFParse } = require("pdf-parse");
-
 async function parsePdf(buffer) {
   try {
     console.log(`[PDF Parser] Buffer received: ${buffer?.length || 0} bytes. Running extraction...`);
+
+    // Polyfill browser globals dynamically
+    if (typeof global.DOMMatrix === "undefined") {
+      global.DOMMatrix = class DOMMatrix {};
+    }
+    if (typeof global.ImageData === "undefined") {
+      global.ImageData = class ImageData {};
+    }
+    if (typeof global.Path2D === "undefined") {
+      global.Path2D = class Path2D {};
+    }
+
+    // Dynamic import to avoid SSR bundling issues and worker path resolution failures
+    const { PDFParse } = require("pdf-parse");
+    const { getData } = require("pdf-parse/worker");
+
+    // Set the worker dynamically using the base64 data URL
+    PDFParse.setWorker(getData());
 
     const parser = new PDFParse({ data: buffer });
     const data = await parser.getText();
@@ -174,6 +189,13 @@ function matchCategoryFromDescription(description) {
   ];
   if (incomeKeywords.some((k) => desc.includes(k))) return "income";
 
+  // 13. Personal Transfers (UPI, Paid To, Individuals)
+  const personalKeywords = [
+    "paid to", "sent to", "transfer to", "upi/paid", "upi/sent",
+    "received from", "upi/received", "to mr", "to ms", "to mrs", "to shri"
+  ];
+  if (personalKeywords.some((k) => desc.includes(k))) return "personal";
+
   return null;
 }
 
@@ -189,11 +211,11 @@ function normalizeDescription(desc) {
     .trim();
 }
 
-function computeTransactionHash(userId, date, amount, description, type) {
+function computeTransactionHash(userId, date, amount, description) {
   const dateStr = new Date(date).toISOString().split("T")[0];
-  const amtStr = parseFloat(amount).toFixed(2);
-  const normDesc = normalizeDescription(description).substring(0, 60);
-  const raw = `${userId}|${dateStr}|${amtStr}|${normDesc}|${type}`;
+  const amtStr = Number(amount).toFixed(2);
+  const normDesc = String(description || "").toLowerCase().trim().substring(0, 50);
+  const raw = `${userId}|${dateStr}|${amtStr}|${normDesc}`;
   return crypto.createHash("sha256").update(raw).digest("hex");
 }
 
@@ -246,21 +268,37 @@ export async function importTransactions(formData) {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // STEP 1 & 2: Data Formatting (Deduplication Disabled)
+    // STEP 1 & 2: Data Formatting & Deduplication
     // ─────────────────────────────────────────────────────────────────────────
     const newTransactionsToInsert = [];
+    const incomingHashes = new Set();
+    let totalValidTransactions = 0;
 
     for (const t of rawTransactions) {
       if (!t.amount || isNaN(Number(t.amount)) || Number(t.amount) <= 0) continue;
       if (!t.date || isNaN(new Date(t.date).getTime())) continue;
 
+      totalValidTransactions++;
+
+      const type = t.type === "INCOME" ? "INCOME" : "EXPENSE";
+      const date = new Date(t.date);
+      const amount = parseFloat(t.amount);
+      const description = t.description ? String(t.description).trim() : "Transaction";
+      
+      const hash = computeTransactionHash(user.id, date, amount, description);
+
+      if (incomingHashes.has(hash)) {
+        continue; // Skip duplicates within the same file
+      }
+      incomingHashes.add(hash);
+
       newTransactionsToInsert.push({
         ...t,
-        hash: null,
-        amount: parseFloat(t.amount),
-        type: t.type === "INCOME" ? "INCOME" : "EXPENSE",
-        date: new Date(t.date),
-        description: t.description ? String(t.description).trim() : "Transaction",
+        hash,
+        amount,
+        type,
+        date,
+        description,
       });
     }
 
@@ -268,8 +306,38 @@ export async function importTransactions(formData) {
       return {
         success: true,
         count: 0,
-        duplicateCount: 0,
-        message: "No valid transactions found in the statement.",
+        duplicateCount: totalValidTransactions,
+        message: "No new valid transactions found in the statement.",
+      };
+    }
+
+    // Check against existing transactions in the database
+    const existingTransactions = await db.transaction.findMany({
+      where: {
+        userId: user.id,
+        hash: {
+          in: Array.from(incomingHashes),
+        },
+      },
+      select: {
+        hash: true,
+      },
+    });
+
+    const existingHashes = new Set(existingTransactions.map((tx) => tx.hash));
+
+    const uniqueTransactionsToInsert = newTransactionsToInsert.filter(
+      (t) => !existingHashes.has(t.hash)
+    );
+
+    const duplicateCount = totalValidTransactions - uniqueTransactionsToInsert.length;
+
+    if (uniqueTransactionsToInsert.length === 0) {
+      return {
+        success: true,
+        count: 0,
+        duplicateCount,
+        message: "All valid transactions in this statement already exist in your account.",
       };
     }
 
@@ -277,7 +345,7 @@ export async function importTransactions(formData) {
     // STEP 3: Smart Dual-Layer Categorization (Heuristic + Cache + AI Batch)
     // ─────────────────────────────────────────────────────────────────────────
     const categorizedTransactions = await categorizeTransactionsSmartly(
-      newTransactionsToInsert,
+      uniqueTransactionsToInsert,
       user.id
     );
 
@@ -326,14 +394,17 @@ export async function importTransactions(formData) {
     return {
       success: true,
       count: categorizedTransactions.length,
-      duplicateCount: 0,
+      duplicateCount,
       totalInflow,
       totalOutflow,
-      message: `Successfully imported ${categorizedTransactions.length} transaction(s).`,
+      message: `Successfully imported ${categorizedTransactions.length} transaction(s).${duplicateCount > 0 ? ` Skipped ${duplicateCount} duplicates.` : ""}`,
     };
   } catch (error) {
     console.error("Import Transactions Error:", error);
-    throw new Error(error.message || "Failed to process statement file");
+    return {
+      success: false,
+      message: error.message || "Failed to process statement file",
+    };
   }
 }
 
@@ -344,7 +415,8 @@ async function categorizeTransactionsSmartly(transactions, userId) {
   const VALID_CATEGORIES = [
     "housing", "transportation", "groceries", "utilities", "entertainment",
     "food", "shopping", "healthcare", "education", "personal",
-    "travel", "insurance", "gifts", "bills", "other-expense", "income", "salary"
+    "travel", "insurance", "gifts", "bills", "other-expense", "income", "salary",
+    "soft drinks"
   ];
 
   // 1. First Pass: Instant Rule-Based Matching
@@ -406,24 +478,28 @@ async function categorizeTransactionsSmartly(transactions, userId) {
     const batch = uniqueUnknownKeys.slice(i, i + BATCH_SIZE);
     const prompt = `
       You are an expert financial transaction categorizer. Categorize each transaction/merchant name into EXACTLY one of these categories:
-      - food (cold drinks, beverages, soda, juice, tea, coffee, cafe, starbucks, swiggy, zomato, restaurants, fast food, bakery, dining, snacks)
-      - shopping (amazon, flipkart, clothes, fashion, zara, h&m, electronics, retail, footwear, malls, stores)
-      - groceries (supermarkets, blinkit, zepto, instamart, bigbasket, dmart, vegetables, milk, dairy, kirana)
+      - food (shivani veg hotel, dining, meals, restaurants, fast food, bakery, swiggy, zomato, heavy meals)
+      - soft drinks (tea, coffee, cold drinks, beverages, juices purchased separately)
+      - personal (paid to a person, sent to a friend, upi transfer to a phone number or individual name like "paid to tushar")
+      - shopping (amazon, flipkart, clothes, fashion, zara, electronics, retail, footwear)
+      - groceries (supermarkets, blinkit, zepto, instamart, bigbasket, dmart, vegetables, milk)
       - transportation (uber, ola, rapido, metro, fuel, petrol, diesel, fastag, parking, bus, cab)
       - travel (flights, hotels, irctc, makemytrip, oyo, airbnb, airlines)
-      - utilities (electricity, water, wifi, broadband, airtel, jio, mobile recharge, gas, cylinder, bills)
-      - entertainment (netflix, spotify, movies, cinema, pvr, bookmyshow, games, youtube)
-      - healthcare (pharmacy, medicines, 1mg, apollo, doctor, clinic, hospital, lab tests)
-      - education (school, college, tuition, fees, courses, books, udemy)
+      - utilities (electricity, water, wifi, broadband, airtel, jio, mobile recharge, gas, bills)
+      - entertainment (netflix, spotify, movies, cinema, pvr, bookmyshow, games)
+      - healthcare (pharmacy, medicines, 1mg, apollo, doctor, clinic, hospital)
+      - education (school, college, tuition, fees, courses, books)
       - housing (rent, society maintenance, flat maintenance)
       - insurance (lic, health insurance, policy premium, investments)
       - other-expense (any general miscellaneous expense)
 
+      Understand the intent: If it is a hotel/restaurant meal, use "food". If it's just a beverage/tea stall, use "soft drinks". If it's a direct transfer to a person (like "paid to tushar" or a phone number), use "personal".
+
       Merchants to categorize:
       ${JSON.stringify(batch)}
 
-      Respond ONLY with a valid JSON object mapping each merchant to its lowercase category.
-      Example: {"SWIGGY": "food", "AMAZON": "shopping", "CAFE COFFEE DAY": "food"}
+      Respond ONLY with a valid JSON object mapping each merchant to its lowercase category. Do NOT write scripts or code.
+      Example: {"PAID TO TUSHAR": "personal", "SHIVANI VEG HOTEL": "food", "CHAI POINT": "soft drinks", "AMAZON": "shopping"}
     `;
 
     try {
@@ -483,6 +559,7 @@ function parseJsonArraySafely(rawText) {
   try {
     const direct = JSON.parse(cleaned);
     if (Array.isArray(direct)) return direct;
+    if (direct && typeof direct === "object" && direct.amount) return [direct];
   } catch (e) { }
 
   // 2. Try extracting between first [ and last ]
@@ -529,10 +606,21 @@ async function mapDataToTransactions(data) {
       chunks.push(JSON.stringify(data.slice(i, i + chunkSize)));
     }
   } else {
-    // 7,500 characters per PDF text chunk
-    const chunkSize = 7500;
-    for (let i = 0; i < data.length; i += chunkSize) {
-      chunks.push(data.slice(i, i + chunkSize));
+    // Safely chunk PDF text by newlines to avoid splitting transaction lines in half.
+    // 4000 characters ensures the AI doesn't hit output token limits per chunk.
+    const chunkSize = 4000;
+    const lines = data.split('\n');
+    let currentChunk = "";
+    
+    for (const line of lines) {
+      if (currentChunk.length + line.length > chunkSize && currentChunk.length > 0) {
+        chunks.push(currentChunk);
+        currentChunk = "";
+      }
+      currentChunk += line + '\n';
+    }
+    if (currentChunk.trim().length > 0) {
+      chunks.push(currentChunk);
     }
   }
 
@@ -542,15 +630,21 @@ async function mapDataToTransactions(data) {
 
   let allTransactions = [];
 
-  for (let i = 0; i < chunks.length; i++) {
-    console.log(`[Extraction] Processing statement chunk ${i + 1}/${chunks.length}...`);
+  // Process in batches of 3 to speed up extraction without overwhelming local Ollama/API
+  const CONCURRENCY = 3;
+  for (let i = 0; i < chunks.length; i += CONCURRENCY) {
+    const batch = chunks.slice(i, i + CONCURRENCY);
+    
+    const batchPromises = batch.map(async (chunk, batchIndex) => {
+      const chunkNumber = i + batchIndex + 1;
+      console.log(`[Extraction] Processing statement chunk ${chunkNumber}/${chunks.length}...`);
 
-    const prompt = `
+      const prompt = `
       You are an expert financial statement extractor. Extract EVERY single transaction record from this ${isCSV ? "CSV batch" : "Bank Statement PDF chunk"
       }.
 
       Statement Chunk Content:
-      ${chunks[i]}
+      ${chunk}
 
       Extraction Rules:
       1. Extract EVERY transaction line you find.
@@ -568,6 +662,9 @@ async function mapDataToTransactions(data) {
            - Uber, Ola, Petrol, Fuel, Metro, Fastag -> "transportation"
            - Electricity, water, mobile recharge, wifi, bills -> "utilities"
 
+      CRITICAL: DO NOT WRITE ANY CODE, SCRIPTS, OR PYTHON. ONLY OUTPUT RAW JSON.
+      MUST OUTPUT AN ARRAY OF JSON OBJECTS. START WITH [ AND END WITH ].
+
       Return ONLY a valid JSON array of objects.
       Example:
       [
@@ -577,15 +674,22 @@ async function mapDataToTransactions(data) {
       If no transactions are in this chunk, return [].
     `;
 
-    try {
-      const rawText = await generateWithFallback(prompt);
-      const parsed = parseJsonArraySafely(rawText);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        allTransactions = [...allTransactions, ...parsed];
-        console.log(`[Extraction] Chunk ${i + 1} extracted ${parsed.length} transactions.`);
+      try {
+        const rawText = await generateWithFallback(prompt);
+        const parsed = parseJsonArraySafely(rawText);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log(`[Extraction] Chunk ${chunkNumber} extracted ${parsed.length} transactions.`);
+          return parsed;
+        }
+      } catch (err) {
+        console.warn(`[Extraction] Error on chunk ${chunkNumber}:`, err.message);
       }
-    } catch (err) {
-      console.warn(`[Extraction] Error on chunk ${i + 1}:`, err.message);
+      return [];
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    for (const parsed of batchResults) {
+      allTransactions = [...allTransactions, ...parsed];
     }
   }
 
