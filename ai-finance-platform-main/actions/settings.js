@@ -50,6 +50,7 @@ export async function getUserSettings() {
         fraudAlerts: fullUser.fraudAlerts,
         billReminders: fullUser.billReminders,
         weeklyDigest: fullUser.weeklyDigest,
+        monthlyReport: fullUser.monthlyReport,
       },
     };
   } catch (error) {
@@ -211,6 +212,7 @@ export async function updateNotificationPreferences(data) {
         fraudAlerts: data.fraudAlerts,
         billReminders: data.billReminders,
         weeklyDigest: data.weeklyDigest,
+        monthlyReport: data.monthlyReport,
       },
     });
 

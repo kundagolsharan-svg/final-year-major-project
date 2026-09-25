@@ -47,6 +47,7 @@ export default function SettingsPage() {
   const [fraudAlerts, setFraudAlerts] = useState(true);
   const [billReminders, setBillReminders] = useState(true);
   const [weeklyDigest, setWeeklyDigest] = useState(false);
+  const [monthlyReport, setMonthlyReport] = useState(true);
   const [autoReceiptScan, setAutoReceiptScan] = useState(true);
 
   // Danger zone state
@@ -64,6 +65,7 @@ export default function SettingsPage() {
         setFraudAlerts(res.data.fraudAlerts ?? true);
         setBillReminders(res.data.billReminders ?? true);
         setWeeklyDigest(res.data.weeklyDigest ?? false);
+        setMonthlyReport(res.data.monthlyReport ?? true);
       } else {
         toast.error(res.error || "Failed to load user settings");
       }
@@ -84,6 +86,7 @@ export default function SettingsPage() {
     if (key === "fraudAlerts") setFraudAlerts(value);
     if (key === "billReminders") setBillReminders(value);
     if (key === "weeklyDigest") setWeeklyDigest(value);
+    if (key === "monthlyReport") setMonthlyReport(value);
 
     try {
       const newPrefs = {
@@ -91,6 +94,7 @@ export default function SettingsPage() {
         fraudAlerts,
         billReminders,
         weeklyDigest,
+        monthlyReport,
         [key]: value,
       };
       
@@ -350,12 +354,20 @@ export default function SettingsPage() {
               <Switch checked={billReminders} onCheckedChange={(val) => handleTogglePreference("billReminders", val)} />
             </div>
 
-            <div className="flex items-center justify-between py-2">
+            <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800">
               <div className="space-y-0.5">
                 <p className="text-sm font-bold text-slate-900 dark:text-white">Weekly Summary Digest</p>
                 <p className="text-xs text-slate-500">Receive a weekly AI breakdown of savings and cash flow</p>
               </div>
               <Switch checked={weeklyDigest} onCheckedChange={(val) => handleTogglePreference("weeklyDigest", val)} />
+            </div>
+
+            <div className="flex items-center justify-between py-2">
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">Monthly Financial Report</p>
+                <p className="text-xs text-slate-500">Detailed end-of-month breakdown and AI insights sent on the last day</p>
+              </div>
+              <Switch checked={monthlyReport} onCheckedChange={(val) => handleTogglePreference("monthlyReport", val)} />
             </div>
           </CardContent>
         </Card>

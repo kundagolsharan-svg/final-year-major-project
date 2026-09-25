@@ -158,7 +158,7 @@ export const generateMonthlyReports = inngest.createFunction(
   {
     id: "generate-monthly-reports",
     name: "Generate Monthly Reports",
-    cron: "0 0 1 * *", // First day of each month
+    cron: "59 23 L * *", // 11:59 PM on the last day of every month
   },
   async ({ step }) => {
     const users = await step.run("fetch-users", async () => {
@@ -177,8 +177,8 @@ export const generateMonthlyReports = inngest.createFunction(
           month: "long",
         });
 
-        // Generate AI insights if user opted into weekly digest
-        if (user.weeklyDigest !== false) {
+        // Generate AI insights if user opted into monthly reports
+        if (user.monthlyReport !== false) {
           const insights = await generateFinancialInsights(stats, monthName);
 
           await sendEmail({
@@ -284,6 +284,7 @@ export const checkBudgetAlerts = inngest.createFunction(
       const expenses = await db.transaction.aggregate({
         where: {
           userId,
+          accountId: defaultAccount.id,
           type: "EXPENSE",
           date: { gte: startDate },
         },
