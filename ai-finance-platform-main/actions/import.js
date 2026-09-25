@@ -213,16 +213,7 @@ function normalizeDescription(desc) {
     .trim();
 }
 
-function computeTransactionHash(userId, date, amount, description, type, referenceId) {
-  // If we have an explicit Transaction ID / Reference No, it perfectly guarantees uniqueness.
-  // We strictly validate it to ensure the AI didn't hallucinate a generic word like "null" or "txn"
-  const cleanRef = referenceId ? String(referenceId).trim().replace(/[^a-zA-Z0-9]/g, "") : "";
-  if (cleanRef.length >= 6 && !["null", "none", "undefined"].includes(cleanRef.toLowerCase())) {
-    const rawRef = `${userId}|${cleanRef}`;
-    return crypto.createHash("sha256").update(rawRef).digest("hex");
-  }
-
-  // Fallback: Robust fuzzy hash for statements without transaction IDs
+function computeTransactionHash(userId, date, amount, description, type) {
   const dateStr = new Date(date).toISOString().split("T")[0];
   const amtStr = Number(amount).toFixed(2);
   const typeStr = type || "EXPENSE";
@@ -235,8 +226,7 @@ function computeTransactionHash(userId, date, amount, description, type, referen
     .split(/\s+/);
   const firstWord = words.length > 0 && words[0] ? words[0].substring(0, 8) : "txn";
 
-  const raw = `${userId}|${dateStr}|${amtStr}|${typeStr}|${firstWord}`;
-  return crypto.createHash("sha256").update(raw).digest("hex");
+  return `${userId}|${dateStr}|${amtStr}|${typeStr}|${firstWord}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -306,7 +296,7 @@ export async function importTransactions(formData) {
       const description = t.description ? String(t.description).trim() : "Transaction";
       const referenceId = t.referenceId ? String(t.referenceId).trim() : null;
       
-      let baseHash = computeTransactionHash(user.id, date, amount, description, type, referenceId);
+      let baseHash = computeTransactionHash(user.id, date, amount, description, type);
 
       // Handle legitimate identical transactions in the same statement (e.g., two ₹150 Uber rides on same day)
       let finalHash = baseHash;

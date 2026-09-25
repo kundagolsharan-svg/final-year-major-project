@@ -2,19 +2,18 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  const count = await prisma.transaction.count();
-  console.log(`Total transactions: ${count}`);
-  const users = await prisma.user.count();
-  console.log(`Total users: ${users}`);
-  const accounts = await prisma.account.count();
-  console.log(`Total accounts: ${accounts}`);
+  const txns = await prisma.transaction.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 10
+  });
+
+  console.log(`Found ${txns.length} transactions`);
+  for (const t of txns) {
+    console.log(`Desc: ${t.description}`);
+    console.log(`Amt: ${t.amount}, Date: ${t.date}, Type: ${t.type}, Ref: ${t.referenceId}`);
+    console.log(`Hash in DB: ${t.hash}`);
+    console.log('----------------');
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch(console.error).finally(() => prisma.$disconnect());
