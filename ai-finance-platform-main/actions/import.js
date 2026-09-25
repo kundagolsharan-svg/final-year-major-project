@@ -213,11 +213,20 @@ function normalizeDescription(desc) {
     .trim();
 }
 
-function computeTransactionHash(userId, date, amount, description) {
+function computeTransactionHash(userId, date, amount, description, type) {
   const dateStr = new Date(date).toISOString().split("T")[0];
   const amtStr = Number(amount).toFixed(2);
-  const normDesc = String(description || "").toLowerCase().trim().substring(0, 50);
-  const raw = `${userId}|${dateStr}|${amtStr}|${normDesc}`;
+  const typeStr = type || "EXPENSE";
+  
+  // Extract the first alphanumeric word to make the hash robust against LLM variations
+  const words = String(description || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim()
+    .split(/\s+/);
+  const firstWord = words.length > 0 && words[0] ? words[0].substring(0, 8) : "txn";
+
+  const raw = `${userId}|${dateStr}|${amtStr}|${typeStr}|${firstWord}`;
   return crypto.createHash("sha256").update(raw).digest("hex");
 }
 
@@ -287,16 +296,20 @@ export async function importTransactions(formData) {
       const amount = parseFloat(t.amount);
       const description = t.description ? String(t.description).trim() : "Transaction";
       
-      const hash = computeTransactionHash(user.id, date, amount, description);
+      let baseHash = computeTransactionHash(user.id, date, amount, description, type);
 
-      if (incomingHashes.has(hash)) {
-        continue; // Skip duplicates within the same file
+      // Handle legitimate identical transactions in the same statement (e.g., two ₹150 Uber rides on same day)
+      let finalHash = baseHash;
+      let counter = 1;
+      while (incomingHashes.has(finalHash)) {
+        finalHash = `${baseHash}-${counter}`;
+        counter++;
       }
-      incomingHashes.add(hash);
+      incomingHashes.add(finalHash);
 
       newTransactionsToInsert.push({
         ...t,
-        hash,
+        hash: finalHash,
         amount,
         type,
         date,
@@ -671,7 +684,7 @@ async function mapDataToTransactions(data) {
            CRITICAL: Do NOT multiply or divide by 100. Read exact numbers. 
            "500.00" -> 500, "1,500.00" -> 1500, "50" -> 50.
          - "date": ISO date string (YYYY-MM-DD, e.g. "2024-03-15"). Parse dates accurately from any format like DD/MM/YYYY, DD-Mon-YYYY, etc.
-         - "description": merchant name or transaction summary (e.g. "Swiggy Bangalore", "Amazon India", "Chai Point", "HPCL Petrol Pump", "Netflix Subscription").
+         - "description": EXACT raw transaction description text from the statement. Do NOT summarize or invent merchant names. Copy it word-for-word.
          - "type": "EXPENSE" for debits, payments, purchases, ATM withdrawals, fees, or negative values. "INCOME" for deposits, salary, credits, refunds, interest, or "CR".
          - "category": one of: "food", "shopping", "groceries", "transportation", "utilities", "entertainment", "healthcare", "education", "travel", "housing", "insurance", "other-expense", "income".
            - Cold drinks, juices, cafe, tea, restaurants, Swiggy, Zomato -> "food"
