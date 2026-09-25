@@ -9,6 +9,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from "fram
 import { DemoModal } from "@/components/demo-modal";
 import { RobotMascot } from "@/components/robot-mascot";
 import { ParticleNetwork } from "@/components/particle-network";
+import { CinematicBackground } from "@/components/cinematic-background";
 
 const HeroSection = () => {
   const containerRef = useRef(null);
@@ -44,11 +45,11 @@ const HeroSection = () => {
     const rect = containerRef.current.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
-    
+
     // Relative position (-0.5 to 0.5)
     const xPct = (e.clientX - rect.left) / width - 0.5;
     const yPct = (e.clientY - rect.top) / height - 0.5;
-    
+
     mouseX.set(xPct);
     mouseY.set(yPct);
   };
@@ -61,12 +62,14 @@ const HeroSection = () => {
 
 
   return (
-    <section 
+    <section
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-16 px-4 overflow-hidden bg-slate-50 dark:bg-[#030308] transition-colors duration-500 [perspective:1500px]"
     >
+      <CinematicBackground />
+      
       {/* ── 1. Animated Grid Floor ── */}
       <div className="absolute inset-0 z-0 flex items-end justify-center pointer-events-none [perspective:1200px] overflow-hidden">
         <motion.div
@@ -117,7 +120,7 @@ const HeroSection = () => {
       >
         {/* Floating AI Robot Mascot */}
         <RobotMascot />
-        
+
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -141,7 +144,7 @@ const HeroSection = () => {
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
             className="text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] pb-4 text-slate-900 dark:text-white"
           >
-            <motion.span 
+            <motion.span
               animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               style={{
@@ -155,7 +158,7 @@ const HeroSection = () => {
             <br />
             <span className="drop-shadow-xl text-slate-900 dark:text-white">Financial Advisor</span>
           </motion.h1>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,7 +166,7 @@ const HeroSection = () => {
             style={{ transform: "translateZ(30px)" }}
             className="mt-6 text-xl text-slate-600 dark:text-indigo-200/80 max-w-2xl mx-auto leading-relaxed font-medium"
           >
-            Smartly manage your expenses, track bills, and plan savings with 
+            Smartly manage your expenses, track bills, and plan savings with
             the intelligence of SAMPAT. Get personalized insights that matter.
           </motion.p>
         </div>
@@ -211,9 +214,9 @@ const HeroSection = () => {
       >
         <motion.div
           ref={imageRef}
-          style={{ 
-            rotateX: imageRotateX, 
-            rotateY: imageRotateY, 
+          style={{
+            rotateX: imageRotateX,
+            rotateY: imageRotateY,
             y: scrollImageY,
             transformStyle: "preserve-3d"
           }}
@@ -221,7 +224,7 @@ const HeroSection = () => {
         >
           {/* Subtle reflection overlay */}
           <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent z-10 pointer-events-none rounded-[2rem]" />
-          
+
           <div className="rounded-2xl overflow-hidden relative z-20" style={{ transform: "translateZ(20px)" }}>
             <Image
               src="/hero-banner.jpg"

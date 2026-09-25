@@ -5,15 +5,39 @@ import { NextResponse } from "next/server";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 
 async function getWorkingOllamaUrl() {
-  const urls = [OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"];
+  const isVercel = !!process.env.VERCEL;
+  let urls = [];
+  if (isVercel) {
+    urls = [OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"].filter(Boolean);
+  } else {
+    urls = ["http://127.0.0.1:11434", "http://localhost:11434", OLLAMA_URL].filter(Boolean);
+  }
+  if (process.env.OLLAMA_API_KEY && !urls.includes("https://ollama.com")) {
+    urls.push("https://ollama.com");
+  }
   for (const url of [...new Set(urls)]) {
     try {
-      const res = await fetch(`${url}/api/tags`, { signal: AbortSignal.timeout(3000) });
+      const headers = {
+        "Bypass-Tunnel-Reminder": "true",
+        "User-Agent": "sampat-server"
+      };
+      if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
+        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
+      }
+      const res = await fetch(`${url}/api/tags`, { 
+        headers,
+        signal: AbortSignal.timeout(5000) 
+      });
       if (res.ok) {
         const data = await res.json();
         if (data.models?.length > 0) return { url, models: data.models.map(m => m.name) };
       }
     } catch {}
+  }
+
+  if (process.env.OLLAMA_API_KEY) {
+    const cloudUrl = OLLAMA_URL || "https://ollama.com";
+    return { url: cloudUrl, models: ["llama3.2"] };
   }
   return null;
 }
@@ -111,9 +135,18 @@ ${context}`;
 
     console.log(`[Stream Chat] Using ${modelName} on ${ollamaInfo.url}`);
 
+    const headers = { 
+      "Content-Type": "application/json",
+      "Bypass-Tunnel-Reminder": "true",
+      "User-Agent": "sampat-server"
+    };
+    if (process.env.OLLAMA_API_KEY && !ollamaInfo.url.includes("127.0.0.1") && !ollamaInfo.url.includes("localhost")) {
+      headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
+    }
+
     const ollamaRes = await fetch(`${ollamaInfo.url}/api/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ model: modelName, messages: ollamaMessages, stream: true }),
     });
 

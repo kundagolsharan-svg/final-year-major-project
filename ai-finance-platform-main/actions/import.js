@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import Papa from "papaparse";
 import { generateWithFallback } from "@/lib/ollama";
 import crypto from "crypto";
+import { checkBudgetAlert } from "./budget";
+import { inngest } from "@/lib/inngest/client";
 
 async function parsePdf(buffer) {
   try {
@@ -384,6 +386,22 @@ export async function importTransactions(formData) {
         data: { balance: { increment: totalBalanceDelta } },
       }),
     ]);
+
+    // Trigger budget check synchronously to ensure the email is sent if no background worker is configured
+    try {
+      await checkBudgetAlert(user.id);
+    } catch (budgetError) {
+      console.error("Failed to start budget check after import:", budgetError);
+    }
+
+    try {
+      await inngest.send({
+        name: "budget.check",
+        data: { userId: user.id },
+      });
+    } catch (inngestError) {
+      console.error("Failed to trigger budget check (Inngest) after import:", inngestError);
+    }
 
     // Revalidate relevant pages for instant real-time UI updates
     revalidatePath("/dashboard");

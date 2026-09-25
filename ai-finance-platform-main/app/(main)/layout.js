@@ -20,6 +20,7 @@ import {
   X,
   Search,
   ChevronDown,
+  ChevronLeft,
   Rocket,
   MessageSquare,
   TrendingUp,
@@ -48,28 +49,50 @@ const menuItems = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-function SidebarContent({ pathname, onClose }) {
+function SidebarContent({ pathname, onClose, isCollapsed, setIsCollapsed }) {
   return (
     <>
       {/* Logo */}
-      <div className="h-16 flex items-center px-5 border-b border-slate-200 dark:border-slate-800/80 shrink-0">
+      <div className={cn(
+        "h-16 flex items-center border-b border-slate-200 dark:border-slate-800/80 shrink-0 overflow-hidden",
+        isCollapsed ? "justify-center px-0" : "px-5 justify-between"
+      )}>
         <Link
           href="/dashboard"
           onClick={onClose}
-          className="flex items-center gap-2.5"
+          className="flex items-center gap-2.5 shrink-0"
         >
-          <div className="bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] p-1.5 rounded-lg text-white shadow-lg shadow-indigo-500/20">
+          <div className="bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] p-1.5 rounded-lg text-white shadow-lg shadow-indigo-500/20 shrink-0">
             <Sparkles size={16} className="animate-pulse" />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wide">
-              SAMPAT
-            </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-              AI Finance Manager
-            </span>
-          </div>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              className="flex flex-col leading-none"
+            >
+              <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-wide">
+                SAMPAT
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                AI Finance Manager
+              </span>
+            </motion.div>
+          )}
         </Link>
+        {!isCollapsed && setIsCollapsed && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setIsCollapsed(true);
+            }}
+            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            <ChevronLeft size={16} />
+          </button>
+        )}
       </div>
 
       {/* Nav Items */}
@@ -100,7 +123,7 @@ function SidebarContent({ pathname, onClose }) {
                 hidden: { opacity: 0, x: -20 },
                 show: { opacity: 1, x: 0 }
               }}
-              whileHover={{ x: 4 }}
+              whileHover={{ x: isCollapsed ? 0 : 4 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <Link
@@ -108,7 +131,8 @@ function SidebarContent({ pathname, onClose }) {
                 prefetch={true}
                 onClick={onClose}
                 className={cn(
-                  "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14.5px] font-semibold transition-all duration-200 group relative",
+                  "flex items-center rounded-xl text-[14.5px] font-semibold transition-all duration-200 group relative",
+                  isCollapsed ? "justify-center p-3" : "gap-3 px-3.5 py-2.5",
                   isActive
                     ? "text-[#3B82F6] dark:text-indigo-400 font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -124,13 +148,21 @@ function SidebarContent({ pathname, onClose }) {
                 <item.icon
                   size={18}
                   className={cn(
-                    "relative z-10 transition-colors duration-200",
+                    "relative z-10 transition-colors duration-200 shrink-0",
                     isActive
                       ? "text-[#3B82F6] dark:text-indigo-400"
                       : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                   )}
                 />
-                <span className="relative z-10">{item.name}</span>
+                {!isCollapsed && (
+                  <motion.span 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="relative z-10 whitespace-nowrap"
+                  >
+                    {item.name}
+                  </motion.span>
+                )}
               </Link>
             </motion.div>
           );
@@ -142,43 +174,54 @@ function SidebarContent({ pathname, onClose }) {
             hidden: { opacity: 0, x: -20 },
             show: { opacity: 1, x: 0 }
           }}
-          whileHover={{ x: 4 }}
+          whileHover={{ x: isCollapsed ? 0 : 4 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 mt-1"
+            className={cn(
+              "flex items-center rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-all duration-200 mt-1",
+              isCollapsed ? "justify-center p-3" : "gap-3 px-3 py-2.5"
+            )}
           >
-            <LogOut size={17} className="text-slate-500 dark:text-slate-400" />
-            Logout
+            <LogOut size={17} className="text-slate-500 dark:text-slate-400 shrink-0" />
+            {!isCollapsed && <span className="whitespace-nowrap">Logout</span>}
           </Link>
         </motion.div>
       </motion.nav>
 
       {/* Upgrade to Pro Card */}
-      <div className="p-3 shrink-0">
-        <div className="relative bg-gradient-to-br from-indigo-50 to-slate-100 dark:from-[#1A1F3A] dark:to-[#0F172A] border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 overflow-hidden">
-          {/* glow blobs */}
-          <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-xl" />
-          <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-xl" />
-
-          {/* rocket icon */}
-          <div className="relative z-10 flex justify-center mb-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-indigo-500/30">
-              <Rocket size={20} className="text-white" />
+      <div className="p-3 shrink-0 overflow-hidden">
+        {isCollapsed ? (
+          <div className="flex justify-center py-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-indigo-500/30 cursor-pointer shrink-0">
+              <Rocket size={18} className="text-white" />
             </div>
           </div>
+        ) : (
+          <div className="relative bg-gradient-to-br from-indigo-50 to-slate-100 dark:from-[#1A1F3A] dark:to-[#0F172A] border border-indigo-100 dark:border-indigo-500/20 rounded-2xl p-4 overflow-hidden">
+            {/* glow blobs */}
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-xl" />
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-xl" />
 
-          <p className="relative z-10 text-sm font-black text-slate-900 dark:text-white text-center mb-1">
-            Upgrade to Pro
-          </p>
-          <p className="relative z-10 text-xs text-slate-500 dark:text-slate-400 text-center mb-3 leading-relaxed">
-            Unlock advanced analytics, AI reports and more insights.
-          </p>
-          <button className="relative z-10 w-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white text-xs font-bold py-2 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20" suppressHydrationWarning>
-            Upgrade Now
-          </button>
-        </div>
+            {/* rocket icon */}
+            <div className="relative z-10 flex justify-center mb-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#3B82F6] to-[#8B5CF6] flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <Rocket size={20} className="text-white" />
+              </div>
+            </div>
+
+            <p className="relative z-10 text-sm font-black text-slate-900 dark:text-white text-center mb-1">
+              Upgrade to Pro
+            </p>
+            <p className="relative z-10 text-xs text-slate-500 dark:text-slate-400 text-center mb-3 leading-relaxed">
+              Unlock advanced analytics, AI reports and more insights.
+            </p>
+            <button className="relative z-10 w-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white text-xs font-bold py-2 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20" suppressHydrationWarning>
+              Upgrade Now
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
@@ -188,6 +231,7 @@ export default function MainLayout({ children }) {
   const pathname = usePathname();
   const { user } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -209,9 +253,24 @@ export default function MainLayout({ children }) {
   return (
     <div className="bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-100 min-h-screen flex overflow-hidden font-sans transition-colors duration-500">
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex flex-col w-56 bg-white dark:bg-[#0a0a0f] border-r border-slate-200 dark:border-slate-800/60 shrink-0 transition-colors duration-500">
-        <SidebarContent pathname={pathname} onClose={undefined} />
-      </aside>
+      <motion.aside 
+        animate={{ width: isCollapsed ? 76 : 224 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        onClick={() => {
+          if (isCollapsed) setIsCollapsed(false);
+        }}
+        className={cn(
+          "hidden lg:flex flex-col bg-white dark:bg-[#0a0a0f] border-r border-slate-200 dark:border-slate-800/60 shrink-0 transition-colors duration-500 overflow-hidden relative select-none",
+          isCollapsed && "cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-900/10"
+        )}
+      >
+        <SidebarContent 
+          pathname={pathname} 
+          onClose={undefined} 
+          isCollapsed={isCollapsed} 
+          setIsCollapsed={setIsCollapsed} 
+        />
+      </motion.aside>
 
       {/* ── Mobile Sidebar Overlay ── */}
       <AnimatePresence>
@@ -243,6 +302,8 @@ export default function MainLayout({ children }) {
               <SidebarContent
                 pathname={pathname}
                 onClose={() => setSidebarOpen(false)}
+                isCollapsed={false}
+                setIsCollapsed={undefined}
               />
             </motion.aside>
           </>

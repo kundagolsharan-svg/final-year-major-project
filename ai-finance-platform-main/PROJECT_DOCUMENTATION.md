@@ -181,7 +181,7 @@ SAMPAT is built on a robust, modern JavaScript/TypeScript ecosystem, optimized f
 - **Cryptographic Duplicate Detection**: Uses SHA-256 hashing to ensure identical transactions from multiple uploads are never logged twice.
 - **System Logs**: Track and monitor user login and logout activities within the settings.
 
-### 🤖 AI-Powered Intelligence (Gemini)
+### 🤖 AI-Powered Intelligence
 - **Smart Categorization**: Transactions are automatically mapped to standard tax categories using Gemini's natural language understanding.
 - **Behavioral Analyzer**: Generates personalized feedback on spending habits and cash flow.
 - **Conversational Chatbot**: An integrated AI assistant that can answer questions about the user's specific financial data and provide data-backed advice.

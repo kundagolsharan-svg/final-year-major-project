@@ -9,14 +9,21 @@ const isProtectedRoute = createRouteMatcher([
 
 // Create base Clerk middleware
 const clerk = clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
+  try {
+    const { userId, redirectToSignIn } = await auth();
 
-  if (!userId && isProtectedRoute(req)) {
-    const { redirectToSignIn } = await auth();
-    return redirectToSignIn();
+    if (!userId && isProtectedRoute(req)) {
+      return redirectToSignIn();
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    // Check if this is a Next.js redirect error (thrown by Clerk's redirectToSignIn) and re-throw it
+    if (error instanceof Error && (error.message === "NEXT_REDIRECT" || error.digest?.startsWith("NEXT_REDIRECT"))) {
+      throw error;
+    }
+    return new NextResponse("Middleware Error: " + error.message, { status: 500 });
   }
-
-  return NextResponse.next();
 });
 
 export default clerk;

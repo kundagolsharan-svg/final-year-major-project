@@ -3,21 +3,41 @@
  * Works locally via Ollama, and automatically falls back to FREE Google Gemini when deployed to Vercel/Render.
  */
 
-import { generateWithFallback as geminiGenerate } from "@/lib/gemini";
-
 let workingOllamaUrl = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 
-// Fetches the list of installed models from local Ollama
+// Fetches the list of installed models from local Ollama or Ollama Cloud
 async function getInstalledModels() {
-  const urlsToTry = [process.env.OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"].filter(Boolean);
+  const isVercel = !!process.env.VERCEL;
+  
+  let urlsToTry = [];
+  if (isVercel) {
+    urlsToTry = [process.env.OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"].filter(Boolean);
+  } else {
+    urlsToTry = ["http://127.0.0.1:11434", "http://localhost:11434", process.env.OLLAMA_URL].filter(Boolean);
+  }
+  
+  if (process.env.OLLAMA_API_KEY && !urlsToTry.includes("https://ollama.com")) {
+    urlsToTry.push("https://ollama.com");
+  }
+  
   const uniqueUrls = [...new Set(urlsToTry)];
 
   for (const url of uniqueUrls) {
     try {
+      const headers = { 
+        "Content-Type": "application/json",
+        "Bypass-Tunnel-Reminder": "true",
+        "User-Agent": "sampat-server"
+      };
+      
+      if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
+        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
+      }
+
       const response = await fetch(`${url}/api/tags`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(3000),
+        headers,
+        signal: AbortSignal.timeout(10000),
       });
       
       if (response.ok) {
@@ -34,6 +54,14 @@ async function getInstalledModels() {
     }
   }
   
+  // If we have an OLLAMA_API_KEY, assume we are connecting to Ollama Cloud
+  if (process.env.OLLAMA_API_KEY) {
+    const cloudUrl = process.env.OLLAMA_URL || "https://ollama.com";
+    workingOllamaUrl = cloudUrl;
+    console.log(`[Ollama AI] Using Ollama Cloud fallback model 'llama3.2' at ${cloudUrl}`);
+    return ["llama3.2"];
+  }
+
   console.warn(`[Ollama AI] Exhausted all local URLs. Ollama appears to be offline or no models are installed.`);
   return [];
 }
@@ -61,7 +89,7 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
   const installedModels = await getInstalledModels();
   
   if (installedModels.length === 0) {
-    throw new Error("Local Ollama not detected or no models installed. Please ensure Ollama is running.");
+    throw new Error("No Ollama models detected. Please ensure Ollama is running or OLLAMA_API_KEY is configured.");
   }
 
 
@@ -101,9 +129,18 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
       if (base64Images.length > 0) requestBody.images = base64Images;
       if (format) requestBody.format = format;
 
+      const headers = { 
+        "Content-Type": "application/json",
+        "Bypass-Tunnel-Reminder": "true",
+        "User-Agent": "sampat-server"
+      };
+      if (process.env.OLLAMA_API_KEY && !workingOllamaUrl.includes("127.0.0.1") && !workingOllamaUrl.includes("localhost")) {
+        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
+      }
+
       const response = await fetch(`${workingOllamaUrl}/api/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(requestBody)
         // Removed timeout to allow slow local models to complete
       });
@@ -131,9 +168,9 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
     }
   }
 
-  // If local Ollama failed, do not fall back to Gemini per user request
-  console.log("[AI Engine] Local Ollama models failed. Gemini fallback is disabled.");
-  throw new Error("All local Ollama models failed to generate a response. Please check Ollama logs.");
+  // If Ollama failed, throw a descriptive error
+  console.log("[AI Engine] Ollama models failed.");
+  throw new Error(`All Ollama models failed to generate a response. Details: ${errors.join(" | ")}`);
 }
 
 /**
@@ -142,7 +179,7 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
 export async function streamWithFallback(messages, modelOverride = null) {
   const installedModels = await getInstalledModels();
   if (installedModels.length === 0) {
-    throw new Error("Ollama is not running locally.");
+    throw new Error("Ollama is not running. Please ensure Ollama is active or OLLAMA_API_KEY is configured.");
   }
   
   let ollamaMessages = messages.map(m => ({
@@ -152,9 +189,18 @@ export async function streamWithFallback(messages, modelOverride = null) {
 
   const modelName = modelOverride || installedModels.find(m => m.includes("llama3")) || installedModels[0];
 
+  const headers = { 
+    "Content-Type": "application/json",
+    "Bypass-Tunnel-Reminder": "true",
+    "User-Agent": "sampat-server"
+  };
+  if (process.env.OLLAMA_API_KEY && !workingOllamaUrl.includes("127.0.0.1") && !workingOllamaUrl.includes("localhost")) {
+    headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
+  }
+
   const response = await fetch(`${workingOllamaUrl}/api/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       model: modelName,
       messages: ollamaMessages,

@@ -145,12 +145,12 @@ export async function getFinancialHealthScore() {
     const user = await getAuthUser();
     if (!user) throw new Error("Unauthorized");
 
-    const defaultAccount = await db.account.findFirst({
-      where: { userId: user.id, isDefault: true },
+    const accounts = await db.account.findMany({
+      where: { userId: user.id },
     });
 
-    if (!defaultAccount) {
-      return { score: 0, status: "Unknown", description: "No default account found" };
+    if (accounts.length === 0) {
+      return { score: 0, status: "Unknown", description: "No accounts found" };
     }
 
     const thirtyDaysAgo = new Date();
@@ -158,7 +158,7 @@ export async function getFinancialHealthScore() {
 
     const transactions = await db.transaction.findMany({
       where: {
-        accountId: defaultAccount.id,
+        userId: user.id,
         date: { gte: thirtyDaysAgo },
       },
     });
@@ -175,7 +175,7 @@ export async function getFinancialHealthScore() {
       }
     }
 
-    const balance = defaultAccount.balance.toNumber();
+    const balance = accounts.reduce((sum, acc) => sum + acc.balance.toNumber(), 0);
     let score = 50; // base score
 
     // Savings Rate (up to 25 points)

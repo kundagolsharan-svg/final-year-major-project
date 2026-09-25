@@ -12,6 +12,11 @@ import Link from "next/link";
 import { Star, ArrowRight, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { SpotlightCard } from "@/components/spotlight-card";
+import { MethodologyPipeline } from "@/components/methodology-pipeline";
+import { LandingSecurity } from "@/components/landing-security";
+import { LandingAIDemo } from "@/components/landing-ai-demo";
+import { LandingFAQ } from "@/components/landing-faq";
+import { AutoScrollShowcase } from "@/components/auto-scroll-showcase";
 
 const LandingPage = () => {
   // Stagger variants for grid items
@@ -36,8 +41,9 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#030308] transition-colors duration-500 overflow-hidden selection:bg-indigo-500/30">
-      
+    <div className="min-h-screen bg-slate-50 dark:bg-[#050510] font-sans selection:bg-indigo-500/30">
+      <AutoScrollShowcase />
+
       {/* Hero */}
       <HeroSection />
 
@@ -140,6 +146,12 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Methodology Pipeline - 3D 8-Stage Component */}
+      <MethodologyPipeline />
+
+      <LandingSecurity />
+      <LandingAIDemo />
+
       {/* How It Works - Glowing Connectors */}
       <section className="py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-slate-200/50 dark:bg-black/50 [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)] -z-10" />
@@ -201,6 +213,7 @@ const LandingPage = () => {
         </div>
       </section>
 
+      <LandingFAQ />
 
       {/* CTA - The Final 3D Pop */}
       <section className="py-32 relative overflow-hidden">

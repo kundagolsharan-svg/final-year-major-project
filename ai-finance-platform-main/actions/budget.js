@@ -259,7 +259,6 @@ export async function checkBudgetAlert(userId) {
     const expenses = await db.transaction.aggregate({
       where: {
         userId,
-        accountId: defaultAccount.id,
         type: "EXPENSE",
         date: { gte: startDate },
       },
