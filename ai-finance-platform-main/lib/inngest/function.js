@@ -284,7 +284,6 @@ export const checkBudgetAlerts = inngest.createFunction(
       const expenses = await db.transaction.aggregate({
         where: {
           userId,
-          accountId: defaultAccount.id,
           type: "EXPENSE",
           date: { gte: startDate },
         },
