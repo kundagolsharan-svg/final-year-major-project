@@ -697,7 +697,6 @@ async function mapDataToTransactions(data) {
            "500.00" -> 500, "1,500.00" -> 1500, "50" -> 50.
          - "date": ISO date string (YYYY-MM-DD, e.g. "2024-03-15"). Parse dates accurately from any format like DD/MM/YYYY, DD-Mon-YYYY, etc.
          - "description": EXACT raw transaction description text from the statement. Do NOT summarize or invent merchant names. Copy it word-for-word.
-         - "referenceId": Explicit UTR, Reference Number, Cheque Number, or Transaction ID if it exists in the line (e.g. "UPI/31412093..."). If none exists, omit this field or return null.
          - "type": "EXPENSE" for debits, payments, purchases, ATM withdrawals, fees, or negative values. "INCOME" for deposits, salary, credits, refunds, interest, or "CR".
          - "category": one of: "food", "shopping", "groceries", "transportation", "utilities", "entertainment", "healthcare", "education", "travel", "housing", "insurance", "other-expense", "income".
            - Cold drinks, juices, cafe, tea, restaurants, Swiggy, Zomato -> "food"
