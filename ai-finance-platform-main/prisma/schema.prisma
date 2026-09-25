@@ -68,6 +68,7 @@ model Transaction {
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   taxCategory       String?
+  referenceId       String?
   hash              String?            @unique
   account           Account            @relation(fields: [accountId], references: [id], onDelete: Cascade)
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
