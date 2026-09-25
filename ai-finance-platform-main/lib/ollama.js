@@ -125,6 +125,9 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
         model: modelName,
         prompt: safePrompt,
         stream: false,
+        options: {
+          temperature: 0.0
+        }
       };
       if (base64Images.length > 0) requestBody.images = base64Images;
       if (format) requestBody.format = format;

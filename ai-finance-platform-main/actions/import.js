@@ -215,8 +215,10 @@ function normalizeDescription(desc) {
 
 function computeTransactionHash(userId, date, amount, description, type, referenceId) {
   // If we have an explicit Transaction ID / Reference No, it perfectly guarantees uniqueness.
-  if (referenceId) {
-    const rawRef = `${userId}|${String(referenceId).trim()}`;
+  // We strictly validate it to ensure the AI didn't hallucinate a generic word like "null" or "txn"
+  const cleanRef = referenceId ? String(referenceId).trim().replace(/[^a-zA-Z0-9]/g, "") : "";
+  if (cleanRef.length >= 6 && !["null", "none", "undefined"].includes(cleanRef.toLowerCase())) {
+    const rawRef = `${userId}|${cleanRef}`;
     return crypto.createHash("sha256").update(rawRef).digest("hex");
   }
 
