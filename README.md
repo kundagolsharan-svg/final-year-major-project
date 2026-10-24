@@ -1,4 +1,4 @@
-# Full Stack AI Fianace Platform with Next JS, Supabase, Tailwind, Prisma, Inngest, ArcJet, Shadcn UI Tutorial 
+# Full Stack AI Fianace Platform with Next JS, Supabase, Tailwind, Prisma, Inngest, ArcJet
 # SAPMATH (SMART AI BASED MONEY PLANNING AND ANALYTICS TOOL) Finance Platform
 
 A cutting-edge financial management platform powered by artificial intelligence, built with Next.js and modern web technologies. Manage accounts, track budgets, forecast spending, and get intelligent financial insights all in one place.
