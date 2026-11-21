@@ -109,8 +109,18 @@ This project evolved through a structured roadmap, transforming from a basic tra
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
    CLERK_SECRET_KEY=your_clerk_secret
    
-   GEMINI_API_KEY=your_gemini_key
+   OLLAMA_URL=http://127.0.0.1:11434
+   OLLAMA_MODEL=llama3.2:latest
    ```
+
+   For Vercel production, use Ollama Cloud instead of the local-only URL:
+   ```env
+   OLLAMA_URL=https://ollama.com
+   OLLAMA_MODEL=gemma4:31b
+   OLLAMA_API_KEY=your_ollama_cloud_key
+   ```
+   Add `OLLAMA_API_KEY` as a sensitive Vercel environment variable. Ollama Cloud does not provide the locally installed `llama3.2:latest` model.
+   After linking and logging in to Vercel, run `node scripts/set-env.js` to set the production URL and model, then redeploy.
 
 4. **Initialize the Database**
    Push the Prisma schema to your PostgreSQL database:

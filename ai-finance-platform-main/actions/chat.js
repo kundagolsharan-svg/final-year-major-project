@@ -2,7 +2,6 @@
 
 import { db } from "@/lib/prisma";
 import { generateWithFallback as ollamaGenerate } from "@/lib/ollama";
-import { generateWithFallback as geminiGenerate } from "@/lib/gemini";
 import { getAuthUser } from "@/lib/auth-cache";
 
 export async function getUserFinancialSummaryForChat() {
@@ -185,20 +184,18 @@ User Query: ${message}
 
 Deliver your response as SAMPAT AI:`;
 
-    // Try Ollama (which automatically falls back to Gemini if unavailable)
-    let aiResponse;
+    // Chat responses are generated only by Ollama.
     try {
-      aiResponse = await ollamaGenerate(prompt);
+      const aiResponse = await ollamaGenerate(prompt);
       console.log("[Chat] AI generation successful");
+      return { success: true, response: aiResponse };
     } catch (aiError) {
-      console.warn("[Chat] AI services failed:", aiError.message);
-      return { 
-        success: true, 
-        response: "I apologize, but my AI services are currently unavailable. If you are accessing this from another device without local AI, the cloud AI fallback (Gemini) may have reached its usage limits. If you are on the host machine, please ensure Ollama is running." 
+      console.error("[Chat] Ollama generation failed:", aiError);
+      return {
+        success: false,
+        error: aiError.message || "Ollama is unavailable. Check that the Ollama server is running.",
       };
     }
-
-    return { success: true, response: aiResponse };
   } catch (error) {
     console.error("Chat Error:", error);
     return { success: false, error: error.message || "Failed to get AI response" };

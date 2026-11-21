@@ -5,11 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const IMAGES = [
-  "/images/cyberpunk-hero.jpg",
-  "/images/nodes.jpg",
-  "/images/dashboard.jpg",
-  "/images/ai-chip.jpg",
-  "/images/goal.jpg",
+  "/images/landing-hero-bg-2k.jpg",
+  "/images/landing-hero-bg.jpg",
 ];
 
 export const CinematicBackground = () => {
@@ -45,14 +42,14 @@ export const CinematicBackground = () => {
               alt={`Cinematic Background ${currentIndex}`}
               fill
               priority={currentIndex === 0}
-              className="object-cover object-center opacity-30 dark:opacity-40"
+              className="object-cover object-center opacity-80 dark:opacity-90"
             />
           </motion.div>
         </motion.div>
       </AnimatePresence>
 
       {/* Persistent gradient overlay so text remains readable */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/80 via-slate-50/50 to-slate-50 dark:from-[#050510]/80 dark:via-[#050510]/50 dark:to-[#050510] z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 via-slate-50/10 to-slate-50/80 dark:from-[#050510]/40 dark:via-[#050510]/10 dark:to-[#050510]/70 z-10 pointer-events-none" />
     </div>
   );
 };

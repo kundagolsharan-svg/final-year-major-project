@@ -227,7 +227,7 @@ const HeroSection = () => {
 
           <div className="rounded-2xl overflow-hidden relative z-20" style={{ transform: "translateZ(20px)" }}>
             <Image
-              src="/hero-banner.jpg"
+              src="/images/landing-hero-bg-2k.jpg"
               width={1280}
               height={720}
               alt="SAMPAT AI Financial Advisor"

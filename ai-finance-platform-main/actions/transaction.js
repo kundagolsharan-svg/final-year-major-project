@@ -446,7 +446,7 @@ export async function scanReceipt(file) {
       };
     } catch (parseError) {
       console.error("Error parsing JSON response:", parseError);
-      throw new Error("Invalid response format from Gemini");
+      throw new Error("Invalid response format from Ollama");
     }
   } catch (error) {
     console.error("Error scanning receipt:", error);

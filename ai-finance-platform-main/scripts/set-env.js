@@ -1,5 +1,17 @@
 const { execFileSync } = require('child_process');
 
-console.log("Setting OLLAMA_URL...");
-execFileSync('npx.cmd', ['vercel', 'env', 'add', 'OLLAMA_URL', 'production,preview', '--value', 'https://wide-zoos-feel.loca.lt', '--force', '--yes'], { stdio: 'inherit' });
-console.log("Done!");
+const productionVariables = [
+  ["OLLAMA_URL", "https://ollama.com"],
+  ["OLLAMA_MODEL", "gemma4:31b"],
+];
+
+for (const [name, value] of productionVariables) {
+  console.log(`Setting ${name} for Vercel production...`);
+  execFileSync(
+    "npx.cmd",
+    ["vercel", "env", "add", name, "production", "--value", value, "--force", "--yes"],
+    { stdio: "inherit" }
+  );
+}
+
+console.log("Set OLLAMA_API_KEY separately as a sensitive Vercel environment variable.");
