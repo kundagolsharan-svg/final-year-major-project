@@ -1,19 +1,23 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import {
+  assertOllamaUrlIsReachableFromVercel,
+  getOllamaBaseUrl,
+  OLLAMA_CLOUD_URL,
+  selectOllamaModel,
+} from "@/lib/ollama";
 
-const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+const OLLAMA_URL = getOllamaBaseUrl();
 
 async function getWorkingOllamaUrl() {
-  const isVercel = !!process.env.VERCEL;
-  let urls = [];
-  if (isVercel) {
-    urls = [OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"].filter(Boolean);
-  } else {
-    urls = ["http://127.0.0.1:11434", "http://localhost:11434", OLLAMA_URL].filter(Boolean);
-  }
-  if (process.env.OLLAMA_API_KEY && !urls.includes("https://ollama.com")) {
-    urls.push("https://ollama.com");
+  assertOllamaUrlIsReachableFromVercel(OLLAMA_URL);
+
+  const urls = process.env.VERCEL
+    ? [OLLAMA_URL]
+    : [OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"];
+  if (process.env.OLLAMA_API_KEY && !urls.includes(OLLAMA_CLOUD_URL)) {
+    urls.push(OLLAMA_CLOUD_URL);
   }
   for (const url of [...new Set(urls)]) {
     try {
@@ -35,10 +39,6 @@ async function getWorkingOllamaUrl() {
     } catch {}
   }
 
-  if (process.env.OLLAMA_API_KEY) {
-    const cloudUrl = OLLAMA_URL || "https://ollama.com";
-    return { url: cloudUrl, models: ["llama3.2"] };
-  }
   return null;
 }
 
@@ -122,16 +122,7 @@ ${context}`;
       return NextResponse.json({ error: "Ollama is not running. Please start Ollama." }, { status: 503 });
     }
 
-    const preferredModels = ["llama3.2", "llama3", "mistral", "gemma", "qwen", "phi3"];
-    const sortedModels = ollamaInfo.models.sort((a, b) => {
-      const aPref = preferredModels.findIndex(p => a.includes(p));
-      const bPref = preferredModels.findIndex(p => b.includes(p));
-      if (aPref !== -1 && bPref !== -1) return aPref - bPref;
-      if (aPref !== -1) return -1;
-      if (bPref !== -1) return 1;
-      return 0;
-    });
-    const modelName = sortedModels[0];
+    const modelName = selectOllamaModel(ollamaInfo.models, ollamaInfo.url);
 
     console.log(`[Stream Chat] Using ${modelName} on ${ollamaInfo.url}`);
 
@@ -144,7 +135,7 @@ ${context}`;
       headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
     }
 
-    const ollamaRes = await fetch(`${ollamaInfo.url}/api/chat`, {
+    const ollamaRes = await fetch(`${ollamaInfo.url.replace(/\/+$/, "")}/api/chat`, {
       method: "POST",
       headers,
       body: JSON.stringify({ model: modelName, messages: ollamaMessages, stream: true }),

@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import {
+  assertOllamaUrlIsReachableFromVercel,
+  getOllamaBaseUrl,
+} from "@/lib/ollama";
 
 export async function GET() {
-  const url = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
+  const url = getOllamaBaseUrl();
   try {
+    assertOllamaUrlIsReachableFromVercel(url);
     const headers = {
       "Content-Type": "application/json",
       "Bypass-Tunnel-Reminder": "true",
@@ -24,6 +29,6 @@ export async function GET() {
       return NextResponse.json({ success: false, url, status: res.status, text: await res.text() }, { status: 500 });
     }
   } catch (err) {
-    return NextResponse.json({ success: false, url, error: err.message, stack: err.stack }, { status: 500 });
+    return NextResponse.json({ success: false, url, error: err.message }, { status: 500 });
   }
 }
