@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "tunnel:sync": "node scripts/sync-tunnel.js",
     "email": "email dev",
     "postinstall": "prisma generate && node scripts/patch-inngest.js"
   },

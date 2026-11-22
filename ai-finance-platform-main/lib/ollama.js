@@ -1,13 +1,12 @@
 /**
- * Local Ollama AI Interface — llama3.2:latest
- * Connects to local Ollama server at http://127.0.0.1:11434
- * No Gemini fallback: Ollama is required.
+ * Local Ollama AI Interface
+ * Connects directly to Ollama via local URL or public tunnel (e.g. Cloudflare Tunnel).
+ * Exclusively uses Ollama — no Google Gemini.
  */
 
 const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434";
-export const OLLAMA_CLOUD_URL = "https://ollama.com";
 
-function isLoopbackOllamaUrl(url) {
+export function isLoopbackOllamaUrl(url) {
   try {
     const hostname = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, "");
     return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
@@ -17,14 +16,7 @@ function isLoopbackOllamaUrl(url) {
 }
 
 export function getOllamaBaseUrl() {
-  const configuredUrl = (process.env.OLLAMA_URL || "").trim().replace(/\/+$/, "");
-  if (
-    process.env.VERCEL &&
-    process.env.OLLAMA_API_KEY &&
-    (!configuredUrl || isLoopbackOllamaUrl(configuredUrl))
-  ) {
-    return OLLAMA_CLOUD_URL;
-  }
+  const configuredUrl = (process.env.OLLAMA_URL || process.env.ollama_url || "").trim().replace(/\/+$/, "");
   return configuredUrl || DEFAULT_OLLAMA_URL;
 }
 
@@ -35,44 +27,35 @@ export function assertOllamaUrlIsReachableFromVercel(url) {
 
   if (isLoopbackOllamaUrl(url)) {
     throw new Error(
-      "OLLAMA_URL points to localhost, which Vercel cannot access. Set OLLAMA_API_KEY to use Ollama Cloud or configure a reachable Ollama server."
+      "OLLAMA_URL on Vercel is set to localhost, which Vercel cannot reach. Set OLLAMA_URL to your public tunnel URL (e.g. from `npm run tunnel:sync`)."
     );
-  }
-}
-
-function isOllamaCloudUrl(url) {
-  try {
-    return new URL(url).hostname === "ollama.com";
-  } catch {
-    return false;
   }
 }
 
 export function selectOllamaModel(models, url = workingOllamaUrl, modelOverride = "") {
+  if (!models || models.length === 0) return "llama3.2:latest";
+
   const configuredModel =
     modelOverride.trim() ||
     (process.env.OLLAMA_MODEL || "").trim() ||
-    (isOllamaCloudUrl(url) ? "gemma4:31b" : "");
+    "llama3.2";
+
   const configuredMatch = models.find(
     model => model === configuredModel || model.startsWith(`${configuredModel}:`)
   );
-
-  if (configuredModel && !configuredMatch && isOllamaCloudUrl(url)) {
-    throw new Error(
-      `OLLAMA_MODEL "${configuredModel}" is not available in Ollama Cloud. Set OLLAMA_MODEL to gemma4:31b or another model from Ollama's cloud catalog.`
-    );
-  }
   if (configuredMatch) return configuredMatch;
 
   const preferredModels = ["llama3.2", "llama3", "mistral", "gemma", "qwen", "phi3"];
-  return [...models].sort((a, b) => {
+  const sorted = [...models].sort((a, b) => {
     const aPref = preferredModels.findIndex(preferred => a.includes(preferred));
     const bPref = preferredModels.findIndex(preferred => b.includes(preferred));
     if (aPref !== -1 && bPref !== -1) return aPref - bPref;
     if (aPref !== -1) return -1;
     if (bPref !== -1) return 1;
     return 0;
-  })[0];
+  });
+
+  return sorted[0] || models[0];
 }
 
 // Fetches the list of models from the configured Ollama server.
@@ -81,27 +64,21 @@ async function getInstalledModels() {
   assertOllamaUrlIsReachableFromVercel(baseUrl);
   workingOllamaUrl = baseUrl;
 
-  const urlsToTry = process.env.VERCEL
-    ? [baseUrl]
-    : [baseUrl, DEFAULT_OLLAMA_URL, "http://localhost:11434"];
-
-  if (process.env.OLLAMA_API_KEY && !urlsToTry.includes(OLLAMA_CLOUD_URL)) {
-    urlsToTry.push(OLLAMA_CLOUD_URL);
+  const urlsToTry = [baseUrl];
+  if (!process.env.VERCEL) {
+    urlsToTry.push(DEFAULT_OLLAMA_URL, "http://localhost:11434");
   }
-  
-  const uniqueUrls = [...new Set(urlsToTry)];
+
+  const uniqueUrls = [...new Set(urlsToTry.filter(Boolean))];
 
   for (const url of uniqueUrls) {
+    if (process.env.VERCEL && isLoopbackOllamaUrl(url)) continue;
     try {
       const headers = { 
         "Content-Type": "application/json",
         "Bypass-Tunnel-Reminder": "true",
         "User-Agent": "sampat-server"
       };
-      
-      if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
-        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-      }
 
       const response = await fetch(`${url.replace(/\/+$/, "")}/api/tags`, {
         method: "GET",
@@ -113,7 +90,7 @@ async function getInstalledModels() {
         const data = await response.json();
         const models = data.models?.map(m => m.name) || [];
         if (models.length > 0) {
-          workingOllamaUrl = url; // Save the working URL
+          workingOllamaUrl = url;
           console.log(`[Ollama AI] Successfully connected to ${url}. Found models: ${models.join(", ")}`);
           return models;
         }
@@ -123,7 +100,7 @@ async function getInstalledModels() {
     }
   }
   
-  console.warn(`[Ollama AI] Exhausted all local URLs. Ollama appears to be offline or no models are installed.`);
+  console.warn(`[Ollama AI] Exhausted URLs. Ollama appears to be offline or unreachable on ${baseUrl}.`);
   return [];
 }
 
@@ -131,7 +108,7 @@ async function getInstalledModels() {
  * Shared helper for robust generation using Ollama only.
  */
 export async function generateWithFallback(prompt, isVision = false, format = null) {
-  console.log(`[AI Engine] >>> Processing request (Vision: ${isVision})`);
+  console.log(`[AI Engine] >>> Processing request with Ollama (Vision: ${isVision})`);
 
   let safePrompt = prompt;
   let base64Images = [];
@@ -147,13 +124,12 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
   }
 
   const installedModels = await getInstalledModels();
-  
+
   if (installedModels.length === 0) {
     throw new Error(
-      "No Ollama models were returned. Check OLLAMA_URL and, for Ollama Cloud, configure a valid OLLAMA_API_KEY."
+      `Ollama is unreachable at ${workingOllamaUrl}. Please ensure your local Ollama server and tunnel are active.`
     );
   }
-
 
   // Pre-filter models if vision is requested
   const visionSupportedModels = ["llava", "bakllava", "moondream", "gemma"];
@@ -169,7 +145,6 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
   }
 
   const preferredModel = selectOllamaModel(candidateModels);
-
   const errors = [];
 
   for (const modelName of [
@@ -187,22 +162,19 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
         }
       };
       if (base64Images.length > 0) requestBody.images = base64Images;
-      if (format && !isOllamaCloudUrl(workingOllamaUrl)) requestBody.format = format;
+      if (format) requestBody.format = format;
 
       const headers = { 
         "Content-Type": "application/json",
         "Bypass-Tunnel-Reminder": "true",
         "User-Agent": "sampat-server"
       };
-      if (process.env.OLLAMA_API_KEY && !workingOllamaUrl.includes("127.0.0.1") && !workingOllamaUrl.includes("localhost")) {
-        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-      }
 
       const response = await fetch(`${workingOllamaUrl}/api/generate`, {
         method: "POST",
         headers,
-        body: JSON.stringify(requestBody)
-        // Removed timeout to allow slow local models to complete
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(60000),
       });
 
       if (!response.ok) {
@@ -213,7 +185,7 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
       const text = data.response?.trim();
 
       if (!text) {
-        throw new Error("Received empty response from local model.");
+        throw new Error("Received empty response from local Ollama model.");
       }
 
       console.log(`[Ollama AI] <<< SUCCESS with ${modelName}`);
@@ -228,18 +200,16 @@ export async function generateWithFallback(prompt, isVision = false, format = nu
     }
   }
 
-  // All Ollama models failed — throw error (no Gemini fallback)
-  console.error("[AI Engine] All Ollama models failed.");
-  throw new Error(`All Ollama models failed. Details: ${errors.join(" | ")}`);
+  throw new Error(`All Ollama models failed on ${workingOllamaUrl}. Details: ${errors.join(" | ")}`);
 }
 
 /**
- * Streaming version helper
+ * Streaming version helper using Ollama
  */
 export async function streamWithFallback(messages, modelOverride = null) {
   const installedModels = await getInstalledModels();
   if (installedModels.length === 0) {
-    throw new Error("Ollama is not running. Please ensure Ollama is active or OLLAMA_API_KEY is configured.");
+    throw new Error(`Ollama is unreachable at ${workingOllamaUrl}. Please ensure your local Ollama server and tunnel are active.`);
   }
   
   let ollamaMessages = messages.map(m => ({
@@ -254,9 +224,6 @@ export async function streamWithFallback(messages, modelOverride = null) {
     "Bypass-Tunnel-Reminder": "true",
     "User-Agent": "sampat-server"
   };
-  if (process.env.OLLAMA_API_KEY && !workingOllamaUrl.includes("127.0.0.1") && !workingOllamaUrl.includes("localhost")) {
-    headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-  }
 
   const response = await fetch(`${workingOllamaUrl.replace(/\/+$/, "")}/api/chat`, {
     method: "POST",
@@ -265,11 +232,12 @@ export async function streamWithFallback(messages, modelOverride = null) {
       model: modelName,
       messages: ollamaMessages,
       stream: true,
-    })
+    }),
+    signal: AbortSignal.timeout(60000),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to start Ollama stream");
+    throw new Error(`Failed to start Ollama stream: HTTP ${response.status}`);
   }
 
   return response.body; 

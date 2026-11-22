@@ -4,22 +4,27 @@ import { NextResponse } from "next/server";
 import {
   assertOllamaUrlIsReachableFromVercel,
   getOllamaBaseUrl,
+  isLoopbackOllamaUrl,
   OLLAMA_CLOUD_URL,
   selectOllamaModel,
 } from "@/lib/ollama";
 
-const OLLAMA_URL = getOllamaBaseUrl();
-
 async function getWorkingOllamaUrl() {
-  assertOllamaUrlIsReachableFromVercel(OLLAMA_URL);
+  const currentBaseUrl = getOllamaBaseUrl();
+  try {
+    assertOllamaUrlIsReachableFromVercel(currentBaseUrl);
+  } catch {
+    return null;
+  }
 
   const urls = process.env.VERCEL
-    ? [OLLAMA_URL]
-    : [OLLAMA_URL, "http://127.0.0.1:11434", "http://localhost:11434"];
+    ? [currentBaseUrl]
+    : [currentBaseUrl, "http://127.0.0.1:11434", "http://localhost:11434"];
   if (process.env.OLLAMA_API_KEY && !urls.includes(OLLAMA_CLOUD_URL)) {
     urls.push(OLLAMA_CLOUD_URL);
   }
-  for (const url of [...new Set(urls)]) {
+  for (const url of [...new Set(urls.filter(Boolean))]) {
+    if (process.env.VERCEL && isLoopbackOllamaUrl(url)) continue;
     try {
       const headers = {
         "Bypass-Tunnel-Reminder": "true",
@@ -28,7 +33,7 @@ async function getWorkingOllamaUrl() {
       if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
         headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
       }
-      const res = await fetch(`${url}/api/tags`, { 
+      const res = await fetch(`${url.replace(/\/+$/, "")}/api/tags`, { 
         headers,
         signal: AbortSignal.timeout(5000) 
       });
@@ -119,7 +124,7 @@ ${context}`;
     // Find working Ollama
     const ollamaInfo = await getWorkingOllamaUrl();
     if (!ollamaInfo) {
-      return NextResponse.json({ error: "Ollama is not running. Please start Ollama." }, { status: 503 });
+      return NextResponse.json({ error: "Ollama is unreachable. Please ensure your local Ollama server and tunnel are active." }, { status: 503 });
     }
 
     const modelName = selectOllamaModel(ollamaInfo.models, ollamaInfo.url);
