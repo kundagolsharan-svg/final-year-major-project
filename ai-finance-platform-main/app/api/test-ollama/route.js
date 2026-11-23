@@ -2,21 +2,15 @@ import { NextResponse } from "next/server";
 import {
   assertOllamaUrlIsReachableFromVercel,
   getOllamaBaseUrl,
+  getOllamaHeaders,
 } from "@/lib/ollama";
 
 export async function GET() {
   const url = getOllamaBaseUrl();
   try {
     assertOllamaUrlIsReachableFromVercel(url);
-    const headers = {
-      "Content-Type": "application/json",
-      "Bypass-Tunnel-Reminder": "true",
-      "User-Agent": "sampat-server"
-    };
-    if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
-      headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-    }
-    const res = await fetch(`${url}/api/tags`, {
+    const headers = getOllamaHeaders(url);
+    const res = await fetch(`${url.replace(/\/+$/, "")}/api/tags`, {
       method: "GET",
       headers,
       signal: AbortSignal.timeout(10000)
@@ -26,9 +20,20 @@ export async function GET() {
       const data = await res.json();
       return NextResponse.json({ success: true, url, data });
     } else {
-      return NextResponse.json({ success: false, url, status: res.status, text: await res.text() }, { status: 500 });
+      return NextResponse.json({
+        success: false,
+        url,
+        status: res.status,
+        text: await res.text(),
+        hasApiKey: !!process.env.OLLAMA_API_KEY
+      }, { status: res.status >= 400 && res.status < 600 ? res.status : 500 });
     }
   } catch (err) {
-    return NextResponse.json({ success: false, url, error: err.message }, { status: 500 });
+    return NextResponse.json({
+      success: false,
+      url,
+      error: err.message,
+      hasApiKey: !!process.env.OLLAMA_API_KEY
+    }, { status: 500 });
   }
 }

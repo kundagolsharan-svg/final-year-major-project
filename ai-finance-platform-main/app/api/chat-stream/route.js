@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 import {
   assertOllamaUrlIsReachableFromVercel,
   getOllamaBaseUrl,
+  getOllamaHeaders,
   isLoopbackOllamaUrl,
+  isOllamaCloudUrl,
   OLLAMA_CLOUD_URL,
   selectOllamaModel,
 } from "@/lib/ollama";
@@ -26,13 +28,7 @@ async function getWorkingOllamaUrl() {
   for (const url of [...new Set(urls.filter(Boolean))]) {
     if (process.env.VERCEL && isLoopbackOllamaUrl(url)) continue;
     try {
-      const headers = {
-        "Bypass-Tunnel-Reminder": "true",
-        "User-Agent": "sampat-server"
-      };
-      if (process.env.OLLAMA_API_KEY && !url.includes("127.0.0.1") && !url.includes("localhost")) {
-        headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-      }
+      const headers = getOllamaHeaders(url);
       const res = await fetch(`${url.replace(/\/+$/, "")}/api/tags`, { 
         headers,
         signal: AbortSignal.timeout(5000) 
@@ -42,6 +38,13 @@ async function getWorkingOllamaUrl() {
         if (data.models?.length > 0) return { url, models: data.models.map(m => m.name) };
       }
     } catch {}
+  }
+
+  // Ollama Cloud may not expose /api/tags, so use its configured model as a fallback.
+  if (process.env.OLLAMA_API_KEY) {
+    const fallbackUrl = isOllamaCloudUrl(currentBaseUrl) ? currentBaseUrl : OLLAMA_CLOUD_URL;
+    const defaultModel = selectOllamaModel([], fallbackUrl);
+    return { url: fallbackUrl, models: [defaultModel] };
   }
 
   return null;
@@ -124,21 +127,16 @@ ${context}`;
     // Find working Ollama
     const ollamaInfo = await getWorkingOllamaUrl();
     if (!ollamaInfo) {
-      return NextResponse.json({ error: "Ollama is unreachable. Please ensure your local Ollama server and tunnel are active." }, { status: 503 });
+      return NextResponse.json({
+        error: "Ollama is unreachable. For Ollama Cloud, set OLLAMA_URL=https://ollama.com and OLLAMA_API_KEY in this deployment's environment; otherwise ensure the configured local Ollama server/tunnel is active."
+      }, { status: 503 });
     }
 
     const modelName = selectOllamaModel(ollamaInfo.models, ollamaInfo.url);
 
     console.log(`[Stream Chat] Using ${modelName} on ${ollamaInfo.url}`);
 
-    const headers = { 
-      "Content-Type": "application/json",
-      "Bypass-Tunnel-Reminder": "true",
-      "User-Agent": "sampat-server"
-    };
-    if (process.env.OLLAMA_API_KEY && !ollamaInfo.url.includes("127.0.0.1") && !ollamaInfo.url.includes("localhost")) {
-      headers["Authorization"] = `Bearer ${process.env.OLLAMA_API_KEY}`;
-    }
+    const headers = getOllamaHeaders(ollamaInfo.url);
 
     const ollamaRes = await fetch(`${ollamaInfo.url.replace(/\/+$/, "")}/api/chat`, {
       method: "POST",
@@ -147,6 +145,11 @@ ${context}`;
     });
 
     if (!ollamaRes.ok) {
+      if (ollamaRes.status === 401 && isOllamaCloudUrl(ollamaInfo.url)) {
+        throw new Error(
+          "Ollama Cloud rejected OLLAMA_API_KEY (HTTP 401). Set a valid, active API key in Vercel's server-side environment and redeploy."
+        );
+      }
       throw new Error(`Ollama returned ${ollamaRes.status}`);
     }
 

@@ -504,7 +504,7 @@ export default function ChatPage() {
 
       const result = await getChatResponse(query, historyForAI);
 
-      if (result.success) {
+      if (result?.success && result.response) {
         setMessages((prev) => [
           ...prev,
           {
@@ -515,7 +515,10 @@ export default function ChatPage() {
           },
         ]);
       } else {
-        setError(result.error || "Unable to retrieve AI response. Please try again.");
+        setError(
+          result?.error ||
+            "The AI service returned no response. Check the Ollama Cloud deployment settings and try again."
+        );
       }
     } catch (err) {
       setError(err.message || "Connection failed. Please check your network and retry.");
